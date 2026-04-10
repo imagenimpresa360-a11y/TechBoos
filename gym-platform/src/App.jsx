@@ -513,26 +513,45 @@ export default function App() {
                   </div>
               </div>
 
-              <div className="glass-card" style={{padding: '2rem'}}>
-                  <h3 style={{color: '#f59e0b', marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 800}}>2. CARGA DE CARTOLA BANCO BCI (EXCEL)</h3>
-                  <div style={{display: 'flex', gap: '1rem', alignItems: 'flex-end'}}>
-                      <div style={{flex: 2}}>
-                          <input type="file" id="file_bci" accept=".xlsx" className="form-input" style={{padding: '0.5rem'}} />
-                      </div>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem'}}>
+                  <div className="glass-card" style={{padding: '1.5rem', border: '1px solid rgba(245,158,11,0.3)'}}>
+                      <h3 style={{color: '#f59e0b', marginBottom: '1rem', fontSize: '0.95rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px'}}><Database size={18}/> 2.A CARTOLA BCI MENSUAL (Cerrada)</h3>
+                      <p style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1rem'}}>Para meses terminados (Ene, Feb, Mar). Formato oficial con saldos.</p>
+                      <input type="file" id="file_bci_mensual" accept=".xlsx" className="form-input" style={{padding: '0.4rem', fontSize: '0.8rem', marginBottom: '1rem'}} />
                       <button onClick={async () => {
-                          const fileInput = document.getElementById('file_bci');
+                          const fileInput = document.getElementById('file_bci_mensual');
                           const file = fileInput.files[0];
                           if(!file) return alert("Selecciona un archivo Excel (.xlsx)");
                           const formData = new FormData();
                           formData.append('file', file);
                           setLoading(true);
-                          const res = await fetch(`${API_BASE}/ingesta/bci`, { method: 'POST', body: formData });
+                          const res = await fetch(`${API_BASE}/ingesta/bci/mensual`, { method: 'POST', body: formData });
                           const data = await res.json();
                           setLoading(false);
                           alert(data.message);
                           fileInput.value = "";
                           fetchPool();
-                      }} className="btn-submit" style={{background: '#f59e0b'}}>PROCESAR CARTOLA BCI</button>
+                      }} className="btn-submit" style={{background: '#f59e0b', width: '100%'}}>PROCESAR CARTOLA CERRADA</button>
+                  </div>
+
+                  <div className="glass-card" style={{padding: '1.5rem', border: '1px solid rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.03)'}}>
+                      <h3 style={{color: '#818cf8', marginBottom: '1rem', fontSize: '0.95rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px'}}><Activity size={18}/> 2.B MOVIMIENTOS RECIENTES (En Curso)</h3>
+                      <p style={{fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1rem'}}>Para el mes actual (Abril). Formato r&aacute;pido exportado hoy del banco.</p>
+                      <input type="file" id="file_bci_movs" accept=".xlsx" className="form-input" style={{padding: '0.4rem', fontSize: '0.8rem', marginBottom: '1rem'}} />
+                      <button onClick={async () => {
+                          const fileInput = document.getElementById('file_bci_movs');
+                          const file = fileInput.files[0];
+                          if(!file) return alert("Selecciona un archivo Excel (.xlsx)");
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          setLoading(true);
+                          const res = await fetch(`${API_BASE}/ingesta/bci/movimientos`, { method: 'POST', body: formData });
+                          const data = await res.json();
+                          setLoading(false);
+                          alert(data.message);
+                          fileInput.value = "";
+                          fetchPool();
+                      }} className="btn-submit" style={{background: '#6366f1', width: '100%'}}>PROCESAR MOVIMIENTOS HOY</button>
                   </div>
               </div>
             </div>

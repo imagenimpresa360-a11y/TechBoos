@@ -232,75 +232,58 @@ app.post('/api/ingesta/boxmagic', upload.single('file'), async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 2. Ingesta BCI (Excel)
-app.post('/api/ingesta/bci', upload.single('file'), async (req, res) => {
+// 2. Ingesta BCI - CARTOLA MENSUAL CERRADA (Excel Formal)
+app.post('/api/ingesta/bci/mensual', upload.single('file'), async (req, res) => {
     try {
         const workbook = xlsx.readFile(req.file.path);
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
-
-        let count = 0;
-        let startIdx = -1;
-        let colFecha = 0, colDesc = 5, colMonto = 10; // Defaults basados en Enero
-
-        // Busqueda dinamica de encabezados (BCI MULTI-FORMATO)
-        for(let i=0; i<rows.length; i++) {
-            const rowStr = JSON.stringify(rows[i]).toLowerCase();
-            if(rowStr.includes('descripción') || rowStr.includes('descripcion') || rowStr.includes('movimiento') || rowStr.includes('concepto')) {
-                startIdx = i + 1;
-                rows[i].forEach((cell, idx) => {
-                    const c = String(cell).toLowerCase();
-                    if(c.includes('fecha')) colFecha = idx;
-                    if(c.includes('descrip') || c.includes('concep') || c.includes('movim') || c.includes('detalle')) colDesc = idx;
-                    if(c.includes('abono') || c.includes('depósito') || c.includes('deposito') || c.includes('crédito') || c.includes('credito') || c.includes('entrada') || c.includes('monto') || c.includes('valor')) colMonto = idx;
-                });
-                break;
-            }
-        }
-
-        if(startIdx === -1) {
-             fs.unlinkSync(req.file.path);
-             return res.status(400).json({ error: "No se encontró la cabecera 'Descripción' o 'Abonos' en el archivo." });
-        }
-
-        for (let i = startIdx; i < rows.length; i++) {
+        let count = 0, startIdx = -1;
+        // Lógica para Cartola Mensual (Fecha=[0], Desc=[5], Abono=[10])
+        for(let i=0; i<rows.length; i++){ if(JSON.stringify(rows[i]).toLowerCase().includes('descripción')){ startIdx = i+1; break; } }
+        for (let i = (startIdx === -1 ? 0 : startIdx); i < rows.length; i++) {
             const row = rows[i];
-            if (!row || row.length < 5) continue;
-
-            const desc = String(row[colDesc] || '').toUpperCase();
-            const montoRaw = row[colMonto];
-            const monto = cleanAmt(montoRaw);
-            const fechaVal = row[colFecha];
-
-            if (monto > 0 && desc && !desc.includes('SALDO ACTUAL')) {
-                let fechaStr;
-                if(typeof fechaVal === 'number') {
-                    const dateObj = new Date((fechaVal - 25569) * 86400 * 1000);
-                    fechaStr = dateObj.toISOString().split('T')[0];
-                } else {
-                    // Manejo de fecha texto "DD/MM/YYYY"
-                    const parts = String(fechaVal).split('/');
-                    fechaStr = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : String(fechaVal);
-                }
-
-                // Hashing para evitar duplicados si suben el mismo archivo 2 veces
-                const hashId = crypto.createHash('md5').update(`${fechaStr}-${desc}-${monto}`).digest('hex');
-
-                await pool.query(
-                    `INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) 
-                     VALUES ($1, $2, $3, $4) 
-                     ON CONFLICT (nro_operacion) DO NOTHING`,
-                    [fechaStr, monto, desc, hashId]
-                );
+            if (!row || row.length < 10) continue;
+            const desc = String(row[5] || '').toUpperCase();
+            const monto = cleanAmt(row[10]);
+            const fechaVal = row[0];
+            if (monto > 0 && desc && !desc.includes('SALDO')) {
+                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
+                const hashId = crypto.createHash('md5').update(`M-${fechaStr}-${desc}-${monto}`).digest('hex');
+                await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
                 count++;
             }
         }
         fs.unlinkSync(req.file.path);
-        res.json({ message: `Ingesta de ${count} abonos BCI exitosa`, count });
-    } catch (err) { 
-        if(req.file) fs.unlinkSync(req.file.path);
-        res.status(500).json({ error: err.message }); 
-    }
+        res.json({ message: `Ingesta de ${count} abonos (Mensual) exitosa`, count });
+    } catch (err) { if(req.file) fs.unlinkSync(req.file.path); res.status(500).json({ error: err.message }); }
+});
+
+// 3. Ingesta BCI - MOVIMIENTOS RECIENTES (Excel Exportado Hoy)
+app.post('/api/ingesta/bci/movimientos', upload.single('file'), async (req, res) => {
+    try {
+        const workbook = xlsx.readFile(req.file.path);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+        let count = 0, startIdx = -1;
+        // Lógica para Movimientos (Fecha=[0], Desc=[1 o 2], Monto=[3 o 4])
+        for(let i=0; i<rows.length; i++){ if(JSON.stringify(rows[i]).toLowerCase().includes('fecha')){ startIdx = i+1; break; } }
+        for (let i = (startIdx === -1 ? 0 : startIdx); i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || row.length < 2) continue;
+            const desc = String(row[1] || row[2] || '').toUpperCase();
+            const monto = cleanAmt(row[3] || row[4] || row[5]);
+            const fechaVal = row[0];
+            if (monto > 0 && desc) {
+                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
+                const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${desc}-${monto}`).digest('hex');
+                await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
+                count++;
+            }
+        }
+        fs.unlinkSync(req.file.path);
+        res.json({ message: `Ingesta de ${count} abonos (Recientes) exitosa`, count });
+    } catch (err) { if(req.file) fs.unlinkSync(req.file.path); res.status(500).json({ error: err.message }); }
 });
 
 // --- ESTADISTICAS PARA DASHBOARD ---
