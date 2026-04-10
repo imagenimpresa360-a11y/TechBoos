@@ -268,9 +268,11 @@ app.get('/api/stats/:mes', async (req, res) => {
             erp_egresos: parseInt(egRes.rows[0].total) || 0
         });
     } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Comodín para SPA (React Router fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 SERVIDOR CLOUD v58.1 CORRIENDO EN PUERTO: ${PORT}`); });
+app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 SERVIDOR CLOUD v62.0 CORRIENDO EN PUERTO: ${PORT}`); });
