@@ -14,8 +14,8 @@ const upload = multer({ dest: 'uploads/' });
 const app = express();
 const PORT = process.env.PORT || 3001;
 const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:Imagen30@localhost:5432/boos_erp_db",
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  connectionString: process.env.DATABASE_URL || "postgresql://postgres:oxmKtfyHzooYdsoFZZMBbmgtIEBKinmX@centerbeam.proxy.rlwy.net:48344/railway",
+  ssl: { rejectUnauthorized: false }
 });
 
 app.use(cors());
