@@ -138,6 +138,17 @@ app.get('/api/compras/:mes', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/api/compras/:mes', async (req, res) => {
+  try {
+    const { mes } = req.params;
+    const mesToNum = { 'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'};
+    const num = mesToNum[mes.toLowerCase()] || '01';
+    const datePattern = `2026-${num}-%`;
+    const result = await pool.query('SELECT * FROM "FacturaCompra" WHERE "fechaEmision"::text LIKE $1 ORDER BY "fechaEmision" DESC', [datePattern]);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.post('/api/compras', async (req, res) => {
   try {
     const { folio, rut, proveedor, fechaEmision, montoNeto, iva, montoTotal } = req.body;
