@@ -21,6 +21,12 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
+// Middleware anti-caché para datos contables
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+});
+
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
