@@ -197,7 +197,7 @@ app.post('/api/conciliacion/reject', async (req, res) => {
 // --- MODULO INGESTA (ELIMINANDO DEPENDENCIAS LOCALES) ---
 
 // Auxiliares limpieza
-const cleanAmt = (v) => {
+const cleanAmt = (v) => { if(v == null) return 0; let str = String(v).replace(/[^0-9,-]/g, '').replace(',', '.'); return Math.floor(parseFloat(str)) || 0; };
     if(!v) return 0;
     const s = String(v).replace(/\$|\.|\s/g, '').replace(',', '.');
     return parseInt(parseFloat(s)) || 0;
@@ -251,8 +251,8 @@ app.post('/api/ingesta/bci', upload.single('file'), async (req, res) => {
                 rows[i].forEach((cell, idx) => {
                     const c = String(cell).toLowerCase();
                     if(c.includes('fecha')) colFecha = idx;
-                    if(c.includes('descrip') || c.includes('concep') || c.includes('movim')) colDesc = idx;
-                    if(c.includes('abono') || c.includes('depósito') || c.includes('deposito') || c.includes('crédito') || c.includes('credito') || c.includes('entrada')) colMonto = idx;
+                    if(c.includes('descrip') || c.includes('concep') || c.includes('movim') || c.includes('detalle')) colDesc = idx;
+                    if(c.includes('abono') || c.includes('depósito') || c.includes('deposito') || c.includes('crédito') || c.includes('credito') || c.includes('entrada') || c.includes('monto') || c.includes('valor')) colMonto = idx;
                 });
                 break;
             }
