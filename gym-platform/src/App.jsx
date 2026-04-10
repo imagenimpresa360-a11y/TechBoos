@@ -566,7 +566,7 @@ export default function App() {
             <div className="fade-in">
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
                 <h2 className="view-title" style={{margin: 0}}>Control de Egresos — {sedeFilter.toUpperCase()}</h2>
-                <div className="header-mes-nav">{['Todas', 'Campanario', 'Marina'].map(s => (<button key={s} onClick={() => setSedeFilter(s)} className={sedeFilter === s ? 'm-link active' : 'm-link'} style={{fontSize: '0.65rem'}}>{s.toUpperCase()}</button>))}</div>
+                <div className="header-mes-nav">{['Todas', 'Campanario', 'Marina', 'Casa Matriz'].map(s => (<button key={s} onClick={() => setSedeFilter(s)} className={sedeFilter === s ? 'm-link active' : 'm-link'} style={{fontSize: '0.65rem'}}>{s.toUpperCase()}</button>))}</div>
               </div>
               
               <div className="glass-card" style={{padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid #14b8a6', background: 'rgba(20,184,166,0.03)'}}>
@@ -574,7 +574,7 @@ export default function App() {
                     <div className="form-group"><label className="form-label">DETALLE GASTO MANUAL</label><input type="text" className="form-input" value={manualEgre.item} onChange={e => setManualEgre({...manualEgre, item: e.target.value})} required/></div>
                     <div className="form-group"><label className="form-label">CUENTA</label><select className="form-select" value={manualEgre.cat} onChange={e => setManualEgre({...manualEgre, cat: e.target.value})}>{cuentas.filter(c => c.tipo !== 'Ingreso').map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}</select></div>
                     <div className="form-group"><label className="form-label">MONTO TOTAL</label><input type="number" className="form-input" value={manualEgre.monto} onChange={e => setManualEgre({...manualEgre, monto: e.target.value})} required/></div>
-                    <div className="form-group"><label className="form-label">SEDE</label><select className="form-select" value={manualEgre.sede} onChange={e => setManualEgre({...manualEgre, sede: e.target.value})}><option value="Campanario">Campanario</option><option value="Marina">Marina</option></select></div>
+                    <div className="form-group"><label className="form-label">SEDE</label><select className="form-select" value={manualEgre.sede} onChange={e => setManualEgre({...manualEgre, sede: e.target.value})}><option value="Campanario">Campanario</option><option value="Marina">Marina</option><option value="Casa Matriz">Casa Matriz</option></select></div>
                     <button type="submit" className="btn-submit" style={{background: '#14b8a6', height: '38px'}}><Plus size={16}/> Cargar</button>
                 </form>
               </div>
@@ -585,7 +585,7 @@ export default function App() {
                     <tbody>
                         {(sedeFilter === 'Todas' ? egresos : egresos.filter(e => e.sede === sedeFilter)).map(g => (
                             <tr key={g.id}>
-                                <td><span style={{fontSize: '0.65rem', fontWeight: 800, color: g.sede === 'Campanario' ? '#6366f1' : '#14b8a6'}}><MapPin size={10}/> {g.sede.toUpperCase()}</span></td>
+                                <td><span style={{fontSize: '0.65rem', fontWeight: 800, color: g.sede === 'Campanario' ? '#6366f1' : (g.sede === 'Marina' ? '#14b8a6' : '#f59e0b')}}><MapPin size={10}/> {g.sede.toUpperCase()}</span></td>
                                 <td>{g.origen === 'Lioren' ? <span style={{fontSize: '0.6rem', background: '#8b5cf6', color: 'white', padding: '2px 5px', borderRadius: '4px'}}>LIOREN</span> : <span style={{fontSize: '0.6rem', opacity: 0.5}}>MANUAL/RRHH</span>}</td>
                                 <td><span className="status-pill" style={{fontSize: '0.6rem'}}>{g.cuenta}</span></td>
                                 <td style={{fontSize: '0.8rem'}}>{g.detalle}</td>
