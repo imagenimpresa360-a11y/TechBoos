@@ -197,10 +197,10 @@ app.post('/api/conciliacion/reject', async (req, res) => {
 // --- MODULO INGESTA (ELIMINANDO DEPENDENCIAS LOCALES) ---
 
 // Auxiliares limpieza
-const cleanAmt = (v) => { if(v == null) return 0; let str = String(v).replace(/[^0-9,-]/g, '').replace(',', '.'); return Math.floor(parseFloat(str)) || 0; };
-    if(!v) return 0;
-    const s = String(v).replace(/\$|\.|\s/g, '').replace(',', '.');
-    return parseInt(parseFloat(s)) || 0;
+const cleanAmt = (v) => { 
+    if(v == null) return 0; 
+    let str = String(v).replace(/[^0-9,-]/g, '').replace(',', '.'); 
+    return Math.floor(parseFloat(str)) || 0; 
 };
 
 // 1. Ingesta BoxMagic (CSV)
