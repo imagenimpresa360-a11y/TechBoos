@@ -1,0 +1,57 @@
+{
+  "metadata": {
+    "ultima_sincronizacion": "2026-04-06 16:23:25",
+    "scope": "STRICT_TECHEMPRESA_ONLY"
+  },
+  "entidades": {
+    "boxmagic_files": [
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\1.- enero BoxMagic (41).csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\2.- Febrero BoxMagic .csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\3.- marzo BoxMagic.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\4.- abril BoxMagic (corte).csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\2.- enero BoxMagic Marina.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\3.- febrero BoxMagic Marina.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\4.- marzo BoxMagic Marina.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\5.- abril BoxMagic Marina (corte).csv"
+    ],
+    "bancarios_files": [
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\BANCO BCI\\CARTOLAS_MENSUALES\\1. CARTOLA ENERO N1.xlsx",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\BANCO BCI\\CARTOLAS_MENSUALES\\2. CARTOLA FEBRERO N2.xlsx",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\BANCO BCI\\CARTOLAS_MENSUALES\\3. CARTOLA MARZO N3.xlsx",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\1.- enero TBB enviados cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\1.- enero TBB recibidos cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\2.- Febrero TBB recibidos cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\2.-Febrero TBB enviados cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\3.-Marzo TBB enviados cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\3.-Marzo TBB recibido cartola_06042026130619.xls"
+    ],
+    "comprobantes_files": [],
+    "convenios_tgr": {
+      "convenio_1": 137700,
+      "itp_f29_enero": 445529,
+      "itp_f29_marzo": 891058,
+      "total_mensual_estimado": 583200
+    },
+    "software_servicios": {
+      "lioren_mensual": 11920,
+      "boxmagic_mensual": 63000,
+      "contabilidad_stl": 298000
+    }
+  },
+  "ingresos": {
+    "boxmagic": {
+      "enero": {
+        "ventas_brutas_reales": 6844400
+      },
+      "febrero": {
+        "ventas_brutas_reales": 5707900
+      },
+      "marzo": {
+        "ventas_brutas_reales": 7394080
+      },
+      "abril": {
+        "ventas_brutas_reales": 1045890
+      }
+    }
+  }
+}

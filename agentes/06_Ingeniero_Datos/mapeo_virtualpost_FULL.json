@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "fecha_mapeo": "2026-04-07 15:11",
+    "total_transacciones": 7584,
+    "emails_campanario_referencia": 96,
+    "metodo": "join_email_boxmagic_campanario"
+  },
+  "campanario": {
+    "count": 1201,
+    "total_monto": 43642400
+  },
+  "marina": {
+    "count": 6383,
+    "total_monto": 236911522
+  },
+  "consolidado": {
+    "total_monto": 280553922
+  }
+}

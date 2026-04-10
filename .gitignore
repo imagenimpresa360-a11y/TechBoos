@@ -1,0 +1,13 @@
+node_modules/
+.env
+*.zip
+*.log
+uploads/
+backend/uploads/
+.DS_Store
+dist/
+build/
+lioren_screen.png
+lioren_dom.html
+lioren_error_state.png
+lioren_session.json

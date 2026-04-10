@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Nomina {
+  id        String   @id @default(uuid())
+  mes       String
+  coach     String
+  rut       String
+  cargo     String
+  valorHora Int
+  hrsCamp   Int      @default(0)
+  hrsMarina Int      @default(0)
+  status    String   @default("Pendiente")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Egreso {
+  id        String   @id @default(uuid())
+  mes       String
+  detalle   String
+  monto     Int
+  abonado   Int      @default(0)
+  saldo     Int      @default(0)
+  sede      String
+  status    String   @default("Ingresado")
+  cuenta    String
+  origen    String   @default("Manual")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AbonoHistorial {
+  id        String   @id @default(uuid())
+  egresoId  String
+  monto     Int
+  fecha     DateTime @default(now())
+  cartolaId String?  
+  verificado Boolean @default(false)
+}

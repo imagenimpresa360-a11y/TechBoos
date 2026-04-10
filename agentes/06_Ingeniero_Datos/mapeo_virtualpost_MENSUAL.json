@@ -1,0 +1,170 @@
+{
+  "abril": {
+    "campanario": {
+      "count": 87,
+      "monto": 3313900
+    },
+    "marina": {
+      "count": 558,
+      "monto": 21040920
+    },
+    "consolidado": {
+      "count": 645,
+      "monto": 24354820
+    }
+  },
+  "marzo": {
+    "campanario": {
+      "count": 126,
+      "monto": 4609500
+    },
+    "marina": {
+      "count": 593,
+      "monto": 22506030
+    },
+    "consolidado": {
+      "count": 719,
+      "monto": 27115530
+    }
+  },
+  "febrero": {
+    "campanario": {
+      "count": 114,
+      "monto": 4126650
+    },
+    "marina": {
+      "count": 467,
+      "monto": 17515190
+    },
+    "consolidado": {
+      "count": 581,
+      "monto": 21641840
+    }
+  },
+  "enero": {
+    "campanario": {
+      "count": 99,
+      "monto": 3630600
+    },
+    "marina": {
+      "count": 512,
+      "monto": 18418107
+    },
+    "consolidado": {
+      "count": 611,
+      "monto": 22048707
+    }
+  },
+  "diciembre": {
+    "campanario": {
+      "count": 120,
+      "monto": 4179950
+    },
+    "marina": {
+      "count": 531,
+      "monto": 19440550
+    },
+    "consolidado": {
+      "count": 651,
+      "monto": 23620500
+    }
+  },
+  "noviembre": {
+    "campanario": {
+      "count": 118,
+      "monto": 4118650
+    },
+    "marina": {
+      "count": 641,
+      "monto": 23761750
+    },
+    "consolidado": {
+      "count": 759,
+      "monto": 27880400
+    }
+  },
+  "octubre": {
+    "campanario": {
+      "count": 104,
+      "monto": 3594150
+    },
+    "marina": {
+      "count": 603,
+      "monto": 23085000
+    },
+    "consolidado": {
+      "count": 707,
+      "monto": 26679150
+    }
+  },
+  "septiembre": {
+    "campanario": {
+      "count": 84,
+      "monto": 3088450
+    },
+    "marina": {
+      "count": 434,
+      "monto": 16126950
+    },
+    "consolidado": {
+      "count": 518,
+      "monto": 19215400
+    }
+  },
+  "agosto": {
+    "campanario": {
+      "count": 96,
+      "monto": 3530200
+    },
+    "marina": {
+      "count": 511,
+      "monto": 19136500
+    },
+    "consolidado": {
+      "count": 607,
+      "monto": 22666700
+    }
+  },
+  "julio": {
+    "campanario": {
+      "count": 95,
+      "monto": 3675400
+    },
+    "marina": {
+      "count": 539,
+      "monto": 19833990
+    },
+    "consolidado": {
+      "count": 634,
+      "monto": 23509390
+    }
+  },
+  "junio": {
+    "campanario": {
+      "count": 84,
+      "monto": 3019050
+    },
+    "marina": {
+      "count": 466,
+      "monto": 16973895
+    },
+    "consolidado": {
+      "count": 550,
+      "monto": 19992945
+    }
+  },
+  "mayo": {
+    "campanario": {
+      "count": 74,
+      "monto": 2755900
+    },
+    "marina": {
+      "count": 528,
+      "monto": 19072640
+    },
+    "consolidado": {
+      "count": 602,
+      "monto": 21828540
+    }
+  }
+}

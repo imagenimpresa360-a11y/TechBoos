@@ -1,0 +1,74 @@
+{
+  "abril": {
+    "campanario": {
+      "count": 89,
+      "monto": 3399700
+    },
+    "marina": {
+      "count": 0,
+      "monto": 0
+    },
+    "otros": {
+      "count": 558,
+      "monto": 21040920
+    },
+    "consolidado_gym": {
+      "monto": 3399700,
+      "count": 89
+    }
+  },
+  "marzo": {
+    "campanario": {
+      "count": 97,
+      "monto": 3442000
+    },
+    "marina": {
+      "count": 0,
+      "monto": 0
+    },
+    "otros": {
+      "count": 526,
+      "monto": 19819630
+    },
+    "consolidado_gym": {
+      "monto": 3442000,
+      "count": 97
+    }
+  },
+  "febrero": {
+    "campanario": {
+      "count": 114,
+      "monto": 4126650
+    },
+    "marina": {
+      "count": 0,
+      "monto": 0
+    },
+    "otros": {
+      "count": 463,
+      "monto": 17385490
+    },
+    "consolidado_gym": {
+      "monto": 4126650,
+      "count": 114
+    }
+  },
+  "enero": {
+    "campanario": {
+      "count": 99,
+      "monto": 3630600
+    },
+    "marina": {
+      "count": 0,
+      "monto": 0
+    },
+    "otros": {
+      "count": 512,
+      "monto": 18418107
+    },
+    "consolidado_gym": {
+      "monto": 3630600,
+      "count": 99
+    }
+  }
+}

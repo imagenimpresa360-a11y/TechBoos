@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "fecha_mapeo": "2026-04-07",
+    "total_muestra": 100,
+    "emails_campanario": 96
+  },
+  "campanario": {
+    "count": 35,
+    "total_monto": 1137700
+  },
+  "marina": {
+    "count": 65,
+    "total_monto": 2593500
+  }
+}

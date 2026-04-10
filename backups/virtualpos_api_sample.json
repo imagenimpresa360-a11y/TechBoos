@@ -1,0 +1,3416 @@
+{
+    "status": "OK",
+    "code": 200,
+    "pagination": {
+        "limit": 100,
+        "page": 1,
+        "pages": 76,
+        "total": 7578
+    },
+    "commerce": {
+        "commerce_id": "77265501-0",
+        "name": "the boos box spa"
+    },
+    "payments": [
+        {
+            "client": {
+                "email": "tmorales02@gmail.com",
+                "first_name": "Tatiana",
+                "last_name": "Morales",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1696865469d50011",
+                "status": "pagado",
+                "created_at": "2026-04-07 09:01:05",
+                "card_number": "4631",
+                "authorized_at": "2026-04-07 09:02:36",
+                "auth_code": "009098",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1574,
+                        "payout_amount": 51326,
+                        "payout_date": "2026-04-10"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "patyfa.30@hotmail.com",
+                "first_name": "Patricia",
+                "last_name": "Farias",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1696848069d4f734",
+                "status": "pagado",
+                "created_at": "2026-04-07 08:23:16",
+                "card_number": "4637",
+                "authorized_at": "2026-04-07 08:26:26",
+                "auth_code": "539707",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-10"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "hernanwolf18@gmail.com",
+                "first_name": "Hernan",
+                "last_name": "Alvarez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1696837469d4ef26",
+                "status": "pagado",
+                "created_at": "2026-04-07 07:48:54",
+                "card_number": "4447",
+                "authorized_at": "2026-04-07 07:49:35",
+                "auth_code": "488282",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 59900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 59900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 2495,
+                        "payout_amount": 57405,
+                        "payout_date": "2026-04-10"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "cfuentes.arv@gmail.com",
+                "first_name": "Camila",
+                "last_name": "Fuentes",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1696443669d481b3",
+                "status": "pagado",
+                "created_at": "2026-04-07 00:01:55",
+                "card_number": "3830",
+                "authorized_at": "2026-04-07 00:04:50",
+                "auth_code": "019882",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-10"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "Jessica.araneda.diaz@gmail.com",
+                "first_name": "Jessica",
+                "last_name": "Araneda",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1696331869d46b35",
+                "status": "pagado",
+                "created_at": "2026-04-06 22:25:57",
+                "card_number": "6891",
+                "authorized_at": "2026-04-06 22:28:14",
+                "auth_code": "001983",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "genisistefanie@gmail.com",
+                "first_name": "Genesis",
+                "last_name": "Troncoso",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695975869d4368f",
+                "status": "pagado",
+                "created_at": "2026-04-06 18:41:19",
+                "card_number": "5183",
+                "authorized_at": "2026-04-06 18:42:17",
+                "auth_code": "009651",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "paulina.munoz.pacheco@gmail.com",
+                "first_name": "Paulina",
+                "last_name": "Muoz",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695728469d3fc3e",
+                "status": "pagado",
+                "created_at": "2026-04-06 14:32:30",
+                "card_number": "3782",
+                "authorized_at": "2026-04-06 14:34:52",
+                "auth_code": "008122",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "belen.paz.orellana@gmail.com",
+                "first_name": "Belen",
+                "last_name": "Orellana",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695688669d3f17c",
+                "status": "pagado",
+                "created_at": "2026-04-06 13:46:36",
+                "card_number": "8366",
+                "authorized_at": "2026-04-06 13:48:59",
+                "auth_code": "002058",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "clau.acuna.ldg@gmail.com",
+                "first_name": "Claudia",
+                "last_name": "Acua",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695639869d3e794",
+                "status": "pagado",
+                "created_at": "2026-04-06 13:04:20",
+                "card_number": "5505",
+                "authorized_at": "2026-04-06 13:06:05",
+                "auth_code": "000555",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 803,
+                        "payout_amount": 26197,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "ximena.perez.ldm@gmail.com",
+                "first_name": "Alicia",
+                "last_name": "Hernandez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695587669d3dd0a",
+                "status": "pagado",
+                "created_at": "2026-04-06 12:19:22",
+                "card_number": "0574",
+                "authorized_at": "2026-04-06 12:21:43",
+                "auth_code": "873645",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "catalina.alejandra.acevedo.a@gmail.com",
+                "first_name": "Catalina",
+                "last_name": "Acevedo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695535369d3d208",
+                "status": "pagado",
+                "created_at": "2026-04-06 11:32:24",
+                "card_number": "2510",
+                "authorized_at": "2026-04-06 11:33:59",
+                "auth_code": "353289",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "Mauricio.cristi.r@gmail.com",
+                "first_name": "Mauricio",
+                "last_name": "Cristi",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695415469d3bd7c",
+                "status": "pagado",
+                "created_at": "2026-04-06 10:04:44",
+                "card_number": "1768",
+                "authorized_at": "2026-04-06 10:06:52",
+                "auth_code": "254056",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "eduardocoronata@gmail.com",
+                "first_name": "Eduardo",
+                "last_name": "Coronata",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695397969d3ba48",
+                "status": "pagado",
+                "created_at": "2026-04-06 09:51:04",
+                "card_number": "6692",
+                "authorized_at": "2026-04-06 09:52:47",
+                "auth_code": "000586",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "claudia.zamora93@gmail.com",
+                "first_name": "Claudia",
+                "last_name": "Zamora",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695396269d3b9ca",
+                "status": "pagado",
+                "created_at": "2026-04-06 09:48:58",
+                "card_number": "3725",
+                "authorized_at": "2026-04-06 09:50:41",
+                "auth_code": "000026",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "romina.vergara_91@hotmail.com",
+                "first_name": "Romina",
+                "last_name": "Vergara",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695293769d39424",
+                "status": "pagado",
+                "created_at": "2026-04-06 07:08:20",
+                "card_number": "1266",
+                "authorized_at": "2026-04-06 07:11:08",
+                "auth_code": "101565",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1574,
+                        "payout_amount": 51326,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "francisca.jch@gmail.com",
+                "first_name": "Francisca",
+                "last_name": "Corts",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695293369d393dd",
+                "status": "pagado",
+                "created_at": "2026-04-06 07:07:09",
+                "card_number": "2345",
+                "authorized_at": "2026-04-06 07:07:59",
+                "auth_code": "209174",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "carrizocamila466@gmail.com",
+                "first_name": "Camila",
+                "last_name": "CarrizoFarias",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1695287969d389de",
+                "status": "pagado",
+                "created_at": "2026-04-06 06:24:30",
+                "card_number": "8450",
+                "authorized_at": "2026-04-06 06:27:06",
+                "auth_code": "166842",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-09"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "omahira1@gmail.com",
+                "first_name": "Omahira",
+                "last_name": "Aravena",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694831069d325da",
+                "status": "pagado",
+                "created_at": "2026-04-05 23:17:46",
+                "card_number": "4058",
+                "authorized_at": "2026-04-05 23:18:46",
+                "auth_code": "953882",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "danuvega15@gmail.com",
+                "first_name": "Daniela",
+                "last_name": "Vega",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694797569d3194e",
+                "status": "pagado",
+                "created_at": "2026-04-05 22:24:14",
+                "card_number": "4349",
+                "authorized_at": "2026-04-05 22:25:58",
+                "auth_code": "FJD1LZ",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1995,
+                        "payout_amount": 45905,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "tapiapamela81@gmail.com",
+                "first_name": "Pamela",
+                "last_name": "Tapia",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694737369d306ff",
+                "status": "pagado",
+                "created_at": "2026-04-05 21:06:07",
+                "card_number": "7009",
+                "authorized_at": "2026-04-05 21:09:18",
+                "auth_code": "912448",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 803,
+                        "payout_amount": 26197,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "danielagalveze@gmail.com",
+                "first_name": "Daniela",
+                "last_name": "Galvez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694633969d2df22",
+                "status": "pagado",
+                "created_at": "2026-04-05 18:16:02",
+                "card_number": "6169",
+                "authorized_at": "2026-04-05 18:18:20",
+                "auth_code": "004768",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "lvalenzuela@mrprint.cl",
+                "first_name": "Ale",
+                "last_name": "Valenzuela",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694524969d2aa77",
+                "status": "pagado",
+                "created_at": "2026-04-05 14:31:19",
+                "card_number": "3760",
+                "authorized_at": "2026-04-05 14:33:07",
+                "auth_code": "178753",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "karenciosa22@hotmail.com",
+                "first_name": "Karen",
+                "last_name": "Bodevin",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694497769d29afc",
+                "status": "pagado",
+                "created_at": "2026-04-05 13:25:16",
+                "card_number": "9331",
+                "authorized_at": "2026-04-05 13:27:13",
+                "auth_code": "009010",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "natalia-aguilera.r@hotmail.com",
+                "first_name": "Natalia",
+                "last_name": "AguileraRamos",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1694424469d27487",
+                "status": "pagado",
+                "created_at": "2026-04-05 10:41:11",
+                "card_number": "0414",
+                "authorized_at": "2026-04-05 10:43:49",
+                "auth_code": "001034",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "valentinaparedes860@gmail.com",
+                "first_name": "Valentina",
+                "last_name": "Paredes",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1692735669d16673",
+                "status": "pagado",
+                "created_at": "2026-04-04 16:28:51",
+                "card_number": "8969",
+                "authorized_at": "2026-04-04 16:30:49",
+                "auth_code": "721006",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "ma.ormenoromero@gmail.com",
+                "first_name": "Mximo",
+                "last_name": "Ormeo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1692585169d11685",
+                "status": "pagado",
+                "created_at": "2026-04-04 10:47:49",
+                "card_number": "",
+                "authorized_at": "2026-04-04 10:48:25",
+                "auth_code": "1",
+                "installment_amount": "1",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 4792,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "jona.gonzalez.martinez@gmail.com",
+                "first_name": "JonathanJavier",
+                "last_name": "GonzalezMartinez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1692576669d11176",
+                "status": "pagado",
+                "created_at": "2026-04-04 10:26:14",
+                "card_number": "3014",
+                "authorized_at": "2026-04-04 10:28:11",
+                "auth_code": "029666",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 149,
+                        "payout_amount": 4851,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "franciscoportino@gmail.com",
+                "first_name": "Javier",
+                "last_name": "Portio",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1692533469d0d90f",
+                "status": "pagado",
+                "created_at": "2026-04-04 06:25:35",
+                "card_number": "",
+                "authorized_at": "2026-04-04 06:26:05",
+                "auth_code": "1",
+                "installment_amount": "1",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 4792,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "bonamaisson@gmail.com",
+                "first_name": "FernandoDaniel",
+                "last_name": "CastroBonamaison",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1691763169cff549",
+                "status": "pagado",
+                "created_at": "2026-04-03 14:13:45",
+                "card_number": "0545",
+                "authorized_at": "2026-04-03 14:14:55",
+                "auth_code": "001490",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "con.cancino@gmail.com",
+                "first_name": "Constanza",
+                "last_name": "Cancino",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1691366769cf3353",
+                "status": "pagado",
+                "created_at": "2026-04-03 00:26:11",
+                "card_number": "",
+                "authorized_at": "2026-04-03 00:29:41",
+                "auth_code": "pdatrqxyr2eh",
+                "installment_amount": "0",
+                "installment_number": "0",
+                "payment_type_code": "TE",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "ivo.18.maram@gmail.com",
+                "first_name": "Ivanna",
+                "last_name": "MarambioCorvaln",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690838769cef07b",
+                "status": "pagado",
+                "created_at": "2026-04-02 19:40:59",
+                "card_number": "2553",
+                "authorized_at": "2026-04-02 19:43:18",
+                "auth_code": "431881",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "ncvarelav@gmail.com",
+                "first_name": "Natalia",
+                "last_name": "Varela",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690830969ceee27",
+                "status": "pagado",
+                "created_at": "2026-04-02 19:31:03",
+                "card_number": "0068",
+                "authorized_at": "2026-04-02 19:32:21",
+                "auth_code": "927243",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "maria.reveco.m@usach.cl",
+                "first_name": "MaraPaz",
+                "last_name": "Reveco",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690787469cee4fa",
+                "status": "pagado",
+                "created_at": "2026-04-02 18:51:54",
+                "card_number": "1044",
+                "authorized_at": "2026-04-02 18:54:14",
+                "auth_code": "009739",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "valeria.fer.srafael@gmail.com",
+                "first_name": "Valeria",
+                "last_name": "FernandezAstorga",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690726969ced8ac",
+                "status": "pagado",
+                "created_at": "2026-04-02 17:59:24",
+                "card_number": "",
+                "authorized_at": "2026-04-02 18:00:27",
+                "auth_code": "1",
+                "installment_amount": "1",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "JAVIERTERREG@GMAIL.COM",
+                "first_name": "JAVIER",
+                "last_name": "TERR",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690316569ce8702",
+                "status": "pagado",
+                "created_at": "2026-04-02 12:10:58",
+                "card_number": "5668",
+                "authorized_at": "2026-04-02 12:12:16",
+                "auth_code": "121582",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 2203,
+                        "payout_amount": 50697,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "foxuc15@gmail.com",
+                "first_name": "Jorge",
+                "last_name": "Flores",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690277169ce7ff9",
+                "status": "pagado",
+                "created_at": "2026-04-02 11:40:57",
+                "card_number": "6012",
+                "authorized_at": "2026-04-02 11:42:57",
+                "auth_code": "006930",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "jeannetteandreavejar@gmail.com",
+                "first_name": "Jeannette",
+                "last_name": "Vejar",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1690001369ce3d4a",
+                "status": "pagado",
+                "created_at": "2026-04-02 06:56:26",
+                "card_number": "4273",
+                "authorized_at": "2026-04-02 06:59:47",
+                "auth_code": "006323",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-08"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "alcantarabelen5@gmail.com",
+                "first_name": "Beln",
+                "last_name": "Alcntara",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1689236169cdb13a",
+                "status": "pagado",
+                "created_at": "2026-04-01 20:58:50",
+                "card_number": "0324",
+                "authorized_at": "2026-04-01 21:03:29",
+                "auth_code": "246515",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1574,
+                        "payout_amount": 51326,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "damarismarlenfr@gmail.com",
+                "first_name": "Damaris",
+                "last_name": "FrancoReyes",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1689173069cda6ff",
+                "status": "pagado",
+                "created_at": "2026-04-01 20:15:11",
+                "card_number": "1267",
+                "authorized_at": "2026-04-01 20:18:14",
+                "auth_code": "807461",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "jaretre@gmail.com",
+                "first_name": "Jaret",
+                "last_name": "Rodriguez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1687779069cd7d31",
+                "status": "pagado",
+                "created_at": "2026-04-01 17:16:49",
+                "card_number": "3608",
+                "authorized_at": "2026-04-01 17:17:58",
+                "auth_code": "175851",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "miguelmarinarancibia@gmail.com",
+                "first_name": "MiguelAngel",
+                "last_name": "Marn",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1685830969cd67a7",
+                "status": "pagado",
+                "created_at": "2026-04-01 15:44:55",
+                "card_number": "6139",
+                "authorized_at": "2026-04-01 15:46:34",
+                "auth_code": "018570",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "va.corbalan@duocuc.cl",
+                "first_name": "variniaandrea",
+                "last_name": "corbalanmolina",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1679210869cd0b50",
+                "status": "pagado",
+                "created_at": "2026-04-01 09:10:56",
+                "card_number": "3850",
+                "authorized_at": "2026-04-01 09:17:05",
+                "auth_code": "658912",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "danitzarociosm@gmail.com",
+                "first_name": "Danitza",
+                "last_name": "Rocio",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1679106369ccef48",
+                "status": "pagado",
+                "created_at": "2026-04-01 07:11:20",
+                "card_number": "6668",
+                "authorized_at": "2026-04-01 07:12:34",
+                "auth_code": "227711",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "disan.hiit@gmail.com",
+                "first_name": "Diego",
+                "last_name": "Sanmartingonzalez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1676187169cc8a88",
+                "status": "pagado",
+                "created_at": "2026-04-01 00:01:28",
+                "card_number": "9192",
+                "authorized_at": "2026-04-01 00:03:44",
+                "auth_code": "337539",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-07"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "catita.llaulen@gmail.com",
+                "first_name": "Catalina",
+                "last_name": "Llaulen",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1674522769cc17ca",
+                "status": "pagado",
+                "created_at": "2026-03-31 15:51:54",
+                "card_number": "3207",
+                "authorized_at": "2026-03-31 15:52:49",
+                "auth_code": "524843",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 7000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 7000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 6792,
+                        "payout_date": "2026-04-06"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "elizabeth.oyarzo1983@gmail.com",
+                "first_name": "Elizabeth",
+                "last_name": "Oyarzo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1674346669cbfac9",
+                "status": "pagado",
+                "created_at": "2026-03-31 13:48:09",
+                "card_number": "6734",
+                "authorized_at": "2026-03-31 13:50:06",
+                "auth_code": "001935",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-06"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "Jocelineponce.a@gmail.com",
+                "first_name": "Joceline",
+                "last_name": "Ponce",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1674151269cbe6c8",
+                "status": "pagado",
+                "created_at": "2026-03-31 12:22:48",
+                "card_number": "7148",
+                "authorized_at": "2026-03-31 12:25:58",
+                "auth_code": "551713",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-06"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "carlasv0110@gmail.com",
+                "first_name": "Carla",
+                "last_name": "Snchez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1673652669cbc590",
+                "status": "pagado",
+                "created_at": "2026-03-31 10:01:04",
+                "card_number": "1402",
+                "authorized_at": "2026-03-31 10:09:18",
+                "auth_code": "000019",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-06"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "fernanda.pmarchant@gmail.com",
+                "first_name": "Fernanda",
+                "last_name": "Fernandez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1673674969cbc70b",
+                "status": "pagado",
+                "created_at": "2026-03-31 10:07:23",
+                "card_number": "3805",
+                "authorized_at": "2026-03-31 10:09:10",
+                "auth_code": "031826",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-06"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "allizon.cordova@usach.cl",
+                "first_name": "Allizon",
+                "last_name": "Crdova",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1672989569cb41f7",
+                "status": "pagado",
+                "created_at": "2026-03-31 00:39:35",
+                "card_number": "3300",
+                "authorized_at": "2026-03-31 00:42:15",
+                "auth_code": "421464",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 803,
+                        "payout_amount": 26197,
+                        "payout_date": "2026-04-06"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "leonardo.puyolm@gmail.com",
+                "first_name": "Leonardo",
+                "last_name": "Puyol",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1672767669cb342a",
+                "status": "pagado",
+                "created_at": "2026-03-30 23:40:42",
+                "card_number": "5496",
+                "authorized_at": "2026-03-30 23:41:59",
+                "auth_code": "741069",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-02"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "alejandra.anasco@gmail.com",
+                "first_name": "AlejandraBelen",
+                "last_name": "Aascovila",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1671892869caf44b",
+                "status": "pagado",
+                "created_at": "2026-03-30 19:08:11",
+                "card_number": "7350",
+                "authorized_at": "2026-03-30 19:09:09",
+                "auth_code": "090872",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-04-02"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "camilagisselle.rh@gmail.com",
+                "first_name": "Camila",
+                "last_name": "Romero",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1671794269caec25",
+                "status": "pagado",
+                "created_at": "2026-03-30 18:33:25",
+                "card_number": "5814",
+                "authorized_at": "2026-03-30 18:37:02",
+                "auth_code": "381710",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-02"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "richardtorres.e@gmail.com",
+                "first_name": "Richard",
+                "last_name": "Espinoza",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1670518369ca8d7c",
+                "status": "pagado",
+                "created_at": "2026-03-30 11:49:32",
+                "card_number": "3187",
+                "authorized_at": "2026-03-30 11:52:02",
+                "auth_code": "004322",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-02"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "barbarita.c20@gmail.com",
+                "first_name": "Brbara",
+                "last_name": "Castro",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1669422569c9d61e",
+                "status": "pagado",
+                "created_at": "2026-03-29 22:47:10",
+                "card_number": "7065",
+                "authorized_at": "2026-03-29 22:48:35",
+                "auth_code": "007307",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "Giaaa.momu@gmail.com",
+                "first_name": "Gia",
+                "last_name": "Morales",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1668644069c95279",
+                "status": "pagado",
+                "created_at": "2026-03-29 13:25:29",
+                "card_number": "9462",
+                "authorized_at": "2026-03-29 13:27:30",
+                "auth_code": "723808",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 803,
+                        "payout_amount": 26197,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "mundacaamparo623@gmail.com",
+                "first_name": "Amparo",
+                "last_name": "Mundaca",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1666750469c89b85",
+                "status": "pagado",
+                "created_at": "2026-03-29 00:24:53",
+                "card_number": "6248",
+                "authorized_at": "2026-03-29 00:30:20",
+                "auth_code": "385268",
+                "installment_amount": "",
+                "installment_number": "3",
+                "payment_type_code": "VC",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1662,
+                        "payout_amount": 38238,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "karenmirlen@gmail.com",
+                "first_name": "Karen",
+                "last_name": "Vargas",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1665384369c8004c",
+                "status": "pagado",
+                "created_at": "2026-03-28 13:22:36",
+                "card_number": "8855",
+                "authorized_at": "2026-03-28 13:24:02",
+                "auth_code": "595926",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 7000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 7000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 292,
+                        "payout_amount": 6708,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "jona.gonzalez.martinez@gmail.com",
+                "first_name": "JonathanJavier",
+                "last_name": "GonzalezMartinez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1665104469c7d71b",
+                "status": "pagado",
+                "created_at": "2026-03-28 10:26:51",
+                "card_number": "3014",
+                "authorized_at": "2026-03-28 10:30:00",
+                "auth_code": "007914",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 149,
+                        "payout_amount": 4851,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "ma.ormenoromero@gmail.com",
+                "first_name": "Mximo",
+                "last_name": "Ormeo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1665049869c7cc0f",
+                "status": "pagado",
+                "created_at": "2026-03-28 09:39:43",
+                "card_number": "",
+                "authorized_at": "2026-03-28 09:40:47",
+                "auth_code": "1",
+                "installment_amount": "1",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 4792,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "franciscoportino@gmail.com",
+                "first_name": "Javier",
+                "last_name": "Portio",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1665000569c7be76",
+                "status": "pagado",
+                "created_at": "2026-03-28 08:41:42",
+                "card_number": "",
+                "authorized_at": "2026-03-28 08:42:05",
+                "auth_code": "1",
+                "installment_amount": "1",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 4792,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "rominangelotti@gmail.com",
+                "first_name": "Romina",
+                "last_name": "Angelotti",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1663459869c6a96f",
+                "status": "pagado",
+                "created_at": "2026-03-27 12:59:43",
+                "card_number": "3926",
+                "authorized_at": "2026-03-27 13:02:00",
+                "auth_code": "008197",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "carlitabelen@hotmail.com",
+                "first_name": "Carla",
+                "last_name": "Vergara",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1663140069c686ee",
+                "status": "pagado",
+                "created_at": "2026-03-27 10:32:30",
+                "card_number": "0148",
+                "authorized_at": "2026-03-27 10:36:13",
+                "auth_code": "968970",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "kine.eddie@gmail.com",
+                "first_name": "Eddie",
+                "last_name": "Ojeda",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1662729769c60481",
+                "status": "pagado",
+                "created_at": "2026-03-27 01:16:01",
+                "card_number": "9970",
+                "authorized_at": "2026-03-27 01:17:43",
+                "auth_code": "859959",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 2203,
+                        "payout_amount": 50697,
+                        "payout_date": "2026-04-01"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "vanisabel.etc@gmail.com",
+                "first_name": "VaniaIsabel",
+                "last_name": "Herrera",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1662420869c5efa5",
+                "status": "pagado",
+                "created_at": "2026-03-26 23:47:01",
+                "card_number": "9848",
+                "authorized_at": "2026-03-26 23:49:29",
+                "auth_code": "009482",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-03-31"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "solelefin21@gmail.com",
+                "first_name": "Estersoledad",
+                "last_name": "Couenaolefin",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1661482969c5680f",
+                "status": "pagado",
+                "created_at": "2026-03-26 14:08:31",
+                "card_number": "1156",
+                "authorized_at": "2026-03-26 14:09:37",
+                "auth_code": "408724",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 803,
+                        "payout_amount": 26197,
+                        "payout_date": "2026-03-31"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "armijo.cami@gmail.com",
+                "first_name": "Camila",
+                "last_name": "Armijo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1661421569c55efb",
+                "status": "pagado",
+                "created_at": "2026-03-26 13:29:47",
+                "card_number": "5244",
+                "authorized_at": "2026-03-26 13:31:00",
+                "auth_code": "242438",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-03-31"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "FRANKOVALENZUELAA@GMAIL.COM",
+                "first_name": "FRANCO",
+                "last_name": "VALENZUELAVILLEGAS",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1661319469c551fa",
+                "status": "pagado",
+                "created_at": "2026-03-26 12:34:18",
+                "card_number": "7197",
+                "authorized_at": "2026-03-26 12:36:39",
+                "auth_code": "011552",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1574,
+                        "payout_amount": 51326,
+                        "payout_date": "2026-03-31"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "regina.llancaqueo@gmail.com",
+                "first_name": "Mariaregina",
+                "last_name": "Llancaqueo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1661162769c545e4",
+                "status": "pagado",
+                "created_at": "2026-03-26 11:42:44",
+                "card_number": "0948",
+                "authorized_at": "2026-03-26 11:45:56",
+                "auth_code": "749675",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1579,
+                        "payout_amount": 36321,
+                        "payout_date": "2026-03-31"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "stephidiaz.o@gmail.com",
+                "first_name": "Stephanie",
+                "last_name": "Daz",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1659858469c49c35",
+                "status": "pagado",
+                "created_at": "2026-03-25 23:38:45",
+                "card_number": "1504",
+                "authorized_at": "2026-03-25 23:42:02",
+                "auth_code": "006146",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-03-30"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "liorey271980@gmail.com",
+                "first_name": "Leonardo",
+                "last_name": "Reyes",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1659678469c485bb",
+                "status": "pagado",
+                "created_at": "2026-03-25 22:02:51",
+                "card_number": "6227",
+                "authorized_at": "2026-03-25 22:04:52",
+                "auth_code": "045150",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-03-30"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "guerrerojesus41@gmail.com",
+                "first_name": "Jesus",
+                "last_name": "Guerrero",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1659235569c44c4b",
+                "status": "pagado",
+                "created_at": "2026-03-25 17:57:47",
+                "card_number": "0445",
+                "authorized_at": "2026-03-25 18:00:19",
+                "auth_code": "023736",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 2203,
+                        "payout_amount": 50697,
+                        "payout_date": "2026-03-30"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "carlapastenvargas@gmail.com",
+                "first_name": "Carla",
+                "last_name": "Pastn",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1659015469c432b9",
+                "status": "pagado",
+                "created_at": "2026-03-25 16:08:41",
+                "card_number": "9838",
+                "authorized_at": "2026-03-25 16:09:28",
+                "auth_code": "922738",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-03-30"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "camigutierrezrojas@gmail.com",
+                "first_name": "Camila",
+                "last_name": "Gutirrezrojas",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1657392069c33b68",
+                "status": "pagado",
+                "created_at": "2026-03-24 22:33:28",
+                "card_number": "3654",
+                "authorized_at": "2026-03-24 22:42:15",
+                "auth_code": "982443",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "kaass.zs98@gmail.com",
+                "first_name": "Tomas",
+                "last_name": "Bravo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1657252969c32e16",
+                "status": "pagado",
+                "created_at": "2026-03-24 21:36:38",
+                "card_number": "1457",
+                "authorized_at": "2026-03-24 21:38:24",
+                "auth_code": "817798",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 10000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 10000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 298,
+                        "payout_amount": 9702,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "marcopavez17@gmail.com",
+                "first_name": "Marco",
+                "last_name": "pavez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1656859969c2f87e",
+                "status": "pagado",
+                "created_at": "2026-03-24 17:47:58",
+                "card_number": "7272",
+                "authorized_at": "2026-03-24 17:49:52",
+                "auth_code": "199273",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "sebastian.hraste@gmail.com",
+                "first_name": "sebastian",
+                "last_name": "hraste",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1656504469c2d726",
+                "status": "pagado",
+                "created_at": "2026-03-24 15:25:42",
+                "card_number": "7621",
+                "authorized_at": "2026-03-24 15:26:50",
+                "auth_code": "265073",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "mvillanueva.ga@gmail.com",
+                "first_name": "Mauricio",
+                "last_name": "Villanueva",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1656203669c2b773",
+                "status": "pagado",
+                "created_at": "2026-03-24 13:10:27",
+                "card_number": "9750",
+                "authorized_at": "2026-03-24 13:12:14",
+                "auth_code": "001771",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 7000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 7000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 6792,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "gabriel.illanes.c@usach.cl",
+                "first_name": "Gabriel",
+                "last_name": "Illanes",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1655680769c2aa45",
+                "status": "pagado",
+                "created_at": "2026-03-24 12:14:13",
+                "card_number": "6151",
+                "authorized_at": "2026-03-24 12:15:56",
+                "auth_code": "007674",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 7000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 7000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 6792,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "lvalenzuela@mrprint.cl",
+                "first_name": "Ale",
+                "last_name": "Valenzuela",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1653836969c268c8",
+                "status": "pagado",
+                "created_at": "2026-03-24 07:34:48",
+                "card_number": "3760",
+                "authorized_at": "2026-03-24 07:37:08",
+                "auth_code": "855869",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 7000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 7000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 6792,
+                        "payout_date": "2026-03-27"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "vaanessa.andreajc@gmail.com",
+                "first_name": "Vanessa",
+                "last_name": "Jaa",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1652926469c1cfbd",
+                "status": "pagado",
+                "created_at": "2026-03-23 20:41:49",
+                "card_number": "2725",
+                "authorized_at": "2026-03-23 20:43:12",
+                "auth_code": "003267",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1574,
+                        "payout_amount": 51326,
+                        "payout_date": "2026-03-26"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "hugo77vs@gmail.com",
+                "first_name": "Hugo",
+                "last_name": "Villarroel",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1650719269c0a2b4",
+                "status": "pagado",
+                "created_at": "2026-03-22 23:17:24",
+                "card_number": "4307",
+                "authorized_at": "2026-03-22 23:18:15",
+                "auth_code": "139003",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1574,
+                        "payout_amount": 51326,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "joannaromeroh@gmail.com",
+                "first_name": "Joanna",
+                "last_name": "Romero",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1650407669c07182",
+                "status": "pagado",
+                "created_at": "2026-03-22 19:47:30",
+                "card_number": "5566",
+                "authorized_at": "2026-03-22 19:54:04",
+                "auth_code": "025050",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 803,
+                        "payout_amount": 26197,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "kiovergara@gmail.com",
+                "first_name": "Kiomara",
+                "last_name": "Vergara",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1650247869c05140",
+                "status": "pagado",
+                "created_at": "2026-03-22 17:29:52",
+                "card_number": "7983",
+                "authorized_at": "2026-03-22 17:31:33",
+                "auth_code": "040458",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "ma.ormenoromero@gmail.com",
+                "first_name": "Mximo",
+                "last_name": "Ormeo",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1648368469bea0d2",
+                "status": "pagado",
+                "created_at": "2026-03-21 10:44:50",
+                "card_number": "",
+                "authorized_at": "2026-03-21 10:45:27",
+                "auth_code": "1",
+                "installment_amount": "1",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 4792,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "jona.gonzalez.martinez@gmail.com",
+                "first_name": "JonathanJavier",
+                "last_name": "GonzalezMartinez",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1648339969be9b55",
+                "status": "pagado",
+                "created_at": "2026-03-21 10:21:25",
+                "card_number": "3014",
+                "authorized_at": "2026-03-21 10:23:45",
+                "auth_code": "006674",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 149,
+                        "payout_amount": 4851,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "franciscoportino@gmail.com",
+                "first_name": "Javier",
+                "last_name": "Portio",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1648331069be995a",
+                "status": "pagado",
+                "created_at": "2026-03-21 10:12:58",
+                "card_number": "9344",
+                "authorized_at": "2026-03-21 10:14:52",
+                "auth_code": "STKKNZ",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 5000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 5000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 208,
+                        "payout_amount": 4792,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "mauroabarzua@gmail.com",
+                "first_name": "Mauro",
+                "last_name": "Abarzua",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1646178569bd2939",
+                "status": "pagado",
+                "created_at": "2026-03-20 08:02:17",
+                "card_number": "9995",
+                "authorized_at": "2026-03-20 08:05:57",
+                "auth_code": "979685",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "francisca.jch@gmail.com",
+                "first_name": "Francisca",
+                "last_name": "Corts",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1646166169bd2496",
+                "status": "pagado",
+                "created_at": "2026-03-20 07:42:30",
+                "card_number": "2345",
+                "authorized_at": "2026-03-20 07:43:55",
+                "auth_code": "196783",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-03-25"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "f.tapiao@live.com",
+                "first_name": "Felipe",
+                "last_name": "Tapia",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1645238869bc9bc1",
+                "status": "pagado",
+                "created_at": "2026-03-19 21:58:41",
+                "card_number": "7296",
+                "authorized_at": "2026-03-19 22:00:55",
+                "auth_code": "849843",
+                "installment_amount": "",
+                "installment_number": "3",
+                "payment_type_code": "VC",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1787,
+                        "payout_amount": 41113,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "nelly.alarcon@cajalosandes.cl",
+                "first_name": "Nelly",
+                "last_name": "Alarcon",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1645238569bc9bba",
+                "status": "pagado",
+                "created_at": "2026-03-19 21:58:34",
+                "card_number": "6847",
+                "authorized_at": "2026-03-19 22:00:01",
+                "auth_code": "837683",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1187,
+                        "payout_amount": 38713,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "felipehueche@gmail.com",
+                "first_name": "Felipe",
+                "last_name": "Hueche",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1645213769bc99e3",
+                "status": "pagado",
+                "created_at": "2026-03-19 21:50:43",
+                "card_number": "4819",
+                "authorized_at": "2026-03-19 21:52:39",
+                "auth_code": "008738",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 42900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 42900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1276,
+                        "payout_amount": 41624,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "a.a.fuentes.ja@gmail.com",
+                "first_name": "Anglica",
+                "last_name": "Fuentes",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1644786669bc6a0d",
+                "status": "pagado",
+                "created_at": "2026-03-19 18:26:37",
+                "card_number": "7888",
+                "authorized_at": "2026-03-19 18:29:41",
+                "auth_code": "119444",
+                "installment_amount": "",
+                "installment_number": "3",
+                "payment_type_code": "VC",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1662,
+                        "payout_amount": 38238,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "mmellado@sodimac.cl",
+                "first_name": "Marco",
+                "last_name": "Mellado",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1644443469bc4824",
+                "status": "pagado",
+                "created_at": "2026-03-19 16:01:56",
+                "card_number": "5453",
+                "authorized_at": "2026-03-19 16:03:27",
+                "auth_code": "676108",
+                "installment_amount": "",
+                "installment_number": "3",
+                "payment_type_code": "VC",
+                "amount": 39900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 39900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1662,
+                        "payout_amount": 38238,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "halamos.estudio@gmail.com",
+                "first_name": "Hctor",
+                "last_name": "Alamos",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1643561169bbf53e",
+                "status": "pagado",
+                "created_at": "2026-03-19 10:08:14",
+                "card_number": "4993",
+                "authorized_at": "2026-03-19 10:09:45",
+                "auth_code": "194473",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 52900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 52900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 2203,
+                        "payout_amount": 50697,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "catavegach@gmail.com",
+                "first_name": "Catalina",
+                "last_name": "Vega",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1643316369bbbe61",
+                "status": "pagado",
+                "created_at": "2026-03-19 06:14:09",
+                "card_number": "4893",
+                "authorized_at": "2026-03-19 06:15:43",
+                "auth_code": "165694",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1995,
+                        "payout_amount": 45905,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "p.santanderl@gmail.com",
+                "first_name": "Paola",
+                "last_name": "Santander",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1643102469bb7255",
+                "status": "pagado",
+                "created_at": "2026-03-19 00:49:41",
+                "card_number": "2242",
+                "authorized_at": "2026-03-19 00:51:49",
+                "auth_code": "796433",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VN",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1995,
+                        "payout_amount": 45905,
+                        "payout_date": "2026-03-24"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "merarimaturana@gmail.com",
+                "first_name": "Anais",
+                "last_name": "Maturana",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1642140469bb260a",
+                "status": "pagado",
+                "created_at": "2026-03-18 19:24:10",
+                "card_number": "1430",
+                "authorized_at": "2026-03-18 19:25:53",
+                "auth_code": "N2ME1Z",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VP",
+                "amount": 27000,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 27000,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1125,
+                        "payout_amount": 25875,
+                        "payout_date": "2026-03-23"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "j.j.medelleyton@gmail.com",
+                "first_name": "Juan",
+                "last_name": "Medel",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1642072169bb1ef2",
+                "status": "pagado",
+                "created_at": "2026-03-18 18:53:54",
+                "card_number": "3486",
+                "authorized_at": "2026-03-18 18:55:41",
+                "auth_code": "009587",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 47900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 47900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1425,
+                        "payout_amount": 46475,
+                        "payout_date": "2026-03-23"
+                    }
+                ],
+                "bank": {}
+            }
+        },
+        {
+            "client": {
+                "email": "marcelita52@gmail.com",
+                "first_name": "Marcela",
+                "last_name": "Dvila",
+                "social_id": "1-9",
+                "phone": ""
+            },
+            "order": {
+                "uuid": "1642016469bb1866",
+                "status": "pagado",
+                "created_at": "2026-03-18 18:25:58",
+                "card_number": "2286",
+                "authorized_at": "2026-03-18 18:27:41",
+                "auth_code": "006355",
+                "installment_amount": "",
+                "installment_number": "0",
+                "payment_type_code": "VD",
+                "amount": 37900,
+                "merchant_internal_code": "",
+                "merchant_internal_channel": "",
+                "deposits": [
+                    {
+                        "description": "1/1",
+                        "installment": 37900,
+                        "processing_flat_fee": 0,
+                        "processing_fee": 1128,
+                        "payout_amount": 36772,
+                        "payout_date": "2026-03-23"
+                    }
+                ],
+                "bank": {}
+            }
+        }
+    ]
+}
