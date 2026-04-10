@@ -32,6 +32,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// ENDPOINT DE SALUD (Debug)
+app.get('/api/health', async (req, res) => {
+    try {
+        const cuentasRes = await pool.query('SELECT count(*) FROM "CuentaContable"');
+        const egresosRes = await pool.query('SELECT count(*) FROM "Egreso"');
+        res.json({
+            status: 'online',
+            db: 'connected',
+            counts: {
+                cuentas: cuentasRes.rows[0].count,
+                egresos: egresosRes.rows[0].count
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ status: 'error', error: err.message });
+    }
+});
+
 // SERVIR FRONTEND (PRODUCCION)
 app.use(express.static(path.join(__dirname, '../dist')));
 
@@ -225,17 +243,16 @@ app.post('/api/ingesta/bci', upload.single('file'), async (req, res) => {
         let startIdx = -1;
         let colFecha = 0, colDesc = 5, colMonto = 10; // Defaults basados en Enero
 
-        // Busqueda dinamica de encabezados
+        // Busqueda dinamica de encabezados (BCI MULTI-FORMATO)
         for(let i=0; i<rows.length; i++) {
             const rowStr = JSON.stringify(rows[i]).toLowerCase();
-            if(rowStr.includes('descripción') || rowStr.includes('descripcion')) {
+            if(rowStr.includes('descripción') || rowStr.includes('descripcion') || rowStr.includes('movimiento') || rowStr.includes('concepto')) {
                 startIdx = i + 1;
-                // Intentar mapear columnas reales
                 rows[i].forEach((cell, idx) => {
                     const c = String(cell).toLowerCase();
                     if(c.includes('fecha')) colFecha = idx;
-                    if(c.includes('descrip')) colDesc = idx;
-                    if(c.includes('abono') || c.includes('depósito')) colMonto = idx;
+                    if(c.includes('descrip') || c.includes('concep') || c.includes('movim')) colDesc = idx;
+                    if(c.includes('abono') || c.includes('depósito') || c.includes('deposito') || c.includes('crédito') || c.includes('credito') || c.includes('entrada')) colMonto = idx;
                 });
                 break;
             }
