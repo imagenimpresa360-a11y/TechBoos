@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; color: #111; margin: 0; padding: 20px; }
+  .page { box-sizing: border-box; width: 100%; height: 100vh; page-break-after: always; display: flex; flex-direction: column; }
+  h1 { font-size: 28px; color: #1e3a8a; border-bottom: 3px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 5px; text-transform: uppercase; }
+  h2 { font-size: 20px; color: #2563eb; margin-top: 5px; margin-bottom: 15px;}
+  .header { text-align: right; color: #64748b; font-size: 14px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; font-weight: bold; }
+  pre { background-color: #f8fafc; padding: 20px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 15px; border: 1px solid #cbd5e1; white-space: pre; overflow-x: hidden; line-height: 1.6; color: #0f172a; flex-grow: 1; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: auto; padding-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+    <div class="header">OFICINA DEL COORDINADOR GENERAL | DEPARTAMENTO CPO | PÁGINA 1 DE 2</div>
+    <h1>Visión del Agente CPO (Producto)</h1>
+    <h2>Mapa de Navegación "Cero-Fricción"</h2>
+    <p>El operador registrará todas las acciones comerciales en un único panel de control central (SPA), bloqueando la necesidad de cambiar páginas y perder la transacción de caja.</p>
+<pre>
+[ PANTALLA PRINCIPAL: DASHBOARD INTERACTIVO Y CAJA FUERTE ]
+  │
+  ├─► [Panel Izquierdo] REGISTRAR SALIDA DE DINERO (Caja Chica)
+  │    ├─ Modal Flotante: Categoría (Aseo, Sueldos, etc.)
+  │    └─ Ingreso de Monto ─► Botón 'Registrar' ─► (Se refleja en Finanzas)
+  │
+  ├─► [Barra Superior Central] BUSCADOR UNIVERSAL EXPRÉS
+  │    └─ Campo: DNI / RUT celular del Cliente
+  │         │
+  │         ├─► [NO Existe el Cliente] 
+  │         │    └─ Alerta Flotante: ALTA EXPRÉS ─► Nombre y Fono ─► PAGO ─► Membresía Activa
+  │         │
+  │         └─► [SÍ Existe el Cliente]
+  │              └─ Tarjeta Lateral Flotante: HISTORIAL DE COMPRAS
+  │                   └─ Estado actual ─► Botón "RENOVAR PLAN" ─► PAGO ─► Membresía Activa
+  │
+  └─► [Sección Privada] ANÁLISIS DE NEGOCIO Y DIRECCIÓN
+       └─ Clic en Opción "Directorio" ─► Ingresos vs Egresos ─► Filtro Rentabilidad Sedes
+</pre>
+    <div class="footer">Documento Emitido en Computadora Central del Director - TECHEMPRESA</div>
+</div>
+
+<div class="page">
+    <div class="header">OFICINA DEL COORDINADOR GENERAL | DEPARTAMENTO CTO | PÁGINA 2 DE 2</div>
+    <h1>Visión del Agente CTO (Sistemas)</h1>
+    <h2>Diseño Arquitectónico Entidad-Relación</h2>
+    <p>Matriz de conectividad de bajo acoplamiento mediante 6 contenedores maestros administrados de forma 100% transaccional.</p>
+<pre>
+[ SECCIÓN I: ADMINISTRATIVAS Y ACCESOS ]
+┌──────────────────────────┐           ┌──────────────────────────┐
+│        SEDES (Branch)    │◄─────────►│     STAFF (Usuarios)     │
+│ 🔑 id_sede (PK)          │ 1       N │ 🔑 id_staff (PK)         │
+│ 📌 nombre, direccion     │           │ 👤 email_laboral, rol    │
+└──────────┬───────────────┘           └──────────────────────────┘
+           │ 
+[ SECCIÓN II: DINERARIAS Y ACTIVOS ]
+           │ N            N       1
+┌──────────┴───────────────┐   ┌──────────────────────────┐
+│     GASTOS (Egresos)     │   │     MIEMBRO (Cliente)    │
+│ 🔑 id_gasto (PK)         │   │ 🔑 id_miembro (PK)       │
+│ 💰 monto_dinero_salida   │   │ 🛡️ rut_dni (Seguridad)   │
+│ 🏷️ categoria, fecha      │   │ 👤 nombre_completo       │
+└──────────────────────────┘   └──────────┬───────────────┘
+                                          │ 1      1 ┌────────────────────────┐
+                                          │     ┌────┤     PLANES (Stock)     │
+                                          │ N   N    │ 🔑 id_plan (PK)        │
+                               ┌──────────┴─────┴────┤ 💰 precio_base         │
+                               │   SUSCRIPCIONES     ├─⏳ duracion_dias       │
+                               │ 🔑 id_sub (PK)      └────────────────────────┘
+                               │ 📅 fechas_caducidad     
+                               │ 🟢 status_cobro         
+                               └──────────────────────────┘
+</pre>
+    <div class="footer">Documento Emitido en Computadora Central del Director - TECHEMPRESA</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,203 @@
+/* ============================================
+   THE BOOS ERP — v17.1 (QA Approved)
+   CSS Master Sheet
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  color-scheme: dark;
+  color: rgba(255,255,255,0.87);
+  background-color: #0a0f1e;
+  --teal: #14b8a6;
+  --indigo: #6366f1;
+  --red: #ef4444;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --sidebar-w: 220px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: radial-gradient(circle at top left, #1e293b, #0a0f1e); }
+#root { width: 100%; }
+
+/* --- ERP LAYOUT --- */
+.erp-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* --- SIDEBAR --- */
+.erp-sidebar {
+  width: var(--sidebar-w);
+  background: rgba(0,0,0,0.5);
+  border-right: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100%;
+  z-index: 10;
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-size: 0.85rem; font-weight: 800; color: #fff;
+  margin-bottom: 2.5rem; padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: transparent; border: none; color: #64748b;
+  padding: 0.8rem 1rem; border-radius: 0.7rem;
+  cursor: pointer; font-size: 0.85rem; font-weight: 500;
+  text-align: left; width: 100%; transition: all 0.2s;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.nav-item.active { background: rgba(99,102,241,0.15); color: var(--indigo); border: 1px solid rgba(99,102,241,0.3); }
+.sidebar-footer { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 1rem; }
+.user-badge { display: flex; align-items: center; gap: 0.5rem; color: #64748b; font-size: 0.8rem; }
+
+/* --- MAIN AREA --- */
+.erp-main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.main-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.3);
+  position: sticky; top: 0; z-index: 5;
+}
+.header-mes-nav { display: flex; gap: 0.5rem; }
+.m-link {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  color: #64748b; padding: 0.4rem 1rem; border-radius: 0.5rem;
+  cursor: pointer; font-size: 0.75rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.m-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.m-link.active { background: var(--indigo); color: #fff; border-color: var(--indigo); }
+.header-status { display: flex; align-items: center; gap: 0.5rem; color: var(--teal); font-size: 0.8rem; font-weight: 600; }
+
+/* --- CONTENT --- */
+.content-area { padding: 2rem; flex: 1; }
+.view-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; color: #f8fafc; }
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* --- GLASS CARD --- */
+.glass-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.glass-card:hover { border-color: rgba(255,255,255,0.15); }
+
+/* --- METRICS --- */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem; margin-bottom: 1.5rem;
+}
+.metric-card { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.metric-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; color: #64748b; text-transform: uppercase; }
+.metric-value { font-size: 2rem; font-weight: 800; color: #f8fafc; }
+.metric-sub { font-size: 0.72rem; color: #475569; }
+.teal-border { border-left: 4px solid var(--teal) !important; }
+.blue-border { border-left: 4px solid var(--indigo) !important; }
+.red-border { border-left: 4px solid var(--red) !important; }
+.green-border { border-left: 4px solid var(--green) !important; }
+
+/* --- ERP TABLE --- */
+.erp-table { width: 100%; border-collapse: collapse; }
+.erp-table th {
+  text-align: left; padding: 0.75rem 1rem;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
+  color: #64748b; border-bottom: 2px solid rgba(255,255,255,0.07);
+}
+.erp-table td { padding: 0.9rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; }
+.erp-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* --- STATUS PILLS --- */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.3rem 0.75rem; border-radius: 9999px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+}
+.status-pill.ingresado { background: rgba(99,102,241,0.15); color: var(--indigo); }
+.status-pill.aprobado  { background: rgba(16,185,129,0.15); color: var(--green); }
+.status-pill.certificado { background: rgba(20,184,166,0.15); color: var(--teal); }
+
+/* --- AP BUTTONS --- */
+.btn-group { display: flex; gap: 0.4rem; justify-content: center; }
+.btn-group button {
+  padding: 0.35rem 0.8rem; border-radius: 0.5rem; border: 1px solid;
+  cursor: pointer; font-size: 0.75rem; font-weight: 700; transition: all 0.15s;
+}
+.btn-camp  { background: rgba(99,102,241,0.1); color: var(--indigo); border-color: var(--indigo); }
+.btn-marina{ background: rgba(20,184,166,0.1); color: var(--teal); border-color: var(--teal); }
+.btn-ambas { background: rgba(245,158,11,0.1); color: var(--amber); border-color: var(--amber); }
+
+/* --- FORM DE INGRESO --- */
+.form-card { padding: 1.5rem; margin-top: 1.5rem; }
+.form-card h4 { font-size: 0.85rem; font-weight: 700; color: #94a3b8; margin-bottom: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+.form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: end; }
+.form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+.form-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+.form-input, .form-select {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  color: #f8fafc; padding: 0.65rem 0.9rem; border-radius: 0.6rem;
+  font-size: 0.85rem; font-family: inherit; width: 100%;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--indigo); }
+.form-select option { background: #0f172a; }
+.btn-submit {
+  background: var(--indigo); color: #fff; border: none;
+  padding: 0.65rem 1.2rem; border-radius: 0.6rem; cursor: pointer;
+  font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+  transition: all 0.2s;
+}
+.btn-submit:hover { background: #4f46e5; transform: translateY(-1px); }
+.btn-delete {
+  background: transparent; border: none; color: var(--red);
+  cursor: pointer; padding: 0.3rem; border-radius: 0.4rem; transition: all 0.15s;
+}
+.btn-delete:hover { background: rgba(239,68,68,0.1); }
+
+/* --- SIDEBAR BADGES (PENDING COUNTER) --- */
+.pending-badge {
+  background: var(--red); color: #fff; border-radius: 9999px;
+  font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.45rem;
+  margin-left: auto;
+}
+
+/* --- CHART CONTAINER --- */
+.chart-container { padding: 1.5rem; margin-top: 1.5rem; }
+.chart-container h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; color: #94a3b8; }
+
+/* --- NUEVAS CLASES PLAN DE CUENTAS v40 --- */
+.cuenta-card {
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: default;
+}
+.cuenta-card:hover { transform: translateY(-3px); }
+
+.delete-btn-overlay {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border: none; color: var(--red);
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0.6; transition: all 0.2s;
+}
+.delete-btn-overlay:hover { opacity: 1; background: var(--red); color: #fff; }

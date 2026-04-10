@@ -1,0 +1,12 @@
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Arriendos', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Servicios Básicos (agua, luz, internet)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Sueldos de Entrenadores', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Banco ( Creditos)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Mantenimiento de Equipos (reparacion o compra)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Plataforma de Reservas/Gestión (BoxMagic, Lioren, virtual post)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Otras platadormas compartidas (liorent)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Otras platadormas compartidas (virtualpost)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Administración (gerencia y admin)', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Asesores', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Limpieza y Aseo y Art. Aseo.', NOW()) ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO "CuentaContable" (id, nombre, "createdAt") VALUES (gen_random_uuid(), 'Impuestos, convenios y rentas', NOW()) ON CONFLICT (nombre) DO NOTHING;

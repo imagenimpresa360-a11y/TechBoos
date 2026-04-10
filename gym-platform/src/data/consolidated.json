@@ -1,0 +1,549 @@
+{
+  "metadata": {
+    "ultima_sincronizacion": "2026-04-06 16:23:25",
+    "scope": "STRICT_TECHEMPRESA_ONLY"
+  },
+  "entidades": {
+    "boxmagic_files": [
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\1.- enero BoxMagic (41).csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\2.- Febrero BoxMagic .csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\3.- marzo BoxMagic.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\campanario\\4.- abril BoxMagic (corte).csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\2.- enero BoxMagic Marina.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\3.- febrero BoxMagic Marina.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\4.- marzo BoxMagic Marina.csv",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\06_Ingeniero_Datos\\boxmagic\\marina\\5.- abril BoxMagic Marina (corte).csv"
+    ],
+    "bancarios_files": [
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\BANCO BCI\\CARTOLAS_MENSUALES\\1. CARTOLA ENERO N1.xlsx",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\BANCO BCI\\CARTOLAS_MENSUALES\\2. CARTOLA FEBRERO N2.xlsx",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\BANCO BCI\\CARTOLAS_MENSUALES\\3. CARTOLA MARZO N3.xlsx",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\1.- enero TBB enviados cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\1.- enero TBB recibidos cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\2.- Febrero TBB recibidos cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\2.-Febrero TBB enviados cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\3.-Marzo TBB enviados cartola_06042026130619.xls",
+      "c:\\Users\\DELL\\Desktop\\TECHEMPRESA\\agentes\\02_CFO_Finanzas\\TRANSFERENCIAS\\3.-Marzo TBB recibido cartola_06042026130619.xls"
+    ],
+    "comprobantes_files": []
+  },
+  "ingresos": {
+    "boxmagic": {
+      "enero": {
+        "ventas_brutas_reales": 6844400
+      },
+      "febrero": {
+        "ventas_brutas_reales": 5707900
+      },
+      "marzo": {
+        "ventas_brutas_reales": 7394080
+      },
+      "abril": {
+        "ventas_brutas_reales": 1045890
+      }
+    }
+  },
+  "virtualpost_mapeo": {
+    "metadata": {
+      "fecha_mapeo": "2026-04-07 15:11",
+      "total_transacciones": 7584,
+      "emails_campanario_referencia": 96,
+      "metodo": "join_email_boxmagic_campanario"
+    },
+    "campanario": {
+      "count": 1201,
+      "total_monto": 43642400
+    },
+    "marina": {
+      "count": 6383,
+      "total_monto": 236911522
+    },
+    "consolidado": {
+      "total_monto": 280553922
+    }
+  },
+  "egresos": {
+    "mantenimiento": {
+      "campanario": [
+        {
+          "fecha": "2026-04-07",
+          "descripcion": "Arreglo de techo para invierno",
+          "detalle": {
+            "mdf_9mm": 270000,
+            "pl_zinc": 98000,
+            "pl_transp_ondulado": 112000,
+            "ferreteria": 80000,
+            "mano_de_obra": 300000
+          },
+          "total": 860000,
+          "estado": "presupuestado"
+        }
+      ],
+      "marina": [
+        {
+          "fecha": "2026-04-07",
+          "descripcion": "Arreglo de techo zona GAP",
+          "detalle": {
+            "pl_transp_5uv": 504000,
+            "fierro_75x75": 72000,
+            "fierro_40x20": 182400,
+            "ferreteria": 200000,
+            "mano_de_obra": 600000
+          },
+          "total": 1558400,
+          "estado": "presupuestado"
+        }
+      ]
+    }
+  },
+  "cuentas_por_cobrar": {
+    "deudor": "Imagen Impresa Spa",
+    "rut": "76.134.902-3",
+    "responsable_gestion": "04_Legal_Contable",
+    "estado": "PENDIENTE DE COBRO",
+    "prestamos": [
+      {
+        "fecha": "2026-03-14",
+        "monto": 2000000,
+        "glosa": "Prestamo convenio imagen",
+        "fuente": "3.-Marzo TBB enviados cartola"
+      },
+      {
+        "fecha": "2026-03-31",
+        "monto": 720000,
+        "glosa": "Prestamo convenio imagen",
+        "fuente": "3.-Marzo TBB enviados cartola"
+      },
+      {
+        "fecha": "2026-04-02",
+        "monto": 380000,
+        "glosa": "Transferencia enviada a Imagen Impresa Spa",
+        "fuente": "Cartola BCI Movimientos Abril"
+      },
+      {
+        "fecha": "2026-04-06",
+        "monto": 200000,
+        "glosa": "Transferencia enviada a Imagen Impresa Spa",
+        "fuente": "Cartola BCI Movimientos Abril"
+      }
+    ],
+    "total_prestado_2026": 3300000
+  },
+  "virtualpost_mapeo_mensual": {
+    "abril": {
+      "campanario": {
+        "count": 87,
+        "monto": 3313900
+      },
+      "marina": {
+        "count": 558,
+        "monto": 21040920
+      },
+      "consolidado": {
+        "count": 645,
+        "monto": 24354820
+      }
+    },
+    "marzo": {
+      "campanario": {
+        "count": 126,
+        "monto": 4609500
+      },
+      "marina": {
+        "count": 593,
+        "monto": 22506030
+      },
+      "consolidado": {
+        "count": 719,
+        "monto": 27115530
+      }
+    },
+    "febrero": {
+      "campanario": {
+        "count": 114,
+        "monto": 4126650
+      },
+      "marina": {
+        "count": 467,
+        "monto": 17515190
+      },
+      "consolidado": {
+        "count": 581,
+        "monto": 21641840
+      }
+    },
+    "enero": {
+      "campanario": {
+        "count": 99,
+        "monto": 3630600
+      },
+      "marina": {
+        "count": 512,
+        "monto": 18418107
+      },
+      "consolidado": {
+        "count": 611,
+        "monto": 22048707
+      }
+    },
+    "diciembre": {
+      "campanario": {
+        "count": 120,
+        "monto": 4179950
+      },
+      "marina": {
+        "count": 531,
+        "monto": 19440550
+      },
+      "consolidado": {
+        "count": 651,
+        "monto": 23620500
+      }
+    },
+    "noviembre": {
+      "campanario": {
+        "count": 118,
+        "monto": 4118650
+      },
+      "marina": {
+        "count": 641,
+        "monto": 23761750
+      },
+      "consolidado": {
+        "count": 759,
+        "monto": 27880400
+      }
+    },
+    "octubre": {
+      "campanario": {
+        "count": 104,
+        "monto": 3594150
+      },
+      "marina": {
+        "count": 603,
+        "monto": 23085000
+      },
+      "consolidado": {
+        "count": 707,
+        "monto": 26679150
+      }
+    },
+    "septiembre": {
+      "campanario": {
+        "count": 84,
+        "monto": 3088450
+      },
+      "marina": {
+        "count": 434,
+        "monto": 16126950
+      },
+      "consolidado": {
+        "count": 518,
+        "monto": 19215400
+      }
+    },
+    "agosto": {
+      "campanario": {
+        "count": 96,
+        "monto": 3530200
+      },
+      "marina": {
+        "count": 511,
+        "monto": 19136500
+      },
+      "consolidado": {
+        "count": 607,
+        "monto": 22666700
+      }
+    },
+    "julio": {
+      "campanario": {
+        "count": 95,
+        "monto": 3675400
+      },
+      "marina": {
+        "count": 539,
+        "monto": 19833990
+      },
+      "consolidado": {
+        "count": 634,
+        "monto": 23509390
+      }
+    },
+    "junio": {
+      "campanario": {
+        "count": 84,
+        "monto": 3019050
+      },
+      "marina": {
+        "count": 466,
+        "monto": 16973895
+      },
+      "consolidado": {
+        "count": 550,
+        "monto": 19992945
+      }
+    },
+    "mayo": {
+      "campanario": {
+        "count": 74,
+        "monto": 2755900
+      },
+      "marina": {
+        "count": 528,
+        "monto": 19072640
+      },
+      "consolidado": {
+        "count": 602,
+        "monto": 21828540
+      }
+    }
+  },
+  "gastos_operacionales": {
+    "metadata": {
+      "fuente": "Excel THE BOOS AÑO 2026 + Direccion + CFO",
+      "fecha_registro": "2026-04-07",
+      "operador_datos": "Luis Vasquez"
+    },
+    "items": {
+      "arriendos": {
+        "campanario": 450000,
+        "marina": 550000,
+        "consolidado": 1000000,
+        "estado": "confirmado"
+      },
+      "servicios_basicos": {
+        "campanario": {
+          "luz": null,
+          "agua": null,
+          "internet": null,
+          "gas": null,
+          "total": null
+        },
+        "marina": {
+          "luz": null,
+          "agua": null,
+          "internet": null,
+          "gas": null,
+          "total": null
+        },
+        "consolidado": null,
+        "estado": "pendiente_luis_vasquez",
+        "responsable": "Luis Vasquez"
+      },
+      "sueldos_administracion": {
+        "campanario": 310000,
+        "marina": 310000,
+        "consolidado": 620000,
+        "detalle": {
+          "rrss": [
+            {
+              "nombre": "Sebastian Vallejos",
+              "rol": "RRSS",
+              "monto": 40000
+            },
+            {
+              "nombre": "Camilo Medina",
+              "rol": "RRSS",
+              "monto": 40000
+            }
+          ],
+          "planificacion": [
+            {
+              "nombre": "Gabriela Sanchez",
+              "rol": "Planificacion KID y GAP",
+              "monto": 40000
+            },
+            {
+              "nombre": "Joaquin Ortubia",
+              "rol": "Planificacion",
+              "monto": 50000
+            }
+          ],
+          "socios_gerencia": [
+            {
+              "nombre": "Vladimir Palma",
+              "rol": "Gerente General",
+              "monto": 150000
+            },
+            {
+              "nombre": "Ruben Rojas",
+              "rol": "Gerente Finanzas",
+              "monto": 150000
+            },
+            {
+              "nombre": "Joaquin Ortubia",
+              "rol": "Admin Sedes",
+              "monto": 150000
+            }
+          ]
+        },
+        "estado": "confirmado",
+        "validado_meses": [
+          "enero",
+          "febrero",
+          "marzo"
+        ]
+      },
+      "banco_creditos": {
+        "detalle_abril": {
+          "linea_sobregiro": 348184,
+          "pac_tarjeta_visa": 38275
+        },
+        "estado": "datos_parciales_abril"
+      },
+      "mantenimiento_equipos": {
+        "campanario": null,
+        "marina": null,
+        "consolidado": null,
+        "estado": "pendiente_luis_vasquez",
+        "responsable": "Luis Vasquez"
+      },
+      "plataformas_gestion": {
+        "boxmagic_mensual": 63000,
+        "lioren_mensual": 11920,
+        "virtualpost": "por_determinar_segun_factura",
+        "consolidado_fijo_mensual": 74920,
+        "estado": "parcialmente_confirmado"
+      },
+      "contabilidad": {
+        "proveedor": "STL Contabilidad",
+        "monto_mensual": 298000,
+        "estado": "confirmado"
+      },
+      "asesores_legales": {
+        "proveedor": "STL Abogados",
+        "moneda": "UF",
+        "monto_uf": null,
+        "monto_clp_estimado": null,
+        "estado": "pendiente_revision_facturas_lioren",
+        "responsable": "04_Legal_Contable"
+      },
+      "limpieza": {
+        "campanario": {
+          "total": 120000,
+          "detalle": [
+            {
+              "nombre": "Angelica",
+              "monto": 60000
+            },
+            {
+              "nombre": "Ruben Santiago",
+              "monto": 60000
+            }
+          ]
+        },
+        "marina": {
+          "total": 100000,
+          "detalle": [
+            {
+              "nombre": "Beatriz Rojas",
+              "monto": 100000
+            }
+          ]
+        },
+        "consolidado": 220000,
+        "estado": "confirmado"
+      },
+      "impuestos_convenios": {
+        "convenio_tgr_mensual": 137700,
+        "f29_enero": 445529,
+        "f29_marzo": 891058,
+        "estado": "parcialmente_confirmado"
+      }
+    },
+    "nota_cristian_zapata": "Cristian Zapata clasificado como COACH (Planificacion Hybrid). Pago .000 en cartola 01-04-2026 corresponde a honorario coach."
+  },
+  "personal": [
+    {
+      "id": 1,
+      "nombre": "Sebastian Vallejos",
+      "rol": "RRSS",
+      "tipo": "Administrativo",
+      "honorario": 40000
+    },
+    {
+      "id": 2,
+      "nombre": "Camilo Medina",
+      "rol": "RRSS",
+      "tipo": "Administrativo",
+      "honorario": 40000
+    },
+    {
+      "id": 3,
+      "nombre": "Gabriela Sanchez",
+      "rol": "Coach / Planificacion",
+      "tipo": "Coach",
+      "honorario": 40000
+    },
+    {
+      "id": 4,
+      "nombre": "Joaquin Ortubia",
+      "rol": "Admin Sedes / Planif",
+      "tipo": "Administrativo",
+      "honorario": 200000
+    },
+    {
+      "id": 5,
+      "nombre": "Cristian Zapata",
+      "rol": "Coach Hybrid",
+      "tipo": "Coach",
+      "honorario": 252000
+    },
+    {
+      "id": 6,
+      "nombre": "Vladimir Palma",
+      "rol": "Gerente General",
+      "tipo": "Administrativo",
+      "honorario": 150000
+    },
+    {
+      "id": 7,
+      "nombre": "Ruben Rojas",
+      "rol": "Gerente Finanzas",
+      "tipo": "Administrativo",
+      "honorario": 150000
+    }
+  ],
+  "compras": {
+    "facturas_abril": [
+      {
+        "id": "F102",
+        "proveedor": "ENEL Distribucion",
+        "monto": 245000,
+        "item": "Servicios Basicos",
+        "derivacion": "Pendiente"
+      },
+      {
+        "id": "F334",
+        "proveedor": "Aguas Andinas",
+        "monto": 89000,
+        "item": "Servicios Basicos",
+        "derivacion": "Pendiente"
+      },
+      {
+        "id": "F889",
+        "proveedor": "Gimnasio Equip",
+        "monto": 1200000,
+        "item": "Mantenimiento",
+        "derivacion": "Marina"
+      },
+      {
+        "id": "F11",
+        "proveedor": "Lioren SpA",
+        "monto": 11920,
+        "item": "Plataformas",
+        "derivacion": "Consolidado"
+      }
+    ],
+    "rendiciones": [
+      {
+        "id": "R01",
+        "persona": "Luis Vasquez",
+        "descripcion": "Compra Articulos Aseo",
+        "monto": 45000,
+        "sede": "Campanario"
+      }
+    ]
+  }
+}
