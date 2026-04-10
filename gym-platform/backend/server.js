@@ -265,11 +265,14 @@ app.post('/api/ingesta/bci/mensual', upload.single('file'), async (req, res) => 
         for(let i=0; i<rows.length; i++){ if(JSON.stringify(rows[i]).toLowerCase().includes('descripción')){ startIdx = i+1; break; } }
         for (let i = (startIdx === -1 ? 0 : startIdx); i < rows.length; i++) {
             const row = rows[i];
-            if (!row || row.length < 10) continue;
+            if (!row || row.length < 9) continue;
             const desc = String(row[5] || '').toUpperCase();
-            const monto = cleanAmt(row[10]);
+            const cargo = cleanAmt(row[8] || 0);  // Columna Cargos
+            const abono = cleanAmt(row[10] || 0); // Columna Abonos
+            const monto = abono > 0 ? abono : (cargo > 0 ? -cargo : 0);
             const fechaVal = row[0];
-            if (monto > 0 && desc && !desc.includes('SALDO')) {
+
+            if (monto !== 0 && desc && !desc.includes('SALDO')) {
                 const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
                 const hashId = crypto.createHash('md5').update(`M-${fechaStr}-${desc}-${monto}`).digest('hex');
                 await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
@@ -277,7 +280,7 @@ app.post('/api/ingesta/bci/mensual', upload.single('file'), async (req, res) => 
             }
         }
         fs.unlinkSync(req.file.path);
-        res.json({ message: `Ingesta de ${count} abonos (Mensual) exitosa`, count });
+        res.json({ message: `Ingesta de ${count} movimientos (Mensual) exitosa`, count });
     } catch (err) { if(req.file) fs.unlinkSync(req.file.path); res.status(500).json({ error: err.message }); }
 });
 
@@ -294,9 +297,12 @@ app.post('/api/ingesta/bci/movimientos', upload.single('file'), async (req, res)
             const row = rows[i];
             if (!row || row.length < 2) continue;
             const desc = String(row[1] || row[2] || '').toUpperCase();
-            const monto = cleanAmt(row[3] || row[4] || row[5]);
+            const cargo = cleanAmt(row[3] || 0); // Ajustar segun formato exportado
+            const abono = cleanAmt(row[4] || row[5] || 0);
+            const monto = abono > 0 ? abono : (cargo > 0 ? -cargo : 0);
             const fechaVal = row[0];
-            if (monto > 0 && desc) {
+
+            if (monto !== 0 && desc) {
                 const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
                 const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${desc}-${monto}`).digest('hex');
                 await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
@@ -304,7 +310,7 @@ app.post('/api/ingesta/bci/movimientos', upload.single('file'), async (req, res)
             }
         }
         fs.unlinkSync(req.file.path);
-        res.json({ message: `Ingesta de ${count} abonos (Recientes) exitosa`, count });
+        res.json({ message: `Ingesta de ${count} movimientos (Recientes) exitosa`, count });
     } catch (err) { if(req.file) fs.unlinkSync(req.file.path); res.status(500).json({ error: err.message }); }
 });
 
@@ -316,14 +322,18 @@ app.get('/api/stats/:mes', async (req, res) => {
         const num = mesToNum[mes.toLowerCase()] || '01';
         const dateFilter = `2026-${num}-%`;
 
-        const bciRes = await pool.query(`SELECT SUM(monto) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1`, [dateFilter]);
+        const bciIngRes = await pool.query(`SELECT SUM(monto) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1 AND monto > 0`, [dateFilter]);
+        const bciEgrRes = await pool.query(`SELECT SUM(ABS(monto)) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1 AND monto < 0`, [dateFilter]);
         const vposBCIRes = await pool.query(`SELECT SUM(monto) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1 AND nombre_banco LIKE '%VIRTUALPOS%'`, [dateFilter]);
         const vposRealRes = await pool.query(`SELECT SUM(total_abono) as total FROM virtualpos_sales WHERE fecha::text LIKE $1`, [dateFilter]);
         const bmRes = await pool.query(`SELECT SUM(monto) as total FROM boxmagic_sales WHERE mes = $1`, [mes]);
         const egRes = await pool.query(`SELECT SUM(monto) as total FROM "Egreso" WHERE mes = $1`, [mes]);
 
         res.json({
-            bci: { abonos: parseInt(bciRes.rows[0].total) || 0, egresos: 0 },
+            bci: { 
+                abonos: parseInt(bciIngRes.rows[0].total) || 0, 
+                egresos: parseInt(bciEgrRes.rows[0].total) || 0 
+            },
             virtualpost: { 
                 bci_recibido: parseInt(vposBCIRes.rows[0].total) || 0,
                 vpos_teorico: parseInt(vposRealRes.rows[0].total) || 0
