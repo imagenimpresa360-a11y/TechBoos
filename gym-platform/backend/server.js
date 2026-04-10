@@ -217,27 +217,56 @@ app.post('/api/ingesta/bci', upload.single('file'), async (req, res) => {
 
         let count = 0;
         let startIdx = -1;
+        let colFecha = 0, colDesc = 5, colMonto = 10; // Defaults basados en Enero
+
+        // Busqueda dinamica de encabezados
         for(let i=0; i<rows.length; i++) {
-            if(rows[i].some(c => String(c).toLowerCase().includes('ingreso'))) {
+            const rowStr = JSON.stringify(rows[i]).toLowerCase();
+            if(rowStr.includes('descripción') || rowStr.includes('descripcion')) {
                 startIdx = i + 1;
+                // Intentar mapear columnas reales
+                rows[i].forEach((cell, idx) => {
+                    const c = String(cell).toLowerCase();
+                    if(c.includes('fecha')) colFecha = idx;
+                    if(c.includes('descrip')) colDesc = idx;
+                    if(c.includes('abono') || c.includes('depósito')) colMonto = idx;
+                });
                 break;
             }
         }
-        if(startIdx === -1) startIdx = 0;
+
+        if(startIdx === -1) {
+             fs.unlinkSync(req.file.path);
+             return res.status(400).json({ error: "No se encontró la cabecera 'Descripción' o 'Abonos' en el archivo." });
+        }
 
         for (let i = startIdx; i < rows.length; i++) {
             const row = rows[i];
-            const desc = String(row[2] || '').toUpperCase();
-            const monto = parseInt(row[4]) || 0;
-            const fecha = row[0]; // Serial de Excel
+            if (!row || row.length < 5) continue;
 
-            if (monto > 0) {
-                const dateObj = new Date((fecha - 25569) * 86400 * 1000);
-                const fechaStr = dateObj.toISOString().split('T')[0];
+            const desc = String(row[colDesc] || '').toUpperCase();
+            const montoRaw = row[colMonto];
+            const monto = cleanAmt(montoRaw);
+            const fechaVal = row[colFecha];
+
+            if (monto > 0 && desc && !desc.includes('SALDO ACTUAL')) {
+                let fechaStr;
+                if(typeof fechaVal === 'number') {
+                    const dateObj = new Date((fechaVal - 25569) * 86400 * 1000);
+                    fechaStr = dateObj.toISOString().split('T')[0];
+                } else {
+                    // Manejo de fecha texto "DD/MM/YYYY"
+                    const parts = String(fechaVal).split('/');
+                    fechaStr = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : String(fechaVal);
+                }
+
+                // Hashing para evitar duplicados si suben el mismo archivo 2 veces
                 const hashId = crypto.createHash('md5').update(`${fechaStr}-${desc}-${monto}`).digest('hex');
 
                 await pool.query(
-                    `INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT (nro_operacion) DO NOTHING`,
+                    `INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) 
+                     VALUES ($1, $2, $3, $4) 
+                     ON CONFLICT (nro_operacion) DO NOTHING`,
                     [fechaStr, monto, desc, hashId]
                 );
                 count++;
@@ -245,7 +274,10 @@ app.post('/api/ingesta/bci', upload.single('file'), async (req, res) => {
         }
         fs.unlinkSync(req.file.path);
         res.json({ message: `Ingesta de ${count} abonos BCI exitosa`, count });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        if(req.file) fs.unlinkSync(req.file.path);
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 // --- ESTADISTICAS PARA DASHBOARD ---
