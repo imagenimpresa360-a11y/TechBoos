@@ -265,9 +265,9 @@ app.post('/api/ingesta/bci/mensual', upload.single('file'), async (req, res) => 
         for(let i=0; i<rows.length; i++){ if(JSON.stringify(rows[i]).toLowerCase().includes('descripción')){ startIdx = i+1; break; } }
         for (let i = (startIdx === -1 ? 0 : startIdx); i < rows.length; i++) {
             const row = rows[i];
-            if (!row || row.length < 9) continue;
+            if (!row || row.length < 10) continue;
             const desc = String(row[5] || '').toUpperCase();
-            const cargo = cleanAmt(row[8] || 0);  // Columna Cargos
+            const cargo = cleanAmt(row[9] || 0);  // Columna Cargos (Correcto)
             const abono = cleanAmt(row[10] || 0); // Columna Abonos
             const monto = abono > 0 ? abono : (cargo > 0 ? -cargo : 0);
             const fechaVal = row[0];
