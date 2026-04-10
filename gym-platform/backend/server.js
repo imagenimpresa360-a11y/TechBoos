@@ -167,6 +167,17 @@ app.post('/api/compras', async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+app.get('/api/virtualpos/:mes', async (req, res) => {
+  try {
+    const { mes } = req.params;
+    const mesToNum = { 'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'};
+    const num = mesToNum[mes.toLowerCase()] || '01';
+    const datePattern = `2026-${num}-%`;
+    const result = await pool.query('SELECT * FROM virtualpos_sales WHERE fecha::text LIKE $1 ORDER BY fecha DESC', [datePattern]);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.put('/api/compras/:id', async (req, res) => {
   try {
     const { status } = req.body;
@@ -306,13 +317,17 @@ app.get('/api/stats/:mes', async (req, res) => {
         const dateFilter = `2026-${num}-%`;
 
         const bciRes = await pool.query(`SELECT SUM(monto) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1`, [dateFilter]);
-        const vposRes = await pool.query(`SELECT SUM(monto) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1 AND nombre_banco LIKE '%VIRTUALPOS%'`, [dateFilter]);
+        const vposBCIRes = await pool.query(`SELECT SUM(monto) as total FROM bci_income_pool WHERE fecha_banco::text LIKE $1 AND nombre_banco LIKE '%VIRTUALPOS%'`, [dateFilter]);
+        const vposRealRes = await pool.query(`SELECT SUM(total_abono) as total FROM virtualpos_sales WHERE fecha::text LIKE $1`, [dateFilter]);
         const bmRes = await pool.query(`SELECT SUM(monto) as total FROM boxmagic_sales WHERE mes = $1`, [mes]);
         const egRes = await pool.query(`SELECT SUM(monto) as total FROM "Egreso" WHERE mes = $1`, [mes]);
 
         res.json({
             bci: { abonos: parseInt(bciRes.rows[0].total) || 0, egresos: 0 },
-            virtualpost: { abonos: parseInt(vposRes.rows[0].total) || 0 },
+            virtualpost: { 
+                bci_recibido: parseInt(vposBCIRes.rows[0].total) || 0,
+                vpos_teorico: parseInt(vposRealRes.rows[0].total) || 0
+            },
             boxmagic: { abonos: parseInt(bmRes.rows[0].total) || 0 },
             erp_egresos: parseInt(egRes.rows[0].total) || 0
         });

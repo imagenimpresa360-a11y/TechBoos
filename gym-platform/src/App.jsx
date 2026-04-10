@@ -99,6 +99,8 @@ export default function App() {
     fetchPool();
   }; // Facturas Lioren
   
+  const [virtualpos, setVirtualpos] = useState([]);
+  
   const [abonoInput, setAbonoInput] = useState({});
   const [manualEgre, setManualEgre] = useState({ item: '', monto: '', sede: 'Campanario', cat: 'Arriendos' });
   const [newCuenta, setNewCuenta] = useState({ nombre: '', tipo: 'Egreso' });
@@ -106,23 +108,26 @@ export default function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [resN, resE, resC, resF] = await Promise.all([
+      const [resN, resE, resC, resF, resV] = await Promise.all([
         fetch(`${API_BASE}/nomina/${mes}`),
         fetch(`${API_BASE}/egresos/${mes}`),
         fetch(`${API_BASE}/cuentas`),
-        fetch(`${API_BASE}/compras/${mes}`)
+        fetch(`${API_BASE}/compras/${mes}`),
+        fetch(`${API_BASE}/virtualpos/${mes}`)
       ]);
       const dataN = await resN.json();
       const dataE = await resE.json();
       const dataC = await resC.json();
       const dataF = await resF.json();
+      const dataV = await resV.json();
       setNomina(Array.isArray(dataN) ? dataN : []);
       setEgresos(Array.isArray(dataE) ? dataE : []);
       setCuentas(Array.isArray(dataC) ? dataC : []);
       setFacturas(Array.isArray(dataF) ? dataF : []);
+      setVirtualpos(Array.isArray(dataV) ? dataV : []);
     } catch (e) { 
         console.error(e); 
-        setNomina([]); setEgresos([]); setCuentas([]); setFacturas([]);
+        setNomina([]); setEgresos([]); setCuentas([]); setFacturas([]); setVirtualpos([]);
     }
     finally { setLoading(false); }
   };
@@ -667,7 +672,67 @@ export default function App() {
             </div>
           )}
 
-          {view === 'apps' && ( <div className="fade-in"><h2 className="view-title">Conciliación Apps</h2><div className="glass-card"><p>Ventas Teóricas vs Realidad Banco.</p></div></div> )}
+          {view === 'apps' && ( 
+            <div className="fade-in">
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+                    <h2 className="view-title" style={{margin: 0}}>Conciliación de Tarjetas (VirtualPOS vs BCI)</h2>
+                    <div style={{display: 'flex', gap: '15px'}}>
+                        <div className="glass-card" style={{padding: '5px 15px', border: '1px solid #6366f1'}}>
+                            <span style={{fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)'}}>TEÓRICO VPOS (NETO)</span><br/>
+                            <strong style={{color: '#818cf8'}}>{fmt(dataLvl.virtualpost?.vpos_teorico || 0)}</strong>
+                        </div>
+                        <div className="glass-card" style={{padding: '5px 15px', border: '1px solid #10b981'}}>
+                            <span style={{fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)'}}>ABONADO EN BCI</span><br/>
+                            <strong style={{color: '#10b981'}}>{fmt(dataLvl.virtualpost?.bci_recibido || 0)}</strong>
+                        </div>
+                        <div className="glass-card" style={{padding: '5px 15px', border: `1px solid ${Math.abs((dataLvl.virtualpost?.vpos_teorico || 0) - (dataLvl.virtualpost?.bci_recibido || 0)) < 100 ? '#10b981' : '#f43f5e'}`}}>
+                            <span style={{fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)'}}>DIFERENCIA (DESCUADRE)</span><br/>
+                            <strong style={{color: Math.abs((dataLvl.virtualpost?.vpos_teorico || 0) - (dataLvl.virtualpost?.bci_recibido || 0)) < 100 ? '#10b981' : '#f43f5e'}}>
+                                {fmt((dataLvl.virtualpost?.vpos_teorico || 0) - (dataLvl.virtualpost?.bci_recibido || 0))}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="glass-card" style={{padding: '0'}}>
+                    <table className="erp-table">
+                        <thead>
+                            <tr>
+                                <th>FECHA COBRO</th>
+                                <th>CLIENTE</th>
+                                <th>MONTO BRUTO</th>
+                                <th>COMISIÓN</th>
+                                <th style={{color: '#818cf8'}}>ABONO NETO</th>
+                                <th>ESTADO VPOS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {virtualpos.map(v => (
+                                <tr key={v.id}>
+                                    <td>{v.fecha.split('T')[0]}</td>
+                                    <td style={{fontSize: '0.8rem'}}>{v.cliente}</td>
+                                    <td>{fmt(v.monto)}</td>
+                                    <td style={{color: '#f43f5e'}}>-{fmt(v.comision)}</td>
+                                    <td style={{fontWeight: 800, color: '#818cf8'}}>{fmt(v.total_abono)}</td>
+                                    <td>
+                                        <span style={{
+                                            fontSize: '0.6rem', 
+                                            background: v.estado === 'pagado' ? 'rgba(16,185,129,0.1)' : 'rgba(244,63,94,0.1)',
+                                            color: v.estado === 'pagado' ? '#10b981' : '#f43f5e',
+                                            padding: '2px 8px',
+                                            borderRadius: '10px',
+                                            border: `1px solid ${v.estado === 'pagado' ? '#10b981' : '#f43f5e'}`
+                                        }}>
+                                            {v.estado.toUpperCase()}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div> 
+          )}
           
           {view === 'boxmagic' && (
             <div className="fade-in">
