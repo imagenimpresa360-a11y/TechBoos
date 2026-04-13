@@ -64,6 +64,8 @@ export default function App() {
   const [facturas, setFacturas] = useState([]);
   const [conciliacionPool, setConciliacionPool] = useState([]);
   const [dbStats, setDbStats] = useState(null);
+  const [poolFilter, setPoolFilter] = useState('TODOS');
+
 
   const fetchStats = async () => {
     try {
@@ -166,10 +168,16 @@ export default function App() {
   // --- LOGICA EGRESOS ---
   const addManualEgre = async (e) => {
     e.preventDefault();
-    await fetch(`${API_BASE}/egresos`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({...manualEgre, mes, monto: Number(manualEgre.monto), abonado: 0, status: 'Ingresado', origen: 'Manual'}) });
+    const hoy = new Date().toISOString().split('T')[0];
+    await fetch(`${API_BASE}/egresos`, { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({...manualEgre, mes, monto: Number(manualEgre.monto), abonado: 0, status: 'Ingresado', origen: 'Manual', fecha: hoy}) 
+    });
     setManualEgre({ ...manualEgre, item: '', monto: '' });
     fetchData();
   };
+
 
   const deleteEgreso = async (id) => {
     if(!window.confirm("¿Eliminar registro?")) return;
@@ -203,8 +211,19 @@ export default function App() {
     await fetch(`${API_BASE}/egresos`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ mes, cat: 'Pago Proveedores', status: 'Aprobado', abonado: factura.montoTotal, item: `PAGO FACTURA #${factura.folio} - ${factura.proveedor}`, monto: factura.montoTotal, sede: 'Campanario', origen: 'Lioren' })
+        body: JSON.stringify({ 
+            mes, 
+            cat: 'Pago Proveedores', 
+            status: 'Aprobado', 
+            abonado: factura.montoTotal, 
+            item: `PAGO FACTURA #${factura.folio} - ${factura.proveedor}`, 
+            monto: factura.montoTotal, 
+            sede: 'Campanario', 
+            origen: 'Lioren',
+            fecha: factura.fechaEmision
+        })
     });
+
     
     alert(`Factura ${factura.folio} sincronizada como Egreso exitosamente.`);
     fetchData();
@@ -440,9 +459,23 @@ export default function App() {
               </div>
 
               {conciliacionPool.length > 0 && (
+
                  <div className="table-card">
-                  <header className="table-header" style={{background: '#eab308', color: 'black'}}>
-                    <span>BANCO BCI: PAGOS HUÉRFANOS</span>
+                  <header className="table-header" style={{background: '#1e293b', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <span>BANCO BCI: MOVIMIENTOS PENDIENTES</span>
+                    <div style={{display: 'flex', gap: '5px'}}>
+                        {['TODOS', 'INGRESOS', 'EGRESOS'].map(f => (
+                            <button 
+                                key={f} 
+                                onClick={() => setPoolFilter(f)} 
+                                style={{
+                                    background: poolFilter === f ? '#eab308' : 'rgba(255,255,255,0.1)',
+                                    color: poolFilter === f ? 'black' : 'white',
+                                    border: 'none', padding: '4px 12px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer'
+                                }}
+                            >{f}</button>
+                        ))}
+                    </div>
                   </header>
                   <div className="table-content">
                     <table className="erp-table">
@@ -452,22 +485,34 @@ export default function App() {
                                 <th>MONTO DECLARADO</th>
                                 <th>DETALLE BCI / NOMBRE</th>
                                 <th>NRO OPERACIÓN</th>
-                                <th>ACCIÓN MÁQUINA</th>
+                                <th>ACCIÓN RECOMENDADA</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {conciliacionPool.map(c => (
+                            {conciliacionPool
+                                .filter(c => {
+                                    if(poolFilter === 'INGRESOS') return c.monto > 0;
+                                    if(poolFilter === 'EGRESOS') return c.monto < 0;
+                                    return true;
+                                })
+                                .map(c => (
                                 <tr key={c.id}>
                                     <td><strong>{new Date(c.fecha_banco).toLocaleDateString()}</strong></td>
-                                    <td style={{color: '#10b981', fontWeight: 900}}>{fmt(c.monto)}</td>
+                                    <td style={{color: c.monto > 0 ? '#10b981' : '#f43f5e', fontWeight: 900}}>{fmt(c.monto)}</td>
                                     <td><div style={{fontWeight: 600, fontSize: '0.85rem'}}>{c.nombre_banco}</div></td>
+
                                     <td><span style={{fontSize: '0.7rem', opacity: 0.6}}>OP: {c.nro_operacion}</span></td>
                                     <td>
                                         <div style={{display: 'flex', gap: '8px'}}>
-                                            <button onClick={() => aprobarMatch(c.id)} style={{background: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Enlazar con un alumno activo">ENLAZAR A ALUMNO</button>
+                                            {c.monto > 0 ? (
+                                                <button onClick={() => aprobarMatch(c.id)} style={{background: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Enlazar con un alumno activo">ENLAZAR A ALUMNO</button>
+                                            ) : (
+                                                <button onClick={() => alert("Módulo de Gastos Rápidos en Desarrollo")} style={{background: '#6366f1', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Registrar como gasto oficial">REGISTRAR GASTO</button>
+                                            )}
                                             <button onClick={() => rechazarMatch(c.id)} style={{background: '#f43f5e', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Mandar definitivamente a Fugas Detectadas">MARCAR FUGA</button>
                                         </div>
                                     </td>
+
                                 </tr>
                             ))}
                         </tbody>
@@ -581,10 +626,12 @@ export default function App() {
 
               <div className="glass-card">
                   <table className="erp-table">
-                    <thead><tr><th>SEDE</th><th>ORIGEN</th><th>CUENTA</th><th>DETALLE DE GASTO</th><th>MONTO</th><th>PENDIENTE</th><th>ACCION</th></tr></thead>
+                    <thead><tr><th>FECHA</th><th>SEDE</th><th>ORIGEN</th><th>CUENTA</th><th>DETALLE DE GASTO</th><th>MONTO</th><th>PENDIENTE</th><th>ACCION</th></tr></thead>
                     <tbody>
                         {(sedeFilter === 'Todas' ? egresos : egresos.filter(e => e.sede === sedeFilter)).map(g => (
                             <tr key={g.id}>
+                                <td style={{fontSize: '0.75rem', opacity: 0.7}}>{g.fecha || '—'}</td>
+
                                 <td><span style={{fontSize: '0.65rem', fontWeight: 800, color: g.sede === 'Campanario' ? '#6366f1' : (g.sede === 'Marina' ? '#14b8a6' : '#f59e0b')}}><MapPin size={10}/> {g.sede.toUpperCase()}</span></td>
                                 <td>{g.origen === 'Lioren' ? <span style={{fontSize: '0.6rem', background: '#8b5cf6', color: 'white', padding: '2px 5px', borderRadius: '4px'}}>LIOREN</span> : <span style={{fontSize: '0.6rem', opacity: 0.5}}>MANUAL/RRHH</span>}</td>
                                 <td><span className="status-pill" style={{fontSize: '0.6rem'}}>{g.cuenta}</span></td>
@@ -776,11 +823,13 @@ export default function App() {
               <div className="glass-card">
                   <h3 style={{marginBottom: '1rem'}}>DETALLE DE EGRESOS ({MES_LABEL[mes]})</h3>
                   <table className="erp-table">
-                    <thead><tr><th>SEDE</th><th>ORIGEN</th><th>CUENTA</th><th>DETALLE DE GASTO</th><th>MONTO</th><th>ESTADO</th></tr></thead>
+                    <thead><tr><th>FECHA EMISIÓN</th><th>SEDE</th><th>ORIGEN</th><th>CUENTA</th><th>DETALLE DE GASTO</th><th>MONTO</th><th>ESTADO</th></tr></thead>
                     <tbody>
                         {egresos.map(g => (
                             <tr key={g.id}>
+                                <td style={{fontWeight: 600, fontSize: '0.8rem'}}>{g.fecha || '—'}</td>
                                 <td>{g.sede}</td>
+
                                 <td>{g.origen}</td>
                                 <td><span className="status-pill" style={{fontSize: '0.6rem'}}>{g.cuenta}</span></td>
                                 <td>{g.detalle}</td>

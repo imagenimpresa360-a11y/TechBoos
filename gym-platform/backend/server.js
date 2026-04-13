@@ -107,11 +107,12 @@ app.get('/api/egresos/:mes', async (req, res) => {
 
 app.post('/api/egresos', async (req, res) => {
   try {
-    const { mes, item, monto, abonado, sede, status, cat, origen } = req.body;
-    const result = await pool.query('INSERT INTO "Egreso" (id, mes, detalle, monto, abonado, sede, status, cuenta, origen, "updatedAt") VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, NOW()) RETURNING *', [mes, item, monto, abonado, sede, status, cat, origen]);
+    const { mes, item, monto, abonado, sede, status, cat, origen, fecha } = req.body;
+    const result = await pool.query('INSERT INTO "Egreso" (id, mes, detalle, monto, abonado, sede, status, cuenta, origen, fecha, "updatedAt") VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *', [mes, item, monto, abonado, sede, status, cat, origen, fecha]);
     res.json(result.rows[0]);
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
+
 
 app.put('/api/egresos/:id', async (req, res) => {
   try {
@@ -304,10 +305,21 @@ app.post('/api/ingesta/bci/movimientos', upload.single('file'), async (req, res)
 
             if (monto !== 0 && desc) {
                 const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
-                const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${desc}-${monto}`).digest('hex');
-                await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
-                count++;
+                
+                // VALIDACION DE SEGURIDAD: Solo fechas reales entre 2024 y Hoy
+                const anio = parseInt(fechaStr.split('-')[0]);
+                const hoy = new Date();
+                const fecha_dt = new Date(fechaStr);
+                
+                if (anio >= 2024 && fecha_dt <= hoy) {
+                    const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${desc}-${monto}`).digest('hex');
+                    await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
+                    count++;
+                } else {
+                    console.log(`[!] Fecha ignorada por fuera de rango: ${fechaStr}`);
+                }
             }
+
         }
         fs.unlinkSync(req.file.path);
         res.json({ message: `Ingesta de ${count} movimientos (Recientes) exitosa`, count });
