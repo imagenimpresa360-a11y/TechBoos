@@ -217,6 +217,102 @@ app.post('/api/conciliacion/reject', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// --- SUB-LEDGER POR SEDE (Escenario B — SAP/Oracle Style) ---
+
+// GET /api/sedes → Catálogo de sedes activas
+app.get('/api/sedes', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM sedes WHERE activa = true ORDER BY nombre');
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/boxmagic/:sede/:mes → Ingresos BoxMagic filtrados por sede y mes
+app.get('/api/boxmagic/:sede/:mes', async (req, res) => {
+  try {
+    const { sede, mes } = req.params;
+    const query = sede === 'Todas'
+      ? `SELECT * FROM boxmagic_sales WHERE mes = $1 ORDER BY fecha_pago DESC`
+      : `SELECT * FROM boxmagic_sales WHERE sede = $1 AND mes = $2 ORDER BY fecha_pago DESC`;
+    const params = sede === 'Todas' ? [mes] : [sede, mes];
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/boxmagic/resumen/:mes → Totales por sede y tipo de pago para el dashboard
+app.get('/api/boxmagic/resumen/:mes', async (req, res) => {
+  try {
+    const { mes } = req.params;
+    const result = await pool.query(`
+      SELECT 
+        sede,
+        tipo_pago,
+        COUNT(*)                              AS cantidad,
+        SUM(monto)                            AS total,
+        SUM(CASE WHEN estado_conciliacion = 'CONCILIADO' THEN monto ELSE 0 END) AS conciliado,
+        SUM(CASE WHEN estado_conciliacion = 'PENDIENTE'  THEN monto ELSE 0 END) AS pendiente
+      FROM boxmagic_sales
+      WHERE mes = $1
+      GROUP BY sede, tipo_pago
+      ORDER BY sede, tipo_pago
+    `, [mes]);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/boxmagic/conciliar → Enlaza un pago BoxMagic con un movimiento BCI y marca ambos
+app.post('/api/boxmagic/conciliar', async (req, res) => {
+  try {
+    const { boxmagic_id, bci_pool_id, sede } = req.body;
+    // 1. Marcar el pago BoxMagic como conciliado
+    await pool.query(`
+      UPDATE boxmagic_sales 
+      SET estado_conciliacion = 'CONCILIADO', bci_pool_id = $1, fecha_conciliacion = NOW()
+      WHERE id = $2
+    `, [bci_pool_id, boxmagic_id]);
+    // 2. Atribuir sede al movimiento bancario
+    await pool.query(`
+      UPDATE bci_income_pool 
+      SET estado_match = 'ENLAZADO', sede_atribuida = $1, conciliado_por = 'BOXMAGIC'
+      WHERE id = $2
+    `, [sede, bci_pool_id]);
+    res.json({ message: 'Conciliacion exitosa', boxmagic_id, bci_pool_id, sede });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/conciliacion/ingresos/:mes → Pool BCI filtrado solo ingresos con atribución de sede
+app.get('/api/conciliacion/ingresos/:mes', async (req, res) => {
+  try {
+    const { mes } = req.params;
+    const mesToNum = { enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12'};
+    const num = mesToNum[req.params.mes.toLowerCase()] || '01';
+    const dateFilter = `2026-${num}-%`;
+    const result = await pool.query(`
+      SELECT * FROM bci_income_pool 
+      WHERE fecha_banco::text LIKE $1 AND monto > 0
+      ORDER BY fecha_banco DESC
+    `, [dateFilter]);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/conciliacion/egresos_bci/:mes → Pool BCI filtrado solo egresos (cargos bancarios)
+app.get('/api/conciliacion/egresos_bci/:mes', async (req, res) => {
+  try {
+    const mesToNum = { enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12'};
+    const num = mesToNum[req.params.mes.toLowerCase()] || '01';
+    const dateFilter = `2026-${num}-%`;
+    const result = await pool.query(`
+      SELECT * FROM bci_income_pool 
+      WHERE fecha_banco::text LIKE $1 AND monto < 0
+      ORDER BY fecha_banco DESC
+    `, [dateFilter]);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+
 // --- MODULO INGESTA (ELIMINANDO DEPENDENCIAS LOCALES) ---
 
 // Auxiliares limpieza

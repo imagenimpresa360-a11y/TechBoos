@@ -102,7 +102,11 @@ export default function App() {
   }; // Facturas Lioren
   
   const [virtualpos, setVirtualpos] = useState([]);
-  
+  const [bmPagos, setBmPagos] = useState([]);
+  const [bmResumen, setBmResumen] = useState([]);
+  const [bmSedeFiltro, setBmSedeFiltro] = useState('Todas');
+  const [bmTipoFiltro, setBmTipoFiltro] = useState('todos');
+
   const [abonoInput, setAbonoInput] = useState({});
   const [manualEgre, setManualEgre] = useState({ item: '', monto: '', sede: 'Campanario', cat: 'Arriendos' });
   const [newCuenta, setNewCuenta] = useState({ nombre: '', tipo: 'Egreso' });
@@ -134,7 +138,20 @@ export default function App() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchData(); fetchPool(); fetchStats(); }, [mes]);
+  const fetchBmResumen = async () => {
+    try {
+      const [resPagos, resResumen] = await Promise.all([
+        fetch(`${API_BASE}/boxmagic/${bmSedeFiltro}/${mes}`),
+        fetch(`${API_BASE}/boxmagic/resumen/${mes}`),
+      ]);
+      setBmPagos(Array.isArray(await resPagos.json()) ? await (await fetch(`${API_BASE}/boxmagic/${bmSedeFiltro}/${mes}`)).json() : []);
+      const r = await resResumen.json();
+      setBmResumen(Array.isArray(r) ? r : []);
+    } catch(e) { console.error(e); }
+  };
+
+  useEffect(() => { fetchData(); fetchPool(); fetchStats(); fetchBmResumen(); }, [mes]);
+  useEffect(() => { fetchBmResumen(); }, [bmSedeFiltro]);
 
   // --- LOGICA EXCEL NOMINA ---
   const bulkLoadNomina = async () => {
@@ -306,6 +323,7 @@ export default function App() {
           <button onClick={() => setView('ap')} className={view === 'ap' ? 'nav-item active' : 'nav-item'}><Receipt size={18}/> Egresos & Abonos</button>
           <button onClick={() => setView('rrhh')} className={view === 'rrhh' ? 'nav-item active' : 'nav-item'}><Calculator size={18}/> Nómina Excel</button>
           <button onClick={() => setView('boxmagic')} className={view === 'boxmagic' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Filtro BoxMagic</button>
+          <button onClick={() => setView('bm_conciliacion')} className={view === 'bm_conciliacion' ? 'nav-item active' : 'nav-item'} style={{borderLeft: '3px solid #6366f1'}}><CheckCircle2 size={18}/> Ingresos BoxMagic</button>
           
           <div className="nav-separator">AUDITORÍA FISCAL</div>
           <button onClick={() => setView('conc_diaria')} className={view === 'conc_diaria' ? 'nav-item active' : 'nav-item'}><ShieldCheck size={18}/> Conciliación Diaria</button>
@@ -845,6 +863,147 @@ export default function App() {
           )}
 
           {view === 'auditoria' && ( <div className="fade-in"><h2 className="view-title">Auditoría</h2><div className="glass-card"><p>No se encontraron problemas de cuadratura en Egresos.</p></div></div> )}
+
+          {view === 'bm_conciliacion' && (() => {
+            // Calcular totales por sede desde el resumen
+            const calcSede = (nombre) => {
+              const filas = bmResumen.filter(r => r.sede === nombre);
+              return {
+                total:       filas.reduce((s,r)=>s+parseInt(r.total||0),0),
+                conciliado:  filas.reduce((s,r)=>s+parseInt(r.conciliado||0),0),
+                pendiente:   filas.reduce((s,r)=>s+parseInt(r.pendiente||0),0),
+                transf:      filas.filter(r=>r.tipo_pago?.toLowerCase().includes('transf')).reduce((s,r)=>s+parseInt(r.total||0),0),
+                efectivo:    filas.filter(r=>r.tipo_pago?.toLowerCase().includes('efectivo')||r.tipo_pago?.toLowerCase().includes('cash')).reduce((s,r)=>s+parseInt(r.total||0),0),
+                webpay:      filas.filter(r=>r.tipo_pago?.toLowerCase().includes('webpay')||r.tipo_pago?.toLowerCase().includes('tarjeta')).reduce((s,r)=>s+parseInt(r.total||0),0),
+              };
+            };
+            const camp = calcSede('Campanario');
+            const mar  = calcSede('Marina');
+            const totalGeneral = camp.total + mar.total;
+
+            const SedeCard = ({nombre, datos, color}) => (
+              <div className="glass-card" style={{flex:1, borderTop:`4px solid ${color}`, padding:'1.2rem'}}>
+                <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'0.8rem'}}>
+                  <MapPin size={16} color={color}/>
+                  <h3 style={{margin:0, fontSize:'1rem', fontWeight:900}}>{nombre.toUpperCase()}</h3>
+                </div>
+                <div style={{fontSize:'1.8rem', fontWeight:900, color:color, marginBottom:'0.5rem'}}>{fmt(datos.total)}</div>
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'5px', marginBottom:'0.8rem'}}>
+                  {[['💳 Webpay', datos.webpay, '#818cf8'],['🔄 Transf.', datos.transf, '#34d399'],['💵 Efectivo', datos.efectivo, '#fbbf24']].map(([l,v,c])=>(
+                    <div key={l} style={{textAlign:'center', background:'rgba(255,255,255,0.04)', borderRadius:'6px', padding:'6px'}}>
+                      <div style={{fontSize:'0.65rem', opacity:0.6}}>{l}</div>
+                      <div style={{fontWeight:800, color:c, fontSize:'0.9rem'}}>{fmt(v)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.8rem', marginTop:'5px', borderTop:'1px solid rgba(255,255,255,0.08)', paddingTop:'8px'}}>
+                  <span style={{color:'#10b981'}}>✓ Conciliado: <strong>{fmt(datos.conciliado)}</strong></span>
+                  <span style={{color:'#f59e0b'}}>⏳ Pendiente: <strong>{fmt(datos.pendiente)}</strong></span>
+                </div>
+              </div>
+            );
+
+            const filteredPagos = bmPagos.filter(p => {
+              const tipoOk = bmTipoFiltro === 'todos' || (p.tipo_pago||'').toLowerCase().includes(bmTipoFiltro);
+              return tipoOk;
+            });
+
+            return (
+              <div className="fade-in">
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem'}}>
+                  <h2 className="view-title" style={{margin:0}}>Ingresos BoxMagic — Sub-Ledger por Sede</h2>
+                  <div style={{display:'flex', gap:'8px'}}>
+                    {['Todas','Campanario','Marina'].map(s=>(
+                      <button key={s} onClick={()=>setBmSedeFiltro(s)} style={{
+                        background: bmSedeFiltro===s ? '#6366f1' : 'rgba(255,255,255,0.08)',
+                        color:'white', border:'none', padding:'6px 14px', borderRadius:'6px',
+                        fontWeight:800, fontSize:'0.75rem', cursor:'pointer'
+                      }}>{s.toUpperCase()}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* TARJETAS RESUMEN POR SEDE */}
+                <div style={{display:'flex', gap:'1.5rem', marginBottom:'1.5rem'}}>
+                  <SedeCard nombre="Campanario" datos={camp} color="#6366f1"/>
+                  <SedeCard nombre="Marina"     datos={mar}  color="#14b8a6"/>
+                  <div className="glass-card" style={{width:'180px', padding:'1.2rem', textAlign:'center', borderTop:'4px solid #f59e0b'}}>
+                    <div style={{fontSize:'0.75rem', opacity:0.6, marginBottom:'5px'}}>TOTAL GENERAL</div>
+                    <div style={{fontSize:'1.6rem', fontWeight:900, color:'#f59e0b'}}>{fmt(totalGeneral)}</div>
+                    <div style={{fontSize:'0.65rem', opacity:0.5, marginTop:'8px'}}>{bmPagos.length} transacciones</div>
+                  </div>
+                </div>
+
+                {/* TABLA DETALLE */}
+                <div className="glass-card">
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1rem 1.2rem', borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                    <span style={{fontWeight:800, fontSize:'0.9rem'}}>DETALLE DE TRANSACCIONES — {bmSedeFiltro.toUpperCase()}</span>
+                    <div style={{display:'flex', gap:'6px'}}>
+                      {[['todos','Todos'],['webpay','Webpay'],['transf','Transfer.'],['efectivo','Efectivo']].map(([v,l])=>(
+                        <button key={v} onClick={()=>setBmTipoFiltro(v)} style={{
+                          background: bmTipoFiltro===v ? '#6366f1' : 'rgba(255,255,255,0.06)',
+                          color:'white', border:'none', padding:'4px 10px', borderRadius:'5px',
+                          fontSize:'0.7rem', fontWeight:800, cursor:'pointer'
+                        }}>{l}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{overflowX:'auto'}}>
+                    <table className="erp-table">
+                      <thead>
+                        <tr>
+                          <th>FECHA PAGO</th><th>SEDE</th><th>CLIENTE</th>
+                          <th>TIPO</th><th>MONTO</th><th>ESTADO CONC.</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredPagos.map(p=>(
+                          <tr key={p.id}>
+                            <td style={{fontSize:'0.8rem'}}>{p.fecha_pago}</td>
+                            <td>
+                              <span style={{fontSize:'0.65rem', fontWeight:800,
+                                color: p.sede==='Campanario' ? '#6366f1' : '#14b8a6'}}>
+                                <MapPin size={10}/> {p.sede}
+                              </span>
+                            </td>
+                            <td style={{fontSize:'0.8rem'}}>{p.cliente}</td>
+                            <td>
+                              <span style={{
+                                fontSize:'0.6rem', padding:'2px 7px', borderRadius:'8px', fontWeight:800,
+                                background: (p.tipo_pago||'').toLowerCase().includes('webpay') ? 'rgba(129,140,248,0.15)'
+                                  : (p.tipo_pago||'').toLowerCase().includes('transf') ? 'rgba(52,211,153,0.15)'
+                                  : 'rgba(251,191,36,0.15)',
+                                color: (p.tipo_pago||'').toLowerCase().includes('webpay') ? '#818cf8'
+                                  : (p.tipo_pago||'').toLowerCase().includes('transf') ? '#34d399'
+                                  : '#fbbf24'
+                              }}>{p.tipo_pago}</span>
+                            </td>
+                            <td style={{fontWeight:900}}>{fmt(p.monto)}</td>
+                            <td>
+                              <span style={{
+                                fontSize:'0.6rem', padding:'3px 8px', borderRadius:'8px', fontWeight:800,
+                                background: p.estado_conciliacion==='CONCILIADO'
+                                  ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                                color: p.estado_conciliacion==='CONCILIADO' ? '#10b981' : '#f59e0b',
+                                border: `1px solid ${p.estado_conciliacion==='CONCILIADO' ? '#10b981' : '#f59e0b'}`
+                              }}>
+                                {p.estado_conciliacion==='CONCILIADO' ? '✓ CONCILIADO' : '⏳ PENDIENTE'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                        {filteredPagos.length===0 && (
+                          <tr><td colSpan="6" style={{textAlign:'center', padding:'2rem', opacity:0.4}}>
+                            Sin registros para el filtro seleccionado.
+                          </td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {view === 'cuentas' && ( <div className="fade-in"><h2 className="view-title">Plan de Cuentas Maestro</h2><div className="glass-card" style={{padding: '2rem'}}> <form onSubmit={registerCuenta} className="form-grid" style={{marginBottom: '2rem'}}><input type="text" placeholder="Nombre" className="form-input" value={newCuenta.nombre} onChange={e => setNewCuenta({...newCuenta, nombre: e.target.value})} required/><select className="form-select" value={newCuenta.tipo} onChange={e => setNewCuenta({...newCuenta, tipo: e.target.value})}><option value="Egreso">EGRESO</option><option value="Ingreso">INGRESO</option></select><button type="submit" className="btn-submit">Crear</button></form> <table className="erp-table"><thead><tr><th>TIPO</th><th>NOMBRE DE CUENTA</th></tr></thead><tbody>{cuentas.map(c => (<tr key={c.id}><td>{c.tipo}</td><td>{c.nombre}</td></tr>))}</tbody></table></div></div> )}
         </section>
       </main>
