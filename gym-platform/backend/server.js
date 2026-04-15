@@ -370,10 +370,21 @@ app.post('/api/ingesta/bci/mensual', upload.single('file'), async (req, res) => 
             const fechaVal = row[0];
 
             if (monto !== 0 && desc && !desc.includes('SALDO')) {
-                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
-                const hashId = crypto.createHash('md5').update(`M-${fechaStr}-${desc}-${monto}`).digest('hex');
-                await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
-                count++;
+                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal).split('T')[0];
+                
+                // Normalización para evitar duplicados por descripciones cambiantes
+                const descNorm = desc.replace(/VIA INTERNET|EN LINEA|ONLINE|WWW\..*|TRANSFERENCIA|RECIBIDA|ENVIADA/g, '').trim();
+
+                const dupCheck = await pool.query(
+                    `SELECT id FROM bci_income_pool WHERE fecha_banco = $1 AND monto = $2 AND (nombre_banco LIKE $3 OR $4 LIKE '%' || nombre_banco || '%') LIMIT 1`,
+                    [fechaStr, monto, `%${descNorm.substring(0, 10)}%`, desc]
+                );
+
+                if (dupCheck.rows.length === 0) {
+                    const hashId = crypto.createHash('md5').update(`M-${fechaStr}-${descNorm}-${monto}`).digest('hex');
+                    await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
+                    count++;
+                }
             }
         }
         fs.unlinkSync(req.file.path);
@@ -400,19 +411,24 @@ app.post('/api/ingesta/bci/movimientos', upload.single('file'), async (req, res)
             const fechaVal = row[0];
 
             if (monto !== 0 && desc) {
-                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal);
+                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal).split('T')[0];
                 
-                // VALIDACION DE SEGURIDAD: Solo fechas reales entre 2024 y Hoy
-                const anio = parseInt(fechaStr.split('-')[0]);
-                const hoy = new Date();
-                const fecha_dt = new Date(fechaStr);
+                // --- LÓGICA SENIOR DE DEDUPLICACIÓN DIFUSA ---
+                // 1. Normalizar descripción (quitar ruido variable)
+                const descNorm = desc.replace(/VIA INTERNET|EN LINEA|ONLINE|WWW\..*|TRANSFERENCIA|RECIBIDA|ENVIADA/g, '').trim();
                 
-                if (anio >= 2024 && fecha_dt <= hoy) {
-                    const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${desc}-${monto}`).digest('hex');
+                // 2. Buscar si ya existe un movimiento idéntico en monto y fecha
+                const dupCheck = await pool.query(
+                    `SELECT id FROM bci_income_pool WHERE fecha_banco = $1 AND monto = $2 AND (nombre_banco LIKE $3 OR $4 LIKE '%' || nombre_banco || '%') LIMIT 1`,
+                    [fechaStr, monto, `%${descNorm.substring(0, 10)}%`, desc]
+                );
+
+                if (dupCheck.rows.length === 0) {
+                    const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${descNorm}-${monto}`).digest('hex');
                     await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
                     count++;
                 } else {
-                    console.log(`[!] Fecha ignorada por fuera de rango: ${fechaStr}`);
+                    console.log(`[DEDUP] Ignorando posible duplicado: ${desc} ($${monto})`);
                 }
             }
 
