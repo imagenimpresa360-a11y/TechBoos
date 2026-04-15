@@ -5,7 +5,7 @@
   "main": "gym-platform/backend/server.js",
   "scripts": {
     "install-all": "npm install && cd gym-platform && npm install",
-    "build": "cd gym-platform && npm run build",
+    "build": "cd gym-platform && npm install && npm run build",
     "start": "node gym-platform/backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
