@@ -476,68 +476,85 @@ export default function App() {
                   </p>
               </div>
 
-              {conciliacionPool.length > 0 && (
-
-                 <div className="table-card">
-                  <header className="table-header" style={{background: '#1e293b', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <span>BANCO BCI: MOVIMIENTOS PENDIENTES</span>
-                    <div style={{display: 'flex', gap: '5px'}}>
+              <div className="table-card">
+                  <header className="table-header" style={{background: '#eab308', color: 'black', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px'}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                        <AlertTriangle size={20} />
+                        <span style={{fontWeight: 900, letterSpacing: '1px'}}>BANCO BCI: PAGOS HUÉRFANOS</span>
+                    </div>
+                    <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                        <span style={{fontSize: '0.7rem', fontWeight: 700, marginRight: '10px', opacity: 0.7}}>FILTRAR VISTA:</span>
                         {['TODOS', 'INGRESOS', 'EGRESOS'].map(f => (
                             <button 
                                 key={f} 
                                 onClick={() => setPoolFilter(f)} 
                                 style={{
-                                    background: poolFilter === f ? '#eab308' : 'rgba(255,255,255,0.1)',
-                                    color: poolFilter === f ? 'black' : 'white',
-                                    border: 'none', padding: '4px 12px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer'
+                                    background: poolFilter === f ? 'black' : 'rgba(0,0,0,0.1)',
+                                    color: poolFilter === f ? 'white' : 'black',
+                                    border: 'none', padding: '5px 15px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 900, cursor: 'pointer',
+                                    transition: 'all 0.2s'
                                 }}
                             >{f}</button>
                         ))}
                     </div>
                   </header>
-                  <div className="table-content">
-                    <table className="erp-table">
-                        <thead>
-                            <tr>
-                                <th>FECHA BANCO</th>
-                                <th>MONTO DECLARADO</th>
-                                <th>DETALLE BCI / NOMBRE</th>
-                                <th>NRO OPERACIÓN</th>
-                                <th>ACCIÓN RECOMENDADA</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {conciliacionPool
-                                .filter(c => {
-                                    if(poolFilter === 'INGRESOS') return c.monto > 0;
-                                    if(poolFilter === 'EGRESOS') return c.monto < 0;
-                                    return true;
-                                })
-                                .map(c => (
-                                <tr key={c.id}>
-                                    <td><strong>{new Date(c.fecha_banco).toLocaleDateString()}</strong></td>
-                                    <td style={{color: c.monto > 0 ? '#10b981' : '#f43f5e', fontWeight: 900}}>{fmt(c.monto)}</td>
-                                    <td><div style={{fontWeight: 600, fontSize: '0.85rem'}}>{c.nombre_banco}</div></td>
+                  
+                  {conciliacionPool.length > 0 ? (
+                    <div className="table-content">
+                      <table className="erp-table">
+                          <thead>
+                              <tr style={{background: '#0f172a'}}>
+                                  <th>FECHA BANCO</th>
+                                  <th>MONTO DECLARADO</th>
+                                  <th>DETALLE BCI / NOMBRE</th>
+                                  <th>NRO OPERACIÓN</th>
+                                  <th>ACCIÓN MÁQUINA</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {conciliacionPool
+                                  .filter(c => {
+                                      if(poolFilter === 'INGRESOS') return c.monto > 0;
+                                      if(poolFilter === 'EGRESOS') return c.monto < 0;
+                                      return true;
+                                  })
+                                  .map(c => (
+                                  <tr key={c.id} style={{borderBottom: '1px solid rgba(255,255,255,0.05)'}}>
+                                      <td><div style={{fontWeight: 800}}>{new Date(c.fecha_banco).toLocaleDateString('es-CL')}</div></td>
+                                      <td style={{color: c.monto > 0 ? '#4ade80' : '#f87171', fontWeight: 900, fontSize: '1.1rem'}}>
+                                          {fmt(c.monto)}
+                                      </td>
+                                      <td>
+                                          <div style={{fontWeight: 600, fontSize: '0.85rem', color: '#f8fafc'}}>{c.nombre_banco}</div>
+                                      </td>
 
-                                    <td><span style={{fontSize: '0.7rem', opacity: 0.6}}>OP: {c.nro_operacion}</span></td>
-                                    <td>
-                                        <div style={{display: 'flex', gap: '8px'}}>
-                                            {c.monto > 0 ? (
-                                                <button onClick={() => aprobarMatch(c.id)} style={{background: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Enlazar con un alumno activo">ENLAZAR A ALUMNO</button>
-                                            ) : (
-                                                <button onClick={() => alert("Módulo de Gastos Rápidos en Desarrollo")} style={{background: '#6366f1', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Registrar como gasto oficial">REGISTRAR GASTO</button>
-                                            )}
-                                            <button onClick={() => rechazarMatch(c.id)} style={{background: '#f43f5e', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold'}} title="Mandar definitivamente a Fugas Detectadas">MARCAR FUGA</button>
-                                        </div>
-                                    </td>
-
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                  </div>
-                 </div>
-              )}
+                                      <td>
+                                          <code style={{fontSize: '0.65rem', color: '#94a3b8', background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: '4px'}}>
+                                              {c.nro_operacion || 'SIN-OP'}
+                                          </code>
+                                      </td>
+                                      <td>
+                                          <div style={{display: 'flex', gap: '8px'}}>
+                                              {c.monto > 0 ? (
+                                                  <button onClick={() => aprobarMatch(c.id)} style={{background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900}} title="Enlazar con un alumno activo">ENLAZAR A ALUMNO</button>
+                                              ) : (
+                                                  <button onClick={() => alert("Módulo de Gastos Rápidos en Desarrollo")} style={{background: '#6366f1', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900}} title="Registrar como gasto oficial">REGISTRAR GASTO</button>
+                                              )}
+                                              <button onClick={() => rechazarMatch(c.id)} style={{background: '#f43f5e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900}} title="Mandar definitivamente a Fugas Detectadas">MARCAR FUGA</button>
+                                          </div>
+                                      </td>
+                                  </tr>
+                              ))}
+                          </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div style={{padding: '3rem', textAlign: 'center', opacity: 0.5}}>
+                        <CheckCircle2 size={48} color="#10b981" style={{margin: '0 auto 1rem'}}/>
+                        <p>No hay movimientos pendientes para el filtro <strong>{poolFilter}</strong>.</p>
+                    </div>
+                  )}
+              </div>
             </div>
           )}
 
