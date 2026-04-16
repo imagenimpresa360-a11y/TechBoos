@@ -107,6 +107,7 @@ export default function App() {
   const [bmSedeFiltro, setBmSedeFiltro] = useState('Todas');
   const [bmTipoFiltro, setBmTipoFiltro] = useState('todos');
 
+  const [bmTab, setBmTab] = useState('dashboard'); // dashboard | auto | audit
   const [abonoInput, setAbonoInput] = useState({});
   const [manualEgre, setManualEgre] = useState({ item: '', monto: '', sede: 'Campanario', cat: 'Arriendos' });
   const [newCuenta, setNewCuenta] = useState({ nombre: '', tipo: 'Egreso' });
@@ -144,9 +145,10 @@ export default function App() {
         fetch(`${API_BASE}/boxmagic/${bmSedeFiltro}/${mes}`),
         fetch(`${API_BASE}/boxmagic/resumen/${mes}`),
       ]);
-      setBmPagos(Array.isArray(await resPagos.json()) ? await (await fetch(`${API_BASE}/boxmagic/${bmSedeFiltro}/${mes}`)).json() : []);
-      const r = await resResumen.json();
-      setBmResumen(Array.isArray(r) ? r : []);
+      const dataPagos = await resPagos.json();
+      const dataResumen = await resResumen.json();
+      setBmPagos(Array.isArray(dataPagos) ? dataPagos : []);
+      setBmResumen(Array.isArray(dataResumen) ? dataResumen : []);
     } catch(e) { console.error(e); }
   };
 
@@ -322,7 +324,7 @@ export default function App() {
           <div className="nav-separator">OPERATIVA</div>
           <button onClick={() => setView('ap')} className={view === 'ap' ? 'nav-item active' : 'nav-item'}><Receipt size={18}/> Egresos & Abonos</button>
           <button onClick={() => setView('rrhh')} className={view === 'rrhh' ? 'nav-item active' : 'nav-item'}><Calculator size={18}/> Nómina Excel</button>
-          <button onClick={() => setView('boxmagic')} className={view === 'boxmagic' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Filtro BoxMagic</button>
+
           <button onClick={() => setView('bm_conciliacion')} className={view === 'bm_conciliacion' ? 'nav-item active' : 'nav-item'} style={{borderLeft: '3px solid #6366f1'}}><CheckCircle2 size={18}/> Ingresos BoxMagic</button>
           
           <div className="nav-separator">AUDITORÍA FISCAL</div>
@@ -816,22 +818,7 @@ export default function App() {
             </div> 
           )}
           
-          {view === 'boxmagic' && (
-            <div className="fade-in">
-              <h2 className="view-title">Análisis de BoxMagic (Pagos Efectivos y Transferencias)</h2>
-              <div className="glass-card">
-                  <p style={{marginBottom:'1rem'}}>Para procesar las planillas de caja en efectivo y transferencias, necesitas lanzar el agente de datos en el servidor local. 
-                  El agente procesará los archivos desde la carpeta <code>agentes/06_Ingeniero_Datos/boxmagic/</code> y volcará los totales netos aquí.</p>
-                  <table className="erp-table">
-                  <thead><tr><th>SEDE</th><th>TOTAL EFECTIVO</th><th>TOTAL TRANSFERENCIAS</th><th>TOTAL TARJETAS</th></tr></thead>
-                  <tbody>
-                    <tr><td>CAMPANARIO</td><td>-</td><td>-</td><td>-</td></tr>
-                    <tr><td>MARINA</td><td>-</td><td>-</td><td>-</td></tr>
-                  </tbody>
-                  </table>
-              </div>
-            </div>
-          )}
+
 
           {view === 'reportes' && (
             <div className="fade-in">
@@ -879,16 +866,15 @@ export default function App() {
             </div>
           )}
 
-          {view === 'auditoria' && ( <div className="fade-in"><h2 className="view-title">Auditoría</h2><div className="glass-card"><p>No se encontraron problemas de cuadratura en Egresos.</p></div></div> )}
+          {view === 'auditoria' && ( <div className="fade-in"><h2 className="view-title">Auditoría</h2><div className="glass-card"></div></div> )}
 
           {view === 'bm_conciliacion' && (() => {
-            // Calcular totales por sede desde el resumen
             const calcSede = (nombre) => {
               const filas = bmResumen.filter(r => r.sede === nombre);
               return {
                 total:       filas.reduce((s,r)=>s+parseInt(r.total||0),0),
-                conciliado:  filas.reduce((s,r)=>s+parseInt(r.conciliado||0),0),
-                pendiente:   filas.reduce((s,r)=>s+parseInt(r.pendiente||0),0),
+                conciliadomonto:  filas.reduce((s,r)=>s+parseInt(r.conciliado||0),0),
+                pendientemonto:   filas.reduce((s,r)=>s+parseInt(r.pendiente||0),0),
                 transf:      filas.filter(r=>r.tipo_pago?.toLowerCase().includes('transf')).reduce((s,r)=>s+parseInt(r.total||0),0),
                 efectivo:    filas.filter(r=>r.tipo_pago?.toLowerCase().includes('efectivo')||r.tipo_pago?.toLowerCase().includes('cash')).reduce((s,r)=>s+parseInt(r.total||0),0),
                 webpay:      filas.filter(r=>r.tipo_pago?.toLowerCase().includes('webpay')||r.tipo_pago?.toLowerCase().includes('tarjeta')).reduce((s,r)=>s+parseInt(r.total||0),0),
@@ -899,114 +885,108 @@ export default function App() {
             const totalGeneral = camp.total + mar.total;
 
             const SedeCard = ({nombre, datos, color}) => (
-              <div className="glass-card" style={{flex:1, borderTop:`4px solid ${color}`, padding:'1.2rem'}}>
-                <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'0.8rem'}}>
-                  <MapPin size={16} color={color}/>
-                  <h3 style={{margin:0, fontSize:'1rem', fontWeight:900}}>{nombre.toUpperCase()}</h3>
+              <div className="glass-card" style={{flex:1, borderTop:`4px solid ${color}`, padding:'1.5rem', background: 'rgba(255,255,255,0.02)'}}>
+                <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'1.2rem'}}>
+                  <MapPin size={22} color={color}/>
+                  <h3 style={{margin:0, fontSize:'1.1rem', fontWeight:900, letterSpacing: '0.5px'}}>{nombre.toUpperCase()}</h3>
                 </div>
-                <div style={{fontSize:'1.8rem', fontWeight:900, color:color, marginBottom:'0.5rem'}}>{fmt(datos.total)}</div>
-                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'5px', marginBottom:'0.8rem'}}>
-                  {[['💳 Webpay', datos.webpay, '#818cf8'],['🔄 Transf.', datos.transf, '#34d399'],['💵 Efectivo', datos.efectivo, '#fbbf24']].map(([l,v,c])=>(
-                    <div key={l} style={{textAlign:'center', background:'rgba(255,255,255,0.04)', borderRadius:'6px', padding:'6px'}}>
-                      <div style={{fontSize:'0.65rem', opacity:0.6}}>{l}</div>
-                      <div style={{fontWeight:800, color:c, fontSize:'0.9rem'}}>{fmt(v)}</div>
+                <div style={{fontSize:'2.2rem', fontWeight:900, color: 'white', marginBottom:'1rem'}}>{fmt(datos.total)}</div>
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px', marginBottom:'1.2rem'}}>
+                  {[['💳 Tarjeta', datos.webpay, '#818cf8'],['🔄 Transf.', datos.transf, '#34d399'],['💵 Efectivo', datos.efectivo, '#fbbf24']].map(([l,v,c])=>(
+                    <div key={l} style={{textAlign:'center', background:'rgba(255,255,255,0.03)', borderRadius:'8px', padding:'10px', border: '1px solid rgba(255,255,255,0.05)'}}>
+                      <div style={{fontSize:'0.6rem', opacity:0.6, marginBottom: '4px', fontWeight: 700}}>{l.toUpperCase()}</div>
+                      <div style={{fontWeight:900, color:c, fontSize:'1rem'}}>{fmt(v)}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.8rem', marginTop:'5px', borderTop:'1px solid rgba(255,255,255,0.08)', paddingTop:'8px'}}>
-                  <span style={{color:'#10b981'}}>✓ Conciliado: <strong>{fmt(datos.conciliado)}</strong></span>
-                  <span style={{color:'#f59e0b'}}>⏳ Pendiente: <strong>{fmt(datos.pendiente)}</strong></span>
+                <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.85rem', marginTop:'10px', borderTop:'1px solid rgba(255,255,255,0.08)', paddingTop:'12px'}}>
+                  <span style={{color:'#10b981', fontWeight: 700}}>✓ CONCILIADO: <strong style={{color: 'white'}}>{fmt(datos.conciliadomonto)}</strong></span>
+                  <span style={{color:'#f59e0b', fontWeight: 700}}>⏳ PENDIENTE: <strong style={{color: 'white'}}>{fmt(datos.pendientemonto)}</strong></span>
                 </div>
               </div>
             );
 
+            const runSmartMatch = async () => {
+              setLoading(true);
+              const res = await fetch(`${API_BASE}/boxmagic/reconcile/auto/${mes}`, { method: 'POST' });
+              const data = await res.json();
+              setLoading(false);
+              alert(data.message);
+              fetchBmResumen();
+            };
+
             const filteredPagos = bmPagos.filter(p => {
+              if (bmTab === 'auto') return p.estado_conciliacion === 'CONCILIADO';
+              if (bmTab === 'audit') return p.estado_conciliacion === 'PENDIENTE';
               const tipoOk = bmTipoFiltro === 'todos' || (p.tipo_pago||'').toLowerCase().includes(bmTipoFiltro);
               return tipoOk;
             });
 
             return (
               <div className="fade-in">
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem'}}>
-                  <h2 className="view-title" style={{margin:0}}>Ingresos BoxMagic — Sub-Ledger por Sede</h2>
-                  <div style={{display:'flex', gap:'8px'}}>
-                    {['Todas','Campanario','Marina'].map(s=>(
-                      <button key={s} onClick={()=>setBmSedeFiltro(s)} style={{
-                        background: bmSedeFiltro===s ? '#6366f1' : 'rgba(255,255,255,0.08)',
-                        color:'white', border:'none', padding:'6px 14px', borderRadius:'6px',
-                        fontWeight:800, fontSize:'0.75rem', cursor:'pointer'
-                      }}>{s.toUpperCase()}</button>
+                {/* HEADER Y TABS */}
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'2rem'}}>
+                  <div>
+                    <h2 className="view-title" style={{margin:0, fontSize: '1.6rem'}}>Auditoría BoxMagic <span style={{opacity: 0.3, fontWeight: 300}}>/ {MES_LABEL[mes]}</span></h2>
+                    <p style={{fontSize: '0.8rem', opacity: 0.5, marginTop: '4px'}}>Triangulación financiera: BoxMagic ↔ BCI ↔ VirtualPOS</p>
+                  </div>
+                  
+                  <div style={{display:'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)'}}>
+                    {[['dashboard','DASHBOARD',LayoutDashboard], ['audit','MESA DE AUDITORÍA',AlertTriangle], ['auto','CONCILIADOS',CheckCircle2]].map(([id, label, Icon]) => (
+                      <button 
+                        key={id} 
+                        onClick={() => setBmTab(id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '8px',
+                          background: bmTab === id ? '#6366f1' : 'transparent',
+                          color: 'white', border: 'none', padding: '8px 20px', borderRadius: '8px',
+                          fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
+                        }}
+                      >
+                        <Icon size={14}/> {label}
+                      </button>
                     ))}
                   </div>
                 </div>
 
-                {/* TARJETAS RESUMEN POR SEDE */}
-                <div style={{display:'flex', gap:'1.5rem', marginBottom:'1.5rem'}}>
-                  <SedeCard nombre="Campanario" datos={camp} color="#6366f1"/>
-                  <SedeCard nombre="Marina"     datos={mar}  color="#14b8a6"/>
-                  <div className="glass-card" style={{width:'180px', padding:'1.2rem', textAlign:'center', borderTop:'4px solid #f59e0b'}}>
-                    <div style={{fontSize:'0.75rem', opacity:0.6, marginBottom:'5px'}}>TOTAL GENERAL</div>
-                    <div style={{fontSize:'1.6rem', fontWeight:900, color:'#f59e0b'}}>{fmt(totalGeneral)}</div>
-                    <div style={{fontSize:'0.65rem', opacity:0.5, marginTop:'8px'}}>{bmPagos.length} transacciones</div>
-                  </div>
-                </div>
-
-                {/* TABLA DETALLE */}
-                <div className="glass-card">
-                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1rem 1.2rem', borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-                    <span style={{fontWeight:800, fontSize:'0.9rem'}}>DETALLE DE TRANSACCIONES — {bmSedeFiltro.toUpperCase()}</span>
-                    <div style={{display:'flex', gap:'6px'}}>
-                      {[['todos','Todos'],['webpay','Webpay'],['transf','Transfer.'],['efectivo','Efectivo']].map(([v,l])=>(
-                        <button key={v} onClick={()=>setBmTipoFiltro(v)} style={{
-                          background: bmTipoFiltro===v ? '#6366f1' : 'rgba(255,255,255,0.06)',
-                          color:'white', border:'none', padding:'4px 10px', borderRadius:'5px',
-                          fontSize:'0.7rem', fontWeight:800, cursor:'pointer'
-                        }}>{l}</button>
-                      ))}
+                {bmTab === 'dashboard' && (
+                  <div className="fade-in">
+                    <div style={{display:'flex', gap:'1.5rem', marginBottom:'2rem'}}>
+                      <SedeCard nombre="Campanario" datos={camp} color="#6366f1"/>
+                      <SedeCard nombre="Marina"     datos={mar}  color="#14b8a6"/>
+                      <div className="glass-card" style={{width:'240px', padding:'1.5rem', textAlign:'center', borderTop:'4px solid #f59e0b', background: 'rgba(245,158,11,0.03)'}}>
+                          <Activity size={32} color="#f59e0b" style={{marginBottom: '10px'}}/>
+                          <div style={{fontSize:'0.8rem', opacity:0.6, marginBottom:'5px', fontWeight: 800}}>TOTAL FACTURADO</div>
+                          <div style={{fontSize:'2rem', fontWeight:900, color:'white'}}>{fmt(totalGeneral)}</div>
+                          <div style={{fontSize:'0.7rem', opacity:0.5, marginTop:'10px'}}>{bmPagos.length} transacciones procesadas</div>
+                          <button onClick={runSmartMatch} className="btn-submit" style={{width: '100%', marginTop: '1.5rem', background: '#f59e0b', fontSize: '0.75rem'}}>EJECUTAR SMART MATCH</button>
+                      </div>
                     </div>
                   </div>
-                  <div style={{overflowX:'auto'}}>
-                    <table className="erp-table">
-                      <thead>
-                        <tr>
-                          <th>FECHA PAGO</th><th>SEDE</th><th>CLIENTE</th>
-                          <th>TIPO</th><th>MONTO</th><th>ESTADO CONC.</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPagos.map(p=>(
-                          <tr key={p.id}>
-                            <td style={{fontSize:'0.8rem'}}>{p.fecha_pago}</td>
-                            <td>
-                              <span style={{fontSize:'0.65rem', fontWeight:800,
-                                color: p.sede==='Campanario' ? '#6366f1' : '#14b8a6'}}>
-                                <MapPin size={10}/> {p.sede}
-                              </span>
-                            </td>
-                            <td style={{fontSize:'0.8rem'}}>{p.cliente}</td>
-                            <td>
-                              <span style={{
-                                fontSize:'0.6rem', padding:'2px 7px', borderRadius:'8px', fontWeight:800,
-                                background: (p.tipo_pago||'').toLowerCase().includes('webpay') ? 'rgba(129,140,248,0.15)'
-                                  : (p.tipo_pago||'').toLowerCase().includes('transf') ? 'rgba(52,211,153,0.15)'
-                                  : 'rgba(251,191,36,0.15)',
-                                color: (p.tipo_pago||'').toLowerCase().includes('webpay') ? '#818cf8'
-                                  : (p.tipo_pago||'').toLowerCase().includes('transf') ? '#34d399'
-                                  : '#fbbf24'
-                              }}>{p.tipo_pago}</span>
-                            </td>
-                            <td style={{fontWeight:900}}>{fmt(p.monto)}</td>
-                            <td>
-                              <span style={{
-                                fontSize:'0.6rem', padding:'3px 8px', borderRadius:'8px', fontWeight:800,
-                                background: p.estado_conciliacion==='CONCILIADO'
-                                  ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
-                                color: p.estado_conciliacion==='CONCILIADO' ? '#10b981' : '#f59e0b',
-                                border: `1px solid ${p.estado_conciliacion==='CONCILIADO' ? '#10b981' : '#f59e0b'}`
-                              }}>
-                                {p.estado_conciliacion==='CONCILIADO' ? '✓ CONCILIADO' : '⏳ PENDIENTE'}
-                              </span>
-                            </td>
+                )}
+
+                {bmTab !== 'dashboard' && (
+                  <div className="glass-card fade-in" style={{padding: '0'}}>
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1.2rem 1.5rem', borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                      <span style={{fontWeight:800, fontSize:'1rem', letterSpacing: '1px'}}>
+                         {bmTab === 'audit' ? '🚨 TRANSACCIONES PENDIENTES DE REVISIÓN' : '✅ TRANSACCIONES CONCILIADAS EXITOSAMENTE'}
+                      </span>
+                      <div style={{display:'flex', gap:'8px'}}>
+                        {[['Todas','Todas'],['Campanario','Camp.'],['Marina','Marina']].map(s=>(
+                          <button key={s[0]} onClick={()=>setBmSedeFiltro(s[0])} style={{
+                            background: bmSedeFiltro===s[0] ? '#6366f1' : 'rgba(255,255,255,0.05)',
+                            color:'white', border:'none', padding:'6px 12px', borderRadius:'6px',
+                            fontWeight:bmSedeFiltro===s[0]?900:600, fontSize:'0.7rem', cursor:'pointer'
+                          }}>{s[1].toUpperCase()}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{overflowX:'auto'}}>
+                      <table className="erp-table">
+                        <thead>
+                          <tr style={{background: 'rgba(255,255,255,0.02)'}}>
+                            <th style={{padding: '1.2rem'}}>FECHA PAGO</th><th>SEDE</th><th>CLIENTE / PLAN</th>
+                            <th>MÉTODO</th><th>MONTO</th><th>ESTADO AUDITORÍA</th><th>ACCIÓN</th>
                           </tr>
                         ))}
                         {filteredPagos.length===0 && (

@@ -261,6 +261,60 @@ app.get('/api/boxmagic/resumen/:mes', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// POST /api/boxmagic/reconcile/auto/:mes → Motor de Triangulación Inteligente
+app.post('/api/boxmagic/reconcile/auto/:mes', async (req, res) => {
+    try {
+        const { mes } = req.params;
+        let matchedCount = 0;
+
+        // 1. Obtener ventas pendientes del mes
+        const salesRes = await pool.query(`SELECT * FROM boxmagic_sales WHERE mes = $1 AND estado_conciliacion = 'PENDIENTE'`, [mes]);
+        const sales = salesRes.rows;
+
+        // 2. Obtener pool bancario sin conciliar
+        const bankRes = await pool.query(`SELECT * FROM bci_income_pool WHERE monto > 0`);
+        const bank = bankRes.rows;
+
+        // Mapeo de meses a números para cálculos de fecha
+        const mesMap = { 'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12' };
+        const mesNum = mesMap[mes.toLowerCase()];
+
+        for (const s of sales) {
+            // Regla 1: Triangulación por Monto e Identidad (Nombre/RUT)
+            let match = bank.find(b => 
+                b.monto === s.monto && 
+                ((b.nombre_remitente && s.cliente.toLowerCase().includes(b.nombre_remitente.toLowerCase().split(' ')[0])) || 
+                 (b.rut_remitente && s.cliente.includes(b.rut_remitente.substring(0,8))))
+            );
+
+            // Regla 2: Ventana de 3 días (Si es transferencia y coincide monto)
+            if (!match && s.tipo_pago.toLowerCase().includes('transf')) {
+                match = bank.find(b => {
+                    const sDate = new Date(s.fecha_pago);
+                    const bDate = new Date(b.fecha_banco);
+                    const diffTime = bDate - sDate;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return b.monto === s.monto && diffDays >= 0 && diffDays <= 3;
+                });
+            }
+
+            if (match) {
+                // Ejecutar Conciliación en DB
+                await pool.query('BEGIN');
+                await pool.query(`UPDATE boxmagic_sales SET estado_conciliacion = 'CONCILIADO', comentario_auditoria = $1 WHERE id = $2`, [`Auto-Match robot 🤖 (BCI ID: ${match.id})`, s.id]);
+                // Opcional: Marcar el pool bancario si tuviéramos esa columna
+                await pool.query('COMMIT');
+                matchedCount++;
+            }
+        }
+
+        res.json({ message: `Triangulación completada. Se encontraron ${matchedCount} coincidencias automáticas para ${mes}.`, matchedCount });
+    } catch (err) { 
+        await pool.query('ROLLBACK');
+        res.status(500).json({ error: err.message }); 
+    }
+});
+
 // POST /api/boxmagic/conciliar → Enlaza un pago BoxMagic con un movimiento BCI y marca ambos
 app.post('/api/boxmagic/conciliar', async (req, res) => {
   try {
@@ -351,90 +405,95 @@ app.post('/api/ingesta/boxmagic', upload.single('file'), async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// 2. Ingesta BCI - SMART INGESTOR (Detecta Automáticamente Formato Formal/Resumen/Detallado)
+const processBCIFile = async (filePath) => {
+    const workbook = xlsx.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+    let count = 0, startIdx = -1, formatType = 'formal';
+
+    // Detección de Formato
+    for(let i=0; i<Math.min(rows.length, 30); i++){
+        const line = JSON.stringify(rows[i]).toLowerCase();
+        if(line.includes('fecha de transacci')){ formatType = 'detallado'; startIdx = i+1; break; }
+        if(line.includes('fecha contable') && !line.includes('transacci')){ formatType = 'resumen'; startIdx = i+1; break; }
+        if(line.includes('descripción')){ formatType = 'formal'; startIdx = i+1; break; }
+    }
+
+    if(startIdx === -1) startIdx = 0;
+
+    for (let i = startIdx; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length < 2) continue;
+
+        let fechaVal, desc, monto, nombre_rem = null, rut_rem = null, glosa_ext = null;
+
+        if (formatType === 'detallado') {
+            // Estructura: Fecha(0), Glosa(7), Ingreso(8), Egreso(9), Nombre(11), RUT(12)
+            fechaVal = row[0];
+            desc = String(row[7] || '').toUpperCase();
+            const ingreso = cleanAmt(row[8] || 0);
+            const egreso = cleanAmt(row[9] || 0);
+            monto = ingreso > 0 ? ingreso : -egreso;
+            nombre_rem = row[11] ? String(row[11]).trim() : null;
+            rut_rem = row[12] ? String(row[12]).trim() : null;
+            glosa_ext = row[17] ? String(row[17]).trim() : null; // Comentario transferencia
+        } else if (formatType === 'resumen') {
+            // Estructura: Fecha(0), Desc(2), Egreso(3), Ingreso(4)
+            fechaVal = row[0];
+            desc = String(row[2] || '').toUpperCase();
+            const egreso = cleanAmt(row[3] || 0);
+            const ingreso = cleanAmt(row[4] || 0);
+            monto = ingreso > 0 ? ingreso : -egreso;
+        } else {
+            // Estructura Formal: Fecha(0), Desc(5), Cargo(9), Abono(10)
+            fechaVal = row[0];
+            desc = String(row[5] || '').toUpperCase();
+            const cargo = cleanAmt(row[9] || 0);
+            const abono = cleanAmt(row[10] || 0);
+            monto = abono > 0 ? abono : -cargo;
+        }
+
+        if (monto !== 0 && desc && !desc.includes('SALDO')) {
+            const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal).split('T')[0];
+            const descNorm = desc.replace(/VIA INTERNET|EN LINEA|ONLINE|WWW\..*|TRANSFERENCIA|RECIBIDA|ENVIADA/g, '').trim();
+            
+            // Deduplicación basada en Monto, Fecha y fragmento de descripción
+            const dupCheck = await pool.query(
+                `SELECT id FROM bci_income_pool WHERE fecha_banco = $1 AND monto = $2 AND (nombre_banco LIKE $3 OR $4 LIKE '%' || nombre_banco || '%') LIMIT 1`,
+                [fechaStr, monto, `%${descNorm.substring(0, 10)}%`, desc]
+            );
+
+            if (dupCheck.rows.length === 0) {
+                const prefix = formatType === 'detallado' ? 'D' : (formatType === 'resumen' ? 'R' : 'M');
+                const hashId = crypto.createHash('md5').update(`${prefix}-${fechaStr}-${descNorm}-${monto}`).digest('hex');
+                await pool.query(
+                    `INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion, nombre_remitente, rut_remitente, glosa) 
+                     VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`, 
+                    [fechaStr, monto, desc, hashId, nombre_rem, rut_rem, glosa_ext]
+                );
+                count++;
+            }
+        }
+    }
+    return count;
+};
+
 // 2. Ingesta BCI - CARTOLA MENSUAL CERRADA (Excel Formal)
 app.post('/api/ingesta/bci/mensual', upload.single('file'), async (req, res) => {
     try {
-        const workbook = xlsx.readFile(req.file.path);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
-        let count = 0, startIdx = -1;
-        // Lógica para Cartola Mensual (Fecha=[0], Desc=[5], Abono=[10])
-        for(let i=0; i<rows.length; i++){ if(JSON.stringify(rows[i]).toLowerCase().includes('descripción')){ startIdx = i+1; break; } }
-        for (let i = (startIdx === -1 ? 0 : startIdx); i < rows.length; i++) {
-            const row = rows[i];
-            if (!row || row.length < 10) continue;
-            const desc = String(row[5] || '').toUpperCase();
-            const cargo = cleanAmt(row[9] || 0);  // Columna Cargos (Correcto)
-            const abono = cleanAmt(row[10] || 0); // Columna Abonos
-            const monto = abono > 0 ? abono : (cargo > 0 ? -cargo : 0);
-            const fechaVal = row[0];
-
-            if (monto !== 0 && desc && !desc.includes('SALDO')) {
-                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal).split('T')[0];
-                
-                // Normalización para evitar duplicados por descripciones cambiantes
-                const descNorm = desc.replace(/VIA INTERNET|EN LINEA|ONLINE|WWW\..*|TRANSFERENCIA|RECIBIDA|ENVIADA/g, '').trim();
-
-                const dupCheck = await pool.query(
-                    `SELECT id FROM bci_income_pool WHERE fecha_banco = $1 AND monto = $2 AND (nombre_banco LIKE $3 OR $4 LIKE '%' || nombre_banco || '%') LIMIT 1`,
-                    [fechaStr, monto, `%${descNorm.substring(0, 10)}%`, desc]
-                );
-
-                if (dupCheck.rows.length === 0) {
-                    const hashId = crypto.createHash('md5').update(`M-${fechaStr}-${descNorm}-${monto}`).digest('hex');
-                    await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
-                    count++;
-                }
-            }
-        }
+        const count = await processBCIFile(req.file.path);
         fs.unlinkSync(req.file.path);
-        res.json({ message: `Ingesta de ${count} movimientos (Mensual) exitosa`, count });
+        res.json({ message: `Ingesta inteligente exitosa: ${count} movimientos registrados.`, count });
     } catch (err) { if(req.file) fs.unlinkSync(req.file.path); res.status(500).json({ error: err.message }); }
 });
 
 // 3. Ingesta BCI - MOVIMIENTOS RECIENTES (Excel Exportado Hoy)
 app.post('/api/ingesta/bci/movimientos', upload.single('file'), async (req, res) => {
     try {
-        const workbook = xlsx.readFile(req.file.path);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
-        let count = 0, startIdx = -1;
-        // Lógica para Movimientos (Fecha=[0], Desc=[1 o 2], Monto=[3 o 4])
-        for(let i=0; i<rows.length; i++){ if(JSON.stringify(rows[i]).toLowerCase().includes('fecha')){ startIdx = i+1; break; } }
-        for (let i = (startIdx === -1 ? 0 : startIdx); i < rows.length; i++) {
-            const row = rows[i];
-            if (!row || row.length < 2) continue;
-            const desc = String(row[1] || row[2] || '').toUpperCase();
-            const cargo = cleanAmt(row[3] || 0); // Ajustar segun formato exportado
-            const abono = cleanAmt(row[4] || row[5] || 0);
-            const monto = abono > 0 ? abono : (cargo > 0 ? -cargo : 0);
-            const fechaVal = row[0];
-
-            if (monto !== 0 && desc) {
-                const fechaStr = typeof fechaVal === 'number' ? new Date((fechaVal - 25569) * 86400 * 1000).toISOString().split('T')[0] : String(fechaVal).split('T')[0];
-                
-                // --- LÓGICA SENIOR DE DEDUPLICACIÓN DIFUSA ---
-                // 1. Normalizar descripción (quitar ruido variable)
-                const descNorm = desc.replace(/VIA INTERNET|EN LINEA|ONLINE|WWW\..*|TRANSFERENCIA|RECIBIDA|ENVIADA/g, '').trim();
-                
-                // 2. Buscar si ya existe un movimiento idéntico en monto y fecha
-                const dupCheck = await pool.query(
-                    `SELECT id FROM bci_income_pool WHERE fecha_banco = $1 AND monto = $2 AND (nombre_banco LIKE $3 OR $4 LIKE '%' || nombre_banco || '%') LIMIT 1`,
-                    [fechaStr, monto, `%${descNorm.substring(0, 10)}%`, desc]
-                );
-
-                if (dupCheck.rows.length === 0) {
-                    const hashId = crypto.createHash('md5').update(`R-${fechaStr}-${descNorm}-${monto}`).digest('hex');
-                    await pool.query(`INSERT INTO bci_income_pool (fecha_banco, monto, nombre_banco, nro_operacion) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [fechaStr, monto, desc, hashId]);
-                    count++;
-                } else {
-                    console.log(`[DEDUP] Ignorando posible duplicado: ${desc} ($${monto})`);
-                }
-            }
-
-        }
+        const count = await processBCIFile(req.file.path);
         fs.unlinkSync(req.file.path);
-        res.json({ message: `Ingesta de ${count} movimientos (Recientes) exitosa`, count });
+        res.json({ message: `Ingesta inteligente exitosa: ${count} movimientos registrados.`, count });
     } catch (err) { if(req.file) fs.unlinkSync(req.file.path); res.status(500).json({ error: err.message }); }
 });
 
