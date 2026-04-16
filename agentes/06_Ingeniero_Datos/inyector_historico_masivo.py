@@ -114,10 +114,12 @@ def main():
         {"path": "marina/1.- enero boxmagic marina.csv", "sede": "Marina", "mes": "enero"},
         {"path": "marina/2.- febrero boxmagic marina.csv", "sede": "Marina", "mes": "febrero"},
         {"path": "marina/3.- marzo boxmagic marina.csv", "sede": "Marina", "mes": "marzo"},
+        {"path": "boxmagic_Marina_2026_04_14.csv", "sede": "Marina", "mes": "abril"},
         # CAMPANARIO
         {"path": "campanario/1.- enero BoxMagic (41).csv", "sede": "Campanario", "mes": "enero"},
         {"path": "campanario/2.- Febrero BoxMagic .csv", "sede": "Campanario", "mes": "febrero"},
         {"path": "campanario/3.- Marzo BoxMagic .csv", "sede": "Campanario", "mes": "marzo"},
+        {"path": "boxmagic_Campanario_2026_04_14.csv", "sede": "Campanario", "mes": "abril"},
     ]
     
     print("="*60)

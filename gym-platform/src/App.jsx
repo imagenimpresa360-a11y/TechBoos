@@ -988,16 +988,55 @@ export default function App() {
                             <th style={{padding: '1.2rem'}}>FECHA PAGO</th><th>SEDE</th><th>CLIENTE / PLAN</th>
                             <th>MÉTODO</th><th>MONTO</th><th>ESTADO AUDITORÍA</th><th>ACCIÓN</th>
                           </tr>
-                        ))}
-                        {filteredPagos.length===0 && (
-                          <tr><td colSpan="6" style={{textAlign:'center', padding:'2rem', opacity:0.4}}>
-                            Sin registros para el filtro seleccionado.
-                          </td></tr>
-                        )}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {filteredPagos.map(p=>(
+                            <tr key={p.id}>
+                              <td style={{fontSize:'0.8rem', fontWeight: 600, padding: '1.2rem'}}>{p.fecha_pago}</td>
+                              <td><span style={{fontSize:'0.65rem', fontWeight:800, color: p.sede==='Campanario' ? '#818cf8' : '#34d399'}}><MapPin size={10}/> {p.sede.toUpperCase()}</span></td>
+                              <td>
+                                <div style={{fontWeight: 800, fontSize: '0.85rem'}}>{p.cliente}</div>
+                                <div style={{fontSize: '0.65rem', opacity: 0.5, color: '#f59e0b'}}>{p.plan || 'Plan No Identificado'}</div>
+                              </td>
+                              <td>
+                                <span style={{
+                                  fontSize:'0.6rem', padding:'3px 8px', borderRadius:'6px', fontWeight:900,
+                                  background: (p.tipo_pago||'').toLowerCase().includes('webpay') ? 'rgba(129,140,248,0.15)'
+                                    : (p.tipo_pago||'').toLowerCase().includes('transf') ? 'rgba(52,211,153,0.15)'
+                                    : 'rgba(251,191,36,0.15)',
+                                  color: (p.tipo_pago||'').toLowerCase().includes('webpay') ? '#818cf8'
+                                    : (p.tipo_pago||'').toLowerCase().includes('transf') ? '#34d399'
+                                    : '#fbbf24'
+                                }}>{(p.tipo_pago||'').toUpperCase()}</span>
+                              </td>
+                              <td style={{fontWeight:900, fontSize: '1rem'}}>{fmt(p.monto)}</td>
+                              <td>
+                                <span style={{
+                                  fontSize:'0.65rem', fontWeight:900, padding:'4px 10px', borderRadius:'20px',
+                                  background: p.estado_conciliacion === 'CONCILIADO' ? 'rgba(16,185,129,0.1)' : 'rgba(244,63,94,0.1)',
+                                  color: p.estado_conciliacion === 'CONCILIADO' ? '#10b981' : '#f43f5e',
+                                  border: `1px solid ${p.estado_conciliacion === 'CONCILIADO' ? '#10b981' : '#f43f5e'}`
+                                }}>{p.estado_conciliacion || 'PENDIENTE'}</span>
+                              </td>
+                              <td>
+                                {p.estado_conciliacion === 'PENDIENTE' ? (
+                                  <button onClick={() => alert("Reconciliador Manual en Desarrollo")} className="btn-submit" style={{padding: '6px 10px', fontSize: '0.65rem', background: '#6366f1'}}>AUDITAR</button>
+                                ) : (
+                                  <CheckSquare size={18} color="#10b981"/>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                          {filteredPagos.length===0 && (
+                            <tr><td colSpan="7" style={{textAlign:'center', padding:'3rem', opacity:0.4}}>
+                              Sin registros para el filtro seleccionado.
+                            </td></tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })()}
