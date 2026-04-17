@@ -89,6 +89,14 @@ export default function App() {
     fetchPool();
   };
 
+  const auditSpecial = async (id, estado, comentario) => {
+    await fetch(`${API_BASE}/boxmagic/audit/special`, { 
+        method: 'POST', headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({ id, estado, comentario }) 
+    });
+    fetchBmResumen();
+  };
+
   const aprobarMatch = async (bci_id) => {
     // Para aprobar, requeriríamos seleccionar a qué usuario o forzar el mock para Mvp
     const mockBoxmagicId = prompt("Ingresa el Nombre del Alumno que hizo este pago:", "Escribe un nombre o rut");
@@ -106,6 +114,8 @@ export default function App() {
   const [bmResumen, setBmResumen] = useState([]);
   const [bmSedeFiltro, setBmSedeFiltro] = useState('Todas');
   const [bmTipoFiltro, setBmTipoFiltro] = useState('todos');
+  const [bmAuditModal, setBmAuditModal] = useState(null); // Para el puente de auditoria
+  const [bmCandidates, setBmCandidates] = useState([]);
 
   const [bmTab, setBmTab] = useState('dashboard'); // dashboard | auto | audit
   const [abonoInput, setAbonoInput] = useState({});
@@ -936,6 +946,59 @@ export default function App() {
               }
             };
 
+            const openAuditBridge = async (pago) => {
+              setBmAuditModal(pago);
+              setLoading(true);
+              try {
+                // Buscamos abonos en el BCI para ese mes que coincidan en monto
+                const res = await fetch(`${API_BASE}/conciliacion/ingresos/${mes}`);
+                const pool = await res.json();
+                // Filtrar por monto exacto y que no estén ya enlazados (opcionalmente)
+                const matches = pool.filter(b => b.monto === pago.monto && b.estado_match !== 'ENLAZADO');
+                setBmCandidates(matches);
+              } catch (e) {
+                console.error(e);
+              }
+              setLoading(false);
+            };
+
+            const confirmarEnlaceManual = async (bankId) => {
+              if(!bmAuditModal) return;
+              try {
+                setLoading(true);
+                const res = await fetch(`${API_BASE}/boxmagic/conciliar`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    boxmagic_id: bmAuditModal.id,
+                    bci_pool_id: bankId,
+                    sede: bmAuditModal.sede
+                  })
+                });
+                if(res.ok) {
+                  setBmAuditModal(null);
+                  fetchBmResumen();
+                } else {
+                    const error = await res.json();
+                    alert("Error al conciliar: " + error.error);
+                }
+              } catch (e) { console.error(e); }
+              setLoading(false);
+            };
+
+            const auditarEspecial = async (id, estado, comentario) => {
+              try {
+                setLoading(true);
+                const res = await fetch(`${API_BASE}/boxmagic/audit/special`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ id, estado, comentario })
+                });
+                setLoading(false);
+                if(res.ok) fetchBmResumen();
+              } catch (e) { console.error(e); setLoading(false); }
+            };
+
             const filteredPagos = bmPagos
               .filter(p => {
                 // Filtro por Tab (Estado de Conciliación)
@@ -1085,21 +1148,51 @@ export default function App() {
                               </td>
                               <td>
                                 {p.estado_conciliacion === 'PENDIENTE' ? (
-                                  <button 
-                                    onClick={() => {
-                                      if((p.tipo_pago||'').toLowerCase().includes('efectivo')) {
-                                        if(window.confirm(`¿Confirmas que el pago de ${fmt(p.monto)} de ${p.cliente} entró a caja en efectivo?`)) {
-                                          auditarEfectivo(p.id);
+                                  <div style={{display:'flex', gap:'5px'}}>
+                                    {p.monto === 0 ? (
+                                      <>
+                                        <button 
+                                          onClick={() => auditarEspecial(p.id, 'CONCILIADO', 'PROMOCION/REGALO')}
+                                          className="btn-submit" 
+                                          style={{padding:'4px 8px', fontSize:'0.6rem', background:'#10b981'}}
+                                        >🎁 PROMO</button>
+                                        <button 
+                                          onClick={() => auditarEspecial(p.id, 'CONCILIADO', 'ADMINISTRACION')}
+                                          className="btn-submit" 
+                                          style={{padding:'4px 8px', fontSize:'0.6rem', background:'#6366f1'}}
+                                        >🏢 ADMIN</button>
+                                      </>
+                                    ) : (
+                                      <button 
+                                        onClick={() => {
+                                          const tipo = (p.tipo_pago||'').toLowerCase();
+                                          if(tipo.includes('efectivo')) {
+                                            if(window.confirm(`¿Confirmas que el pago de ${fmt(p.monto)} de ${p.cliente} entró a caja en efectivo?`)) {
+                                              auditarEfectivo(p.id);
+                                            }
+                                          } else {
+                                            openAuditBridge(p);
+                                          }
+                                        }} 
+                                        className="btn-submit" 
+                                        style={{padding:'6px 12px', fontSize:'0.65rem', background: '#6366f1'}}
+                                      >AUDITAR</button>
+                                    )}
+                                    <button 
+                                      onClick={() => {
+                                        if(window.confirm('¿Marcar este registro como DUPLICADO para descartarlo del balance?')) {
+                                          auditarEspecial(p.id, 'DESCARTADO', 'REGISTRO DUPLICADO MANUAL');
                                         }
-                                      } else {
-                                        alert("Auditoría manual para WebPay/Transferencia disponible en la siguiente fase (requiere match bancario). Solo Efectivo por ahora.");
-                                      }
-                                    }} 
-                                    className="btn-submit" 
-                                    style={{padding: '6px 10px', fontSize: '0.65rem', background: '#6366f1'}}
-                                  >AUDITAR</button>
+                                      }}
+                                      className="btn-submit" 
+                                      style={{padding:'4px 8px', fontSize:'0.6rem', background:'#f43f5e'}}
+                                    >🗑️</button>
+                                  </div>
                                 ) : (
-                                  <CheckSquare size={18} color="#10b981"/>
+                                  <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+                                    <CheckSquare size={16} color="#10b981"/>
+                                    <span style={{fontSize:'0.6rem', opacity:0.5}}>{p.estado_conciliacion === 'DESCARTADO' ? 'DESCARTADO' : ''}</span>
+                                  </div>
                                 )}
                               </td>
                             </tr>
@@ -1111,6 +1204,59 @@ export default function App() {
                           )}
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODAL PUENTE DE AUDITORIA */}
+                {bmAuditModal && (
+                  <div style={{
+                    position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.8)',
+                    display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000, padding:'20px'
+                  }}>
+                    <div className="glass-card fade-in" style={{width:'800px', maxHeight:'90vh', overflow:'auto', borderTop:'4px solid #6366f1'}}>
+                      <div style={{display:'flex', justifyContent:'space-between', padding:'1.5rem', borderBottom:'1px solid rgba(255,255,255,0.1)'}}>
+                        <div>
+                          <h3 style={{margin:0}}>Puente de Auditoría: {bmAuditModal.cliente}</h3>
+                          <div style={{fontSize:'0.8rem', opacity:0.6}}>Buscando respaldo bancario para {fmt(bmAuditModal.monto)} ({bmAuditModal.tipo_pago})</div>
+                        </div>
+                        <button onClick={()=>setBmAuditModal(null)} style={{background:'transparent', border:'none', color:'white', cursor:'pointer'}}><X size={24}/></button>
+                      </div>
+
+                      <div style={{padding:'1.5rem'}}>
+                        {bmCandidates.length === 0 ? (
+                           <div style={{textAlign:'center', padding:'3rem', opacity:0.5}}>
+                              <Search size={40} style={{marginBottom:'1rem'}}/>
+                              <div>No se encontraron abonos de <strong>{fmt(bmAuditModal.monto)}</strong> en tu cartola BCI de {MES_LABEL[mes]}.</div>
+                              <div style={{fontSize:'0.8rem', marginTop:'10px'}}>Por favor, asegúrate de haber importado la cartola actualizada.</div>
+                           </div>
+                        ) : (
+                          <div>
+                             <p style={{fontSize:'0.9rem', marginBottom:'1.5rem'}}>Se encontraron {bmCandidates.length} movimientos que coinciden con el monto. Selecciona el respaldo correcto:</p>
+                             <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
+                                {bmCandidates.map(c => (
+                                  <div key={c.id} className="glass-card" style={{
+                                    display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1rem', 
+                                    background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.05)'
+                                  }}>
+                                    <div>
+                                      <div style={{fontWeight:800}}>{c.nombre_remitente || c.nombre_banco}</div>
+                                      <div style={{fontSize:'0.7rem', opacity:0.5}}>{c.fecha_banco} | Operación: {c.nro_operacion || 'N/A'}</div>
+                                    </div>
+                                    <div style={{display:'flex', alignItems:'center', gap:'20px'}}>
+                                      <div style={{fontWeight:900, color:'#10b981'}}>{fmt(c.monto)}</div>
+                                      <button 
+                                        onClick={() => confirmarEnlaceManual(c.id)}
+                                        className="btn-submit" 
+                                        style={{padding:'6px 15px', fontSize:'0.7rem'}}
+                                      >VINCULAR PAGO</button>
+                                    </div>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

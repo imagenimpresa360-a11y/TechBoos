@@ -336,6 +336,21 @@ app.post('/api/boxmagic/conciliar', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// POST /api/boxmagic/audit/special → Auditoría para cortesías, admin o duplicados
+app.post('/api/boxmagic/audit/special', async (req, res) => {
+  try {
+    const { id, estado, comentario } = req.body;
+    const result = await pool.query(`
+      UPDATE boxmagic_sales 
+      SET estado_conciliacion = $1, 
+          comentario_auditoria = $2, 
+          fecha_conciliacion = NOW()
+      WHERE id = $3 RETURNING *
+    `, [estado, comentario, id]);
+    res.json({ message: 'Registro actualizado correctamente', data: result.rows[0] });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // POST /api/boxmagic/audit/cash → Auditoría manual para Efectivo (Sin par en BCI)
 app.post('/api/boxmagic/audit/cash', async (req, res) => {
   try {
