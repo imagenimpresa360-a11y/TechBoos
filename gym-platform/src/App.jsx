@@ -915,12 +915,34 @@ export default function App() {
               fetchBmResumen();
             };
 
-            const filteredPagos = bmPagos.filter(p => {
-              if (bmTab === 'auto') return p.estado_conciliacion === 'CONCILIADO';
-              if (bmTab === 'audit') return p.estado_conciliacion === 'PENDIENTE';
-              const tipoOk = bmTipoFiltro === 'todos' || (p.tipo_pago||'').toLowerCase().includes(bmTipoFiltro);
-              return tipoOk;
-            });
+            const filteredPagos = bmPagos
+              .filter(p => {
+                // Filtro por Tab (Estado de Conciliación)
+                if (bmTab === 'auto') return p.estado_conciliacion === 'CONCILIADO';
+                if (bmTab === 'audit') return p.estado_conciliacion === 'PENDIENTE';
+                return true;
+              })
+              .filter(p => {
+                // Filtro por Sede
+                if (bmSedeFiltro === 'Todas') return true;
+                return p.sede === bmSedeFiltro;
+              })
+              .filter(p => {
+                // Filtro por Método de Pago
+                if (bmTipoFiltro === 'todos') return true;
+                return (p.tipo_pago||'').toLowerCase().includes(bmTipoFiltro);
+              })
+              .sort((a, b) => {
+                // ORDENAMIENTO DE PRIORIDAD: Efectivo siempre primero
+                const isAEfectivo = (a.tipo_pago||'').toLowerCase().includes('efectivo');
+                const isBEfectivo = (b.tipo_pago||'').toLowerCase().includes('efectivo');
+                
+                if (isAEfectivo && !isBEfectivo) return -1;
+                if (!isAEfectivo && isBEfectivo) return 1;
+                
+                // Si ambos son lo mismo, ordenar por fecha descendente
+                return new Date(b.fecha_pago) - new Date(a.fecha_pago);
+              });
 
             return (
               <div className="fade-in">
@@ -971,14 +993,36 @@ export default function App() {
                       <span style={{fontWeight:800, fontSize:'1rem', letterSpacing: '1px'}}>
                          {bmTab === 'audit' ? '🚨 TRANSACCIONES PENDIENTES DE REVISIÓN' : '✅ TRANSACCIONES CONCILIADAS EXITOSAMENTE'}
                       </span>
-                      <div style={{display:'flex', gap:'8px'}}>
-                        {[['Todas','Todas'],['Campanario','Camp.'],['Marina','Marina']].map(s=>(
-                          <button key={s[0]} onClick={()=>setBmSedeFiltro(s[0])} style={{
-                            background: bmSedeFiltro===s[0] ? '#6366f1' : 'rgba(255,255,255,0.05)',
-                            color:'white', border:'none', padding:'6px 12px', borderRadius:'6px',
-                            fontWeight:bmSedeFiltro===s[0]?900:600, fontSize:'0.7rem', cursor:'pointer'
-                          }}>{s[1].toUpperCase()}</button>
-                        ))}
+                      <div style={{display:'flex', gap:'12px', alignItems: 'center'}}>
+                        {/* Filtros de Sede */}
+                        <div style={{display:'flex', gap:'4px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '8px'}}>
+                          {[['Todas','Todas'],['Campanario','Camp.'],['Marina','Marina']].map(s=>(
+                            <button key={s[0]} onClick={()=>setBmSedeFiltro(s[0])} style={{
+                              background: bmSedeFiltro===s[0] ? '#6366f1' : 'transparent',
+                              color:'white', border:'none', padding:'4px 10px', borderRadius:'6px',
+                              fontWeight:bmSedeFiltro===s[0]?900:600, fontSize:'0.65rem', cursor:'pointer'
+                            }}>{s[1].toUpperCase()}</button>
+                          ))}
+                        </div>
+
+                        <div style={{width: '1px', background: 'rgba(255,255,255,0.1)', height: '20px'}}></div>
+
+                        {/* Filtros de Método (La petición del usuario) */}
+                        <div style={{display:'flex', gap:'4px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '8px'}}>
+                          {[
+                            {id: 'todos',    label: 'TODAS', color: '#fff'},
+                            {id: 'efectivo', label: 'Efectivo', color: '#fbbf24'},
+                            {id: 'webpay',   label: 'WebPay', color: '#818cf8'},
+                            {id: 'transf',   label: 'Transf.', color: '#34d399'}
+                          ].map(t=>(
+                            <button key={t.id} onClick={()=>setBmTipoFiltro(t.id)} style={{
+                              background: bmTipoFiltro===t.id ? (t.id === 'todos' ? '#475569' : t.color) : 'transparent',
+                              color: bmTipoFiltro===t.id ? (t.id === 'todos' ? 'white' : '#000') : 'white',
+                              border:'none', padding:'4px 10px', borderRadius:'6px',
+                              fontWeight: 900, fontSize:'0.65rem', cursor:'pointer', opacity: bmTipoFiltro===t.id ? 1 : 0.6
+                            }}>{t.label.toUpperCase()}</button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <div style={{overflowX:'auto'}}>
