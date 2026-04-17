@@ -316,6 +316,7 @@ app.post('/api/boxmagic/reconcile/auto/:mes', async (req, res) => {
 });
 
 // POST /api/boxmagic/conciliar → Enlaza un pago BoxMagic con un movimiento BCI y marca ambos
+// POST /api/boxmagic/conciliar → Enlaza un pago BoxMagic con un movimiento BCI y marca ambos
 app.post('/api/boxmagic/conciliar', async (req, res) => {
   try {
     const { boxmagic_id, bci_pool_id, sede } = req.body;
@@ -332,6 +333,21 @@ app.post('/api/boxmagic/conciliar', async (req, res) => {
       WHERE id = $2
     `, [sede, bci_pool_id]);
     res.json({ message: 'Conciliacion exitosa', boxmagic_id, bci_pool_id, sede });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/boxmagic/audit/cash → Auditoría manual para Efectivo (Sin par en BCI)
+app.post('/api/boxmagic/audit/cash', async (req, res) => {
+  try {
+    const { id } = req.body;
+    const result = await pool.query(`
+      UPDATE boxmagic_sales 
+      SET estado_conciliacion = 'CONCILIADO', 
+          comentario_auditoria = 'Auditado Manualmente (Efectivo por Usuario)', 
+          fecha_conciliacion = NOW()
+      WHERE id = $1 RETURNING *
+    `, [id]);
+    res.json({ message: 'Pago en efectivo auditado correctamente', data: result.rows[0] });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

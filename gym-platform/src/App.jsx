@@ -915,6 +915,27 @@ export default function App() {
               fetchBmResumen();
             };
 
+            const auditarEfectivo = async (id) => {
+              try {
+                setLoading(true);
+                const res = await fetch(`${API_BASE}/boxmagic/audit/cash`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ id })
+                });
+                const data = await res.json();
+                setLoading(false);
+                if (res.ok) {
+                  fetchBmResumen(); // Refresca dashboard y tabla
+                } else {
+                  alert("Error: " + data.error);
+                }
+              } catch (e) {
+                console.error(e);
+                setLoading(false);
+              }
+            };
+
             const filteredPagos = bmPagos
               .filter(p => {
                 // Filtro por Tab (Estado de Conciliación)
@@ -1064,7 +1085,19 @@ export default function App() {
                               </td>
                               <td>
                                 {p.estado_conciliacion === 'PENDIENTE' ? (
-                                  <button onClick={() => alert("Reconciliador Manual en Desarrollo")} className="btn-submit" style={{padding: '6px 10px', fontSize: '0.65rem', background: '#6366f1'}}>AUDITAR</button>
+                                  <button 
+                                    onClick={() => {
+                                      if((p.tipo_pago||'').toLowerCase().includes('efectivo')) {
+                                        if(window.confirm(`¿Confirmas que el pago de ${fmt(p.monto)} de ${p.cliente} entró a caja en efectivo?`)) {
+                                          auditarEfectivo(p.id);
+                                        }
+                                      } else {
+                                        alert("Auditoría manual para WebPay/Transferencia disponible en la siguiente fase (requiere match bancario). Solo Efectivo por ahora.");
+                                      }
+                                    }} 
+                                    className="btn-submit" 
+                                    style={{padding: '6px 10px', fontSize: '0.65rem', background: '#6366f1'}}
+                                  >AUDITAR</button>
                                 ) : (
                                   <CheckSquare size={18} color="#10b981"/>
                                 )}
