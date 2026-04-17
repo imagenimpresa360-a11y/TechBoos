@@ -410,8 +410,8 @@ app.post('/api/ingesta/boxmagic', upload.single('file'), async (req, res) => {
 
             if (cliente && monto > 0) {
                 await pool.query(
-                    `INSERT INTO boxmagic_sales (fecha_pago, cliente, monto, tipo_pago, vendedor, sede, mes) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [fecha, cliente, monto, tipo, vendedora, sede, mes]
+                    `INSERT INTO boxmagic_sales (fecha_pago, cliente, monto, tipo_pago, vendedor, sede, mes, estado_conciliacion) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                    [fecha, cliente, monto, tipo, vendedora, sede, mes, 'PENDIENTE']
                 );
                 count++;
             }

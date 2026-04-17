@@ -873,8 +873,8 @@ export default function App() {
               const filas = bmResumen.filter(r => r.sede === nombre);
               return {
                 total:       filas.reduce((s,r)=>s+parseInt(r.total||0),0),
-                conciliadomonto:  filas.reduce((s,r)=>s+parseInt(r.conciliado||0),0),
-                pendientemonto:   filas.reduce((s,r)=>s+parseInt(r.pendiente||0),0),
+                conciliado:  filas.reduce((s,r)=>s+parseInt(r.conciliado||0),0),
+                pendiente:   filas.reduce((s,r)=>s+parseInt(r.pendiente||0),0),
                 transf:      filas.filter(r=>r.tipo_pago?.toLowerCase().includes('transf')).reduce((s,r)=>s+parseInt(r.total||0),0),
                 efectivo:    filas.filter(r=>r.tipo_pago?.toLowerCase().includes('efectivo')||r.tipo_pago?.toLowerCase().includes('cash')).reduce((s,r)=>s+parseInt(r.total||0),0),
                 webpay:      filas.filter(r=>r.tipo_pago?.toLowerCase().includes('webpay')||r.tipo_pago?.toLowerCase().includes('tarjeta')).reduce((s,r)=>s+parseInt(r.total||0),0),
@@ -899,10 +899,10 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.85rem', marginTop:'10px', borderTop:'1px solid rgba(255,255,255,0.08)', paddingTop:'12px'}}>
-                  <span style={{color:'#10b981', fontWeight: 700}}>✓ CONCILIADO: <strong style={{color: 'white'}}>{fmt(datos.conciliadomonto)}</strong></span>
-                  <span style={{color:'#f59e0b', fontWeight: 700}}>⏳ PENDIENTE: <strong style={{color: 'white'}}>{fmt(datos.pendientemonto)}</strong></span>
-                </div>
+                 <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.85rem', marginTop:'10px', borderTop:'1px solid rgba(255,255,255,0.08)', paddingTop:'12px'}}>
+                   <span style={{color:'#10b981', fontWeight: 700}}>✓ CONCILIADO: <strong style={{color: 'white'}}>{fmt(datos.conciliado)}</strong></span>
+                   <span style={{color:'#f59e0b', fontWeight: 700}}>⏳ PENDIENTE: <strong style={{color: 'white'}}>{fmt(datos.pendiente)}</strong></span>
+                 </div>
               </div>
             );
 
