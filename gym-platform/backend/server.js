@@ -244,7 +244,9 @@ app.get('/api/boxmagic/:sede/:mes', async (req, res) => {
 app.get('/api/boxmagic/resumen/:mes', async (req, res) => {
   try {
     const { mes } = req.params;
-    const result = await pool.query(`
+    
+    // 1. Resumen por Sede y Tipo de Pago
+    const mainRes = await pool.query(`
       SELECT 
         sede,
         tipo_pago,
@@ -257,7 +259,24 @@ app.get('/api/boxmagic/resumen/:mes', async (req, res) => {
       GROUP BY sede, tipo_pago
       ORDER BY sede, tipo_pago
     `, [mes]);
-    res.json(result.rows);
+
+    // 2. Cálculo de Riesgo (Pendientes > 72h excluyendo efectivo)
+    // Usamos TO_DATE para convertir el string DD/MM/YYYY a un objeto fecha real
+    const riskRes = await pool.query(`
+      SELECT 
+        COUNT(*) as cantidad_riesgo,
+        COALESCE(SUM(monto), 0) as monto_riesgo
+      FROM boxmagic_sales
+      WHERE mes = $1
+      AND estado_conciliacion = 'PENDIENTE'
+      AND LOWER(tipo_pago) NOT LIKE '%efectivo%'
+      AND TO_DATE(fecha_pago, 'DD/MM/YYYY') < (CURRENT_DATE - INTERVAL '72 hours')
+    `, [mes]);
+
+    res.json({
+        data: mainRes.rows,
+        risk: riskRes.rows[0]
+    });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

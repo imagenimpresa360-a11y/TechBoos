@@ -112,8 +112,10 @@ export default function App() {
   const [virtualpos, setVirtualpos] = useState([]);
   const [bmPagos, setBmPagos] = useState([]);
   const [bmResumen, setBmResumen] = useState([]);
+  const [bmRisk, setBmRisk] = useState({ cantidad_riesgo: 0, monto_riesgo: 0 });
   const [bmSedeFiltro, setBmSedeFiltro] = useState('Todas');
   const [bmTipoFiltro, setBmTipoFiltro] = useState('todos');
+  const [bmShowOnlyRisk, setBmShowOnlyRisk] = useState(false);
   const [bmAuditModal, setBmAuditModal] = useState(null); // Para el puente de auditoria
   const [bmCandidates, setBmCandidates] = useState([]);
 
@@ -156,9 +158,10 @@ export default function App() {
         fetch(`${API_BASE}/boxmagic/resumen/${mes}`),
       ]);
       const dataPagos = await resPagos.json();
-      const dataResumen = await resResumen.json();
+      const resData = await resResumen.json();
       setBmPagos(Array.isArray(dataPagos) ? dataPagos : []);
-      setBmResumen(Array.isArray(dataResumen) ? dataResumen : []);
+      setBmResumen(Array.isArray(resData.data) ? resData.data : []);
+      setBmRisk(resData.risk || { cantidad_riesgo: 0, monto_riesgo: 0 });
     } catch(e) { console.error(e); }
   };
 
@@ -1007,6 +1010,16 @@ export default function App() {
                 return true;
               })
               .filter(p => {
+                if (!bmShowOnlyRisk) return true;
+                if ((p.tipo_pago||'').toLowerCase().includes('efectivo')) return false;
+                if (p.estado_conciliacion !== 'PENDIENTE') return false;
+                // Lógica local de 72h para el filtro visual
+                const pDate = new Date(p.fecha_pago.split('/').reverse().join('-')); // DD/MM/YYYY -> YYYY-MM-DD
+                const now = new Date();
+                const diff = (now - pDate) / (1000 * 60 * 60);
+                return diff > 72;
+              })
+              .filter(p => {
                 // Filtro por Sede
                 if (bmSedeFiltro === 'Todas') return true;
                 return p.sede === bmSedeFiltro;
@@ -1060,6 +1073,29 @@ export default function App() {
                     <div style={{display:'flex', gap:'1.5rem', marginBottom:'2rem'}}>
                       <SedeCard nombre="Campanario" datos={camp} color="#6366f1"/>
                       <SedeCard nombre="Marina"     datos={mar}  color="#14b8a6"/>
+                      
+                      {bmRisk.monto_riesgo > 0 && (
+                        <div className="glass-card" style={{
+                           flex: 1, padding: '1.5rem', borderTop: '4px solid #f43f5e', 
+                           background: 'linear-gradient(135deg, rgba(244,63,94,0.1) 0%, rgba(0,0,0,0) 100%)',
+                           position: 'relative', overflow: 'hidden'
+                        }}>
+                           <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'1.2rem'}}>
+                              <AlertTriangle size={22} color="#f43f5e"/>
+                              <h3 style={{margin:0, fontSize:'1.1rem', fontWeight:900, color:'#f43f5e'}}>INGRESO EN RIESGO (+72H)</h3>
+                           </div>
+                           <div style={{fontSize:'2.2rem', fontWeight:900, color: 'white', marginBottom:'0.5rem'}}>{fmt(bmRisk.monto_riesgo)}</div>
+                           <div style={{fontSize:'0.8rem', opacity:0.8, color:'#f43f5e', fontWeight:700}}>
+                              ⚠️ {bmRisk.cantidad_riesgo} transacciones sin respaldo bancario.
+                           </div>
+                           <button 
+                             onClick={() => { setBmTab('audit'); setBmShowOnlyRisk(true); }}
+                             className="btn-submit" 
+                             style={{marginTop:'1rem', padding:'6px 12px', background:'#f43f5e', fontSize:'0.7rem'}}
+                           >VER RIESGOS AHORA</button>
+                        </div>
+                      )}
+
                       <div className="glass-card" style={{width:'240px', padding:'1.5rem', textAlign:'center', borderTop:'4px solid #f59e0b', background: 'rgba(245,158,11,0.03)'}}>
                           <Activity size={32} color="#f59e0b" style={{marginBottom: '10px'}}/>
                           <div style={{fontSize:'0.8rem', opacity:0.6, marginBottom:'5px', fontWeight: 800}}>TOTAL FACTURADO</div>
@@ -1080,6 +1116,14 @@ export default function App() {
                       <div style={{display:'flex', gap:'12px', alignItems: 'center'}}>
                         {/* Filtros de Sede */}
                         <div style={{display:'flex', gap:'4px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '8px'}}>
+                          <button onClick={() => setBmShowOnlyRisk(!bmShowOnlyRisk)} style={{
+                             background: bmShowOnlyRisk ? '#f43f5e' : 'transparent',
+                             color: 'white', border: 'none', padding: '4px 10px', borderRadius: '6px',
+                             fontWeight: 900, fontSize: '0.65rem', cursor: 'pointer'
+                          }}>{bmShowOnlyRisk ? '⚠️ MOSTRANDO RIESGOS' : 'FILTRAR RIESGOS'}</button>
+                          
+                          <div style={{width: '1px', background: 'rgba(255,255,255,0.1)', height: '16px', margin:'auto 4px'}}></div>
+
                           {[['Todas','Todas'],['Campanario','Camp.'],['Marina','Marina']].map(s=>(
                             <button key={s[0]} onClick={()=>setBmSedeFiltro(s[0])} style={{
                               background: bmSedeFiltro===s[0] ? '#6366f1' : 'transparent',
@@ -1120,7 +1164,17 @@ export default function App() {
                         <tbody>
                           {filteredPagos.map(p=>(
                             <tr key={p.id}>
-                              <td style={{fontSize:'0.8rem', fontWeight: 600, padding: '1.2rem'}}>{p.fecha_pago}</td>
+                              <td style={{fontSize:'0.8rem', fontWeight: 600, padding: '1.2rem'}}>
+                                {p.fecha_pago}
+                                {(() => {
+                                   const pDate = new Date(p.fecha_pago.split('/').reverse().join('-'));
+                                   const now = new Date();
+                                   if ((now - pDate) / (1000 * 60 * 60) > 72 && p.estado_conciliacion === 'PENDIENTE' && !(p.tipo_pago||'').toLowerCase().includes('efectivo')) {
+                                      return <span title="¡Riesgo! Más de 72h sin respaldo" style={{marginLeft:'5px', color:'#f43f5e'}}>⚠️</span>
+                                   }
+                                   return null;
+                                })()}
+                              </td>
                               <td><span style={{fontSize:'0.65rem', fontWeight:800, color: p.sede==='Campanario' ? '#818cf8' : '#34d399'}}><MapPin size={10}/> {p.sede.toUpperCase()}</span></td>
                               <td>
                                 <div style={{fontWeight: 800, fontSize: '0.85rem'}}>{p.cliente}</div>
