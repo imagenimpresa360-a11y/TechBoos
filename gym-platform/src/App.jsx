@@ -1103,6 +1103,13 @@ export default function App() {
                           <div style={{fontSize:'0.7rem', opacity:0.5, marginTop:'10px'}}>{bmPagos.length} transacciones procesadas</div>
                           <button onClick={runSmartMatch} className="btn-submit" style={{width: '100%', marginTop: '1.5rem', background: '#f59e0b', fontSize: '0.75rem'}}>EJECUTAR SMART MATCH</button>
                       </div>
+
+                      <div className="glass-card" style={{width:'240px', padding:'1.5rem', textAlign:'center', borderTop:'4px solid #818cf8', background: 'rgba(129,140,248,0.03)'}}>
+                          <CreditCard size={32} color="#818cf8" style={{marginBottom: '10px'}}/>
+                          <div style={{fontSize:'0.8rem', opacity:0.6, marginBottom:'5px', fontWeight: 800}}>COSTO COMISIONES</div>
+                          <div style={{fontSize:'2rem', fontWeight:900, color:'white'}}>{fmt(bmRisk.total_comision || 0)}</div>
+                          <div style={{fontSize:'0.7rem', opacity:0.5, marginTop:'10px'}}>Pérdida por procesadores</div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1191,7 +1198,14 @@ export default function App() {
                                     : '#fbbf24'
                                 }}>{(p.tipo_pago||'').toUpperCase()}</span>
                               </td>
-                              <td style={{fontWeight:900, fontSize: '1rem'}}>{fmt(p.monto)}</td>
+                               <td style={{fontWeight:900, fontSize: '0.9rem'}}>
+                                  {fmt(p.monto)}
+                                  {(p.tipo_pago||'').toLowerCase().includes('webpay') && (
+                                    <div style={{fontSize:'0.65rem', color:'#818cf8', marginTop:'2px'}}>
+                                      Neto Est: {fmt(p.monto * 0.965)}
+                                    </div>
+                                  )}
+                               </td>
                               <td>
                                 <span style={{
                                   fontSize:'0.65rem', fontWeight:900, padding:'4px 10px', borderRadius:'20px',

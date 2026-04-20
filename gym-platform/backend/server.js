@@ -273,9 +273,17 @@ app.get('/api/boxmagic/resumen/:mes', async (req, res) => {
       AND TO_DATE(fecha_pago, 'DD/MM/YYYY') < (CURRENT_DATE - INTERVAL '72 hours')
     `, [mes]);
 
+    // 3. Cálculo de Costo Transaccional (Solo WebPay Conciliado)
+    const costRes = await pool.query(`
+      SELECT COALESCE(SUM(comision), 0) as total_comision
+      FROM virtualpos_sales
+      WHERE fecha LIKE $1
+    `, [`%${mesToNum[mes.toLowerCase()]}%`]);
+
     res.json({
         data: mainRes.rows,
-        risk: riskRes.rows[0]
+        risk: riskRes.rows[0],
+        costs: costRes.rows[0]
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -309,12 +317,25 @@ app.post('/api/boxmagic/reconcile/auto/:mes', async (req, res) => {
             // Regla 2: Ventana de 3 días (Si es transferencia y coincide monto)
             if (!match && s.tipo_pago.toLowerCase().includes('transf')) {
                 match = bank.find(b => {
-                    const sDate = new Date(s.fecha_pago);
+                    const sDate = new Date(s.fecha_pago.split('/').reverse().join('-'));
                     const bDate = new Date(b.fecha_banco);
-                    const diffTime = bDate - sDate;
+                    const diffTime = Math.abs(bDate - sDate);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return b.monto === s.monto && diffDays >= 0 && diffDays <= 3;
+                    return b.monto === s.monto && diffDays <= 3;
                 });
+            }
+
+            // Regla 3: Triangulación WebPay (Cálculo de Comisión)
+            if (!match && s.tipo_pago.toLowerCase().includes('webpay')) {
+                // Buscamos si existe registro en virtualpos_sales para ese cliente y monto
+                const vposRes = await pool.query(
+                    `SELECT total_abono FROM virtualpos_sales WHERE monto = $1 AND cliente ILIKE $2 LIMIT 1`,
+                    [s.monto, `%${s.cliente.split(' ')[0]}%`]
+                );
+                if (vposRes.rows.length > 0) {
+                    const neto = vposRes.rows[0].total_abono;
+                    match = bank.find(b => b.monto === neto);
+                }
             }
 
             if (match) {
