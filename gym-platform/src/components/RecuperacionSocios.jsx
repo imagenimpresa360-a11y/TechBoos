@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API = window.location.hostname === 'localhost' 
+    ? (import.meta.env.VITE_API_URL || 'http://localhost:3001')
+    : ''; // En producción, usa rutas relativas
 
 const SEGMENTO_CONFIG = {
   Amarillo: { color: '#f59e0b', bg: '#fef3c7', label: '1-2 meses', icon: '🟡' },
