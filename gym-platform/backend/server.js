@@ -268,6 +268,230 @@ app.get('/api/stats/:mes', async (req, res) => {
             erp_egresos: parseInt(egRes.rows[0].total) || 0
         });
     } catch (err) { res.status(500).json({ error: err.message }); }
+});
+// ═══════════════════════════════════════════════════════════
+// MÓDULO DE RECUPERACIÓN DE SOCIOS (MRS) — v1.0
+// ═══════════════════════════════════════════════════════════
+
+// GET /api/socios/inactivos — Bandeja del Ejecutivo de Retención
+// Retorna socios inactivos ordenados por prioridad (ticket alto + menos días = más urgente)
+app.get('/api/socios/inactivos', async (req, res) => {
+    const { sede, segmento, limit = 50, offset = 0 } = req.query;
+    try {
+        let conditions = ["s.estado = 'Inactivo'", "s.dias_inactivo >= 30"];
+        const params = [];
+        
+        if (sede) {
+            params.push(sede);
+            conditions.push(`s.sede_habitual = $${params.length}`);
+        }
+        if (segmento) {
+            params.push(segmento);
+            conditions.push(`s.segmento_riesgo = $${params.length}`);
+        }
+        
+        params.push(parseInt(limit));
+        params.push(parseInt(offset));
+        
+        const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+        
+        const result = await pool.query(`
+            SELECT 
+                s.id,
+                s.nombre,
+                s.email,
+                s.telefono,
+                s.instagram,
+                s.sede_habitual,
+                s.plan_ultimo,
+                s.monto_promedio,
+                s.dias_inactivo,
+                s.fecha_ultimo_pago,
+                s.total_pagado,
+                s.coach_referente,
+                s.segmento_riesgo,
+                s.notas,
+                -- Última gestión de recuperación
+                c.estado_gestion   AS ultima_gestion_estado,
+                c.fecha_contacto   AS ultima_gestion_fecha,
+                c.promo_ofrecida   AS ultima_promo,
+                -- Link WhatsApp pre-armado
+                CASE 
+                    WHEN s.telefono IS NOT NULL AND s.telefono != '' THEN
+                        'https://wa.me/' || REPLACE(s.telefono, '+', '') || 
+                        '?text=' || ENCODE(('Hola ' || SPLIT_PART(s.nombre, ' ', 1) || 
+                        ', soy de The Boos Box! 🥊 Te extrañamos. ' ||
+                        'Tenemos tu *Pack de Reactivación*: 4 clases por solo $19.000. ' ||
+                        '¿Te apunto para esta semana?')::BYTEA, 'escape')
+                    ELSE NULL
+                END AS whatsapp_link
+            FROM socios s
+            LEFT JOIN LATERAL (
+                SELECT estado_gestion, fecha_contacto, promo_ofrecida
+                FROM campanas_recuperacion
+                WHERE socio_id = s.id
+                ORDER BY fecha_contacto DESC
+                LIMIT 1
+            ) c ON true
+            ${whereClause}
+            ORDER BY 
+                CASE s.segmento_riesgo
+                    WHEN 'Amarillo' THEN 1
+                    WHEN 'Rojo'     THEN 2
+                    WHEN 'Critico'  THEN 3
+                    ELSE 4
+                END ASC,
+                s.monto_promedio DESC
+            LIMIT $${params.length - 1} OFFSET $${params.length}
+        `, params);
+        
+        // Total para paginación
+        const totalResult = await pool.query(`
+            SELECT COUNT(*) FROM socios s ${whereClause}
+        `, params.slice(0, -2));
+        
+        res.json({
+            socios: result.rows,
+            total: parseInt(totalResult.rows[0].count),
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+    } catch (err) {
+        console.error('[MRS] Error en /api/socios/inactivos:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/socios/stats — KPIs del Módulo de Recuperación
+app.get('/api/socios/stats', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT
+                COUNT(*) FILTER (WHERE estado = 'Inactivo') AS total_inactivos,
+                COUNT(*) FILTER (WHERE estado = 'Activo') AS total_activos,
+                COUNT(*) FILTER (WHERE estado = 'Recuperado') AS total_recuperados,
+                COUNT(*) FILTER (WHERE segmento_riesgo = 'Amarillo' AND estado = 'Inactivo') AS seg_amarillo,
+                COUNT(*) FILTER (WHERE segmento_riesgo = 'Rojo'     AND estado = 'Inactivo') AS seg_rojo,
+                COUNT(*) FILTER (WHERE segmento_riesgo = 'Critico'  AND estado = 'Inactivo') AS seg_critico,
+                COALESCE(SUM(monto_promedio) FILTER (WHERE estado = 'Inactivo'), 0) AS potencial_bruto,
+                COALESCE(AVG(monto_promedio) FILTER (WHERE estado != 'Activo'), 0)::INTEGER AS ticket_promedio
+            FROM socios
+        `);
+        
+        const campanas = await pool.query(`
+            SELECT
+                COUNT(*) FILTER (WHERE resultado = 'Reingresó') AS conversiones,
+                COALESCE(SUM(monto_recuperado), 0) AS monto_total_recuperado,
+                COUNT(*) AS total_contactos
+            FROM campanas_recuperacion
+            WHERE DATE_TRUNC('month', fecha_contacto) = DATE_TRUNC('month', NOW())
+        `);
+        
+        const stats = result.rows[0];
+        const kpi = campanas.rows[0];
+        
+        res.json({
+            socios: {
+                activos:       parseInt(stats.total_activos),
+                inactivos:     parseInt(stats.total_inactivos),
+                recuperados:   parseInt(stats.total_recuperados),
+                seg_amarillo:  parseInt(stats.seg_amarillo),
+                seg_rojo:      parseInt(stats.seg_rojo),
+                seg_critico:   parseInt(stats.seg_critico),
+                potencial_recuperacion: Math.round(parseInt(stats.potencial_bruto) * 0.20),
+                ticket_promedio: parseInt(stats.ticket_promedio),
+            },
+            campana_mes: {
+                contactos:          parseInt(kpi.total_contactos),
+                conversiones:       parseInt(kpi.conversiones),
+                monto_recuperado:   parseInt(kpi.monto_total_recuperado),
+                tasa_conversion:    kpi.total_contactos > 0 
+                    ? Math.round((kpi.conversiones / kpi.total_contactos) * 100)
+                    : 0
+            }
+        });
+    } catch (err) {
+        console.error('[MRS] Error en /api/socios/stats:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/campanas — Registrar un contacto de recuperación
+app.post('/api/campanas', async (req, res) => {
+    const { socio_id, tipo_contacto, promo_ofrecida, agente_nombre } = req.body;
+    if (!socio_id) return res.status(400).json({ error: 'socio_id requerido' });
+    try {
+        const result = await pool.query(`
+            INSERT INTO campanas_recuperacion 
+                (socio_id, tipo_contacto, promo_ofrecida, agente_nombre, estado_gestion)
+            VALUES ($1, $2, $3, $4, 'Contactado')
+            RETURNING *
+        `, [
+            socio_id,
+            tipo_contacto || 'WhatsApp',
+            promo_ofrecida || '4 clases x $19.000 Pack Reactivación',
+            agente_nombre || 'Ejecutivo'
+        ]);
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('[MRS] Error en POST /api/campanas:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/campanas/:id — Actualizar resultado de gestión
+app.put('/api/campanas/:id', async (req, res) => {
+    const { id } = req.params;
+    const { estado_gestion, resultado, respuesta, monto_recuperado } = req.body;
+    try {
+        const result = await pool.query(`
+            UPDATE campanas_recuperacion SET
+                estado_gestion   = COALESCE($1, estado_gestion),
+                resultado        = COALESCE($2, resultado),
+                respuesta        = COALESCE($3, respuesta),
+                monto_recuperado = COALESCE($4, monto_recuperado),
+                fecha_respuesta  = CASE WHEN $1 IS NOT NULL THEN NOW() ELSE fecha_respuesta END
+            WHERE id = $5
+            RETURNING *
+        `, [estado_gestion, resultado, respuesta, monto_recuperado, id]);
+        
+        // Si el resultado es 'Reingresó', actualizar estado del socio
+        if (resultado === 'Reingresó' && result.rows.length > 0) {
+            await pool.query(`
+                UPDATE socios SET estado = 'Recuperado', updated_at = NOW()
+                WHERE id = $1
+            `, [result.rows[0].socio_id]);
+        }
+        
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('[MRS] Error en PUT /api/campanas/:id:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/socios/:id/notas — Actualizar notas del socio
+app.put('/api/socios/:id/notas', async (req, res) => {
+    const { id } = req.params;
+    const { notas, instagram } = req.body;
+    try {
+        const result = await pool.query(`
+            UPDATE socios SET
+                notas      = COALESCE($1, notas),
+                instagram  = COALESCE($2, instagram),
+                updated_at = NOW()
+            WHERE id = $3 RETURNING id, nombre, notas, instagram
+        `, [notas, instagram, id]);
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+// FIN MÓDULO MRS
+// ═══════════════════════════════════════════════════════════
+
 // Comodín para SPA (React Router fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));

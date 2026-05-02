@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, ShieldCheck, Users, Activity, CheckCircle2, Trash2, Plus, LayoutDashboard, Receipt, Settings, Landmark, AlertTriangle, Smartphone, CreditCard, Ticket, Calendar, Calculator, FileText, Download, CheckSquare, Search, MapPin, Coins, Database } from 'lucide-react';
+import RecuperacionSocios from './components/RecuperacionSocios';
 import './index.css';
 
 // Configuración de API
@@ -282,6 +283,9 @@ export default function App() {
           <button onClick={() => setView('ap')} className={view === 'ap' ? 'nav-item active' : 'nav-item'}><Receipt size={18}/> Egresos & Abonos</button>
           <button onClick={() => setView('rrhh')} className={view === 'rrhh' ? 'nav-item active' : 'nav-item'}><Calculator size={18}/> Nómina Excel</button>
           <button onClick={() => setView('boxmagic')} className={view === 'boxmagic' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Filtro BoxMagic</button>
+          
+          <div className="nav-separator">CRECIMIENTO</div>
+          <button onClick={() => setView('recuperacion')} className={view === 'recuperacion' ? 'nav-item active' : 'nav-item'}><Users size={18}/> Recuperación Socios</button>
           
           <div className="nav-separator">AUDITORÍA FISCAL</div>
           <button onClick={() => setView('conc_diaria')} className={view === 'conc_diaria' ? 'nav-item active' : 'nav-item'}><ShieldCheck size={18}/> Conciliación Diaria</button>
@@ -712,6 +716,7 @@ export default function App() {
           )}
 
           {view === 'auditoria' && ( <div className="fade-in"><h2 className="view-title">Auditoría</h2><div className="glass-card"><p>No se encontraron problemas de cuadratura en Egresos.</p></div></div> )}
+          {view === 'recuperacion' && ( <div className="fade-in"><RecuperacionSocios /></div> )}
           {view === 'cuentas' && ( <div className="fade-in"><h2 className="view-title">Plan de Cuentas Maestro</h2><div className="glass-card" style={{padding: '2rem'}}> <form onSubmit={registerCuenta} className="form-grid" style={{marginBottom: '2rem'}}><input type="text" placeholder="Nombre" className="form-input" value={newCuenta.nombre} onChange={e => setNewCuenta({...newCuenta, nombre: e.target.value})} required/><select className="form-select" value={newCuenta.tipo} onChange={e => setNewCuenta({...newCuenta, tipo: e.target.value})}><option value="Egreso">EGRESO</option><option value="Ingreso">INGRESO</option></select><button type="submit" className="btn-submit">Crear</button></form> <table className="erp-table"><thead><tr><th>TIPO</th><th>NOMBRE DE CUENTA</th></tr></thead><tbody>{cuentas.map(c => (<tr key={c.id}><td>{c.tipo}</td><td>{c.nombre}</td></tr>))}</tbody></table></div></div> )}
         </section>
       </main>
