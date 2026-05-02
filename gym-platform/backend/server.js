@@ -276,17 +276,35 @@ app.get('/api/stats/:mes', async (req, res) => {
 // GET /api/socios/inactivos — Bandeja del Ejecutivo de Retención
 // Retorna socios inactivos ordenados por prioridad (ticket alto + menos días = más urgente)
 app.get('/api/socios/inactivos', async (req, res) => {
-    const { sede, segmento, limit = 50, offset = 0 } = req.query;
+    const { sede, segmento, limit = 200, offset = 0 } = req.query;
     try {
-        let conditions = ["s.estado = 'Inactivo'", "s.dias_inactivo >= 30"];
+        // Primero actualizamos dias_inactivo en tiempo real para mayor precisión
+        await pool.query(`
+            UPDATE socios SET
+                dias_inactivo = GREATEST(0, (CURRENT_DATE - fecha_ultimo_pago::date)),
+                segmento_riesgo = CASE
+                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 30  THEN 'Verde'
+                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 60  THEN 'Amarillo'
+                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 180 THEN 'Rojo'
+                    ELSE 'Critico'
+                END,
+                estado = CASE
+                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) >= 30 THEN 'Inactivo'
+                    ELSE 'Activo'
+                END
+            WHERE fecha_ultimo_pago IS NOT NULL
+        `);
+
+        // Solo filtrar por estado=Inactivo (sin el filtro fijo de dias_inactivo)
+        let conditions = ["s.estado = 'Inactivo'"];
         const params = [];
         
-        if (sede) {
-            params.push(sede);
-            conditions.push(`s.sede_habitual = $${params.length}`);
+        if (sede && sede.trim() !== '') {
+            params.push(sede.trim());
+            conditions.push(`LOWER(s.sede_habitual) = LOWER($${params.length})`);
         }
-        if (segmento) {
-            params.push(segmento);
+        if (segmento && segmento.trim() !== '') {
+            params.push(segmento.trim());
             conditions.push(`s.segmento_riesgo = $${params.length}`);
         }
         
