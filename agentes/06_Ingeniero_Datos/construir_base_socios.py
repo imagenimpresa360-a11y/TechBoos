@@ -82,40 +82,66 @@ def leer_clientes_xls():
         print(f"   [ERROR] Error leyendo XLS: {e}")
     return socios
 
-def leer_csv_ventas(path_csv, sede):
+def deducir_sede(plan_texto, sede_default):
+    if not plan_texto: return sede_default
+    p = str(plan_texto).upper()
+    if ' CF M' in p or ' MARINA' in p or '/CF M' in p:
+        return 'Marina'
+    if ' CF C' in p or ' CAMPANARIO' in p or '/CF C' in p:
+        return 'Campanario'
+    return sede_default
+
+def leer_csv_ventas(path_csv, sede_base):
     transacciones = []
-    print(f"\n[INFO] Leyendo {path_csv} [{sede}]...")
+    print(f"\n[INFO] Leyendo {path_csv} [{sede_base}]...")
     try:
         with open(path_csv, 'r', encoding='utf-8-sig', errors='replace') as f:
             reader = csv.reader(f)
-            headers = next(reader)
-            # Detectar si es el formato de "Cartera" o de "Ventas"
-            # Formato Ventas: [N, Cliente, Email, Estado, Plan, Fecha pago, ...]
-            # Formato Cartera: [Cliente, Estado, Membresias, ...]
-            is_cartera = "membresia" in "".join(headers).lower()
+            raw_rows = list(reader)
             
-            for row in reader:
-                try:
-                    if is_cartera:
-                        # Formato: "Nombre email", "Estado", ...
-                        full_name_email = row[0]
-                        email_match = re.search(r'[\w\.-]+@[\w\.-]+', full_name_email)
-                        email = email_match.group(0).lower() if email_match else ""
-                        nombre = full_name_email.replace(email, "").strip()
-                        transacciones.append({
-                            'nombre': nombre, 'email': email, 'estado': row[1],
-                            'plan': row[2], 'monto': limpiar_monto(row[4]),
-                            'fecha_pago': parsear_fecha(row[5].split(" - ")[0]),
-                            'sede': sede
-                        })
-                    else:
-                        # Formato Ventas oficial
-                        transacciones.append({
-                            'boxmagic_id': row[0], 'nombre': row[1], 'email': row[2].lower(),
-                            'estado': row[3], 'plan': row[4], 'fecha_pago': parsear_fecha(row[5]),
-                            'monto': limpiar_monto(row[8]), 'vendedor': row[9], 'sede': sede
-                        })
-                except: continue
+        if not raw_rows:
+            return []
+            
+        if len(raw_rows[0]) == 1 and ',' in raw_rows[0][0]:
+            cleaned_rows = []
+            for r in raw_rows:
+                if r and r[0]:
+                    inner_reader = csv.reader([r[0]])
+                    cleaned_rows.append(next(inner_reader))
+            raw_rows = cleaned_rows
+            
+        headers = raw_rows[0]
+        # Detectar si es el formato de "Cartera" o de "Ventas"
+        # Formato Ventas: [N, Cliente, Email, Estado, Plan, Fecha pago, ...]
+        # Formato Cartera: [Cliente, Estado, Membresias, ...]
+        is_cartera = "membresia" in "".join(headers).lower()
+        
+        for row in raw_rows[1:]:
+            try:
+                if is_cartera:
+                    # Formato: "Nombre email", "Estado", ...
+                    full_name_email = row[0]
+                    email_match = re.search(r'[\w\.-]+@[\w\.-]+', full_name_email)
+                    email = email_match.group(0).lower() if email_match else ""
+                    nombre = full_name_email.replace(email, "").strip()
+                    plan_texto = row[2]
+                    sede_final = deducir_sede(plan_texto, sede_base)
+                    transacciones.append({
+                        'nombre': nombre, 'email': email, 'estado': row[1],
+                        'plan': plan_texto, 'monto': limpiar_monto(row[4]),
+                        'fecha_pago': parsear_fecha(row[5].split(" - ")[0]),
+                        'sede': sede_final
+                    })
+                else:
+                    # Formato Ventas oficial
+                    plan_texto = row[4]
+                    sede_final = deducir_sede(plan_texto, sede_base)
+                    transacciones.append({
+                        'boxmagic_id': row[0], 'nombre': row[1], 'email': row[2].lower(),
+                        'estado': row[3], 'plan': plan_texto, 'fecha_pago': parsear_fecha(row[5]),
+                        'monto': limpiar_monto(row[8]), 'vendedor': row[9], 'sede': sede_final
+                    })
+            except: continue
         print(f"   [OK] {len(transacciones)} transacciones leidas")
     except Exception as e:
         print(f"   [ERROR] Error leyendo CSV: {e}")
@@ -142,6 +168,8 @@ def poblar_base_datos(conn, contactos, transacciones):
                 if not f['fecha_ultimo_pago'] or fecha > f['fecha_ultimo_pago']:
                     f['fecha_ultimo_pago'] = fecha
                     f['plan_ultimo'] = t.get('plan', f['plan_ultimo'])
+                    if t.get('sede') and t.get('sede') != 'Desconocida':
+                        f['sede_habitual'] = t.get('sede')
             f['total_pagado'] += t.get('monto', 0)
             f['transacciones'].append(t)
     
@@ -150,7 +178,19 @@ def poblar_base_datos(conn, contactos, transacciones):
         if email in contactos: f['telefono'] = contactos[email].get('telefono', '')
         dias = dias_inactivo(f.get('fecha_ultimo_pago'))
         try:
-            cur.execute("INSERT INTO socios (nombre, email, telefono, sede_habitual, plan_ultimo, fecha_primer_pago, fecha_ultimo_pago, total_pagado, dias_inactivo, estado, segmento_riesgo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (email) DO UPDATE SET fecha_ultimo_pago = EXCLUDED.fecha_ultimo_pago, plan_ultimo = EXCLUDED.plan_ultimo, total_pagado = EXCLUDED.total_pagado, dias_inactivo = EXCLUDED.dias_inactivo, segmento_riesgo = EXCLUDED.segmento_riesgo, telefono = COALESCE(EXCLUDED.telefono, socios.telefono), updated_at = NOW()", (f['nombre'], email, f.get('telefono', ''), f['sede_habitual'], f['plan_ultimo'], f['fecha_primer_pago'], f['fecha_ultimo_pago'], f['total_pagado'], dias, 'Activo' if dias < 30 else 'Inactivo', segmento_riesgo(dias)))
+            cur.execute("""
+                INSERT INTO socios (nombre, email, telefono, sede_habitual, plan_ultimo, fecha_primer_pago, fecha_ultimo_pago, total_pagado, dias_inactivo, estado, segmento_riesgo) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+                ON CONFLICT (email) DO UPDATE SET 
+                    fecha_ultimo_pago = EXCLUDED.fecha_ultimo_pago, 
+                    plan_ultimo = EXCLUDED.plan_ultimo, 
+                    total_pagado = EXCLUDED.total_pagado, 
+                    dias_inactivo = EXCLUDED.dias_inactivo, 
+                    segmento_riesgo = EXCLUDED.segmento_riesgo, 
+                    telefono = COALESCE(EXCLUDED.telefono, socios.telefono), 
+                    sede_habitual = CASE WHEN EXCLUDED.sede_habitual != 'Desconocida' THEN EXCLUDED.sede_habitual ELSE socios.sede_habitual END,
+                    updated_at = NOW()
+            """, (f['nombre'], email, f.get('telefono', ''), f['sede_habitual'], f['plan_ultimo'], f['fecha_primer_pago'], f['fecha_ultimo_pago'], f['total_pagado'], dias, 'Activo' if dias < 30 else 'Inactivo', segmento_riesgo(dias)))
         except: continue
     conn.commit()
     print("[OK] Base de datos actualizada")
@@ -165,7 +205,7 @@ def main():
         conn.commit()
         contactos = leer_clientes_xls()
         todas = []
-        if os.path.exists(VENTAS_CSV_FALLBACK): todas += leer_csv_ventas(VENTAS_CSV_FALLBACK, "Campanario")
+        if os.path.exists(VENTAS_CSV_FALLBACK): todas += leer_csv_ventas(VENTAS_CSV_FALLBACK, "Desconocida")
         for s_fol, s_nom in [("campanario", "Campanario"), ("marina", "Marina")]:
             folder = os.path.join(BASE_DIR, "boxmagic", s_fol)
             if os.path.exists(folder):
