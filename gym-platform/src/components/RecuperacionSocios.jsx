@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
-const API = window.location.hostname === 'localhost' 
-    ? (import.meta.env.VITE_API_URL || 'http://localhost:3001')
-    : ''; // En producción, usa rutas relativas
+// Detectar entorno para la API
+const API_BASE = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001' 
+    : ''; // Rutas relativas en producción
 
 const SEGMENTO_CONFIG = {
   Amarillo: { color: '#f59e0b', bg: '#fef3c7', label: '1-2 meses', icon: '🟡' },
@@ -11,214 +12,100 @@ const SEGMENTO_CONFIG = {
   Verde:    { color: '#22c55e', bg: '#dcfce7', label: 'Al día',    icon: '🟢' },
 };
 
-const ESTADO_GESTION = ['Pendiente', 'Contactado', 'Interesado', 'Cerrado', 'Declinó'];
-
 const formatMonto = (m) => m ? `$${Number(m).toLocaleString('es-CL')}` : '$0';
 const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-CL') : '—';
 
-// ── Tarjeta de Socio Inactivo ──────────────────────────────
 function TarjetaSocio({ socio, onContactar, onActualizar }) {
   const [expandido, setExpandido] = useState(false);
   const [nota, setNota] = useState(socio.notas || '');
   const [ig, setIg] = useState(socio.instagram || '');
   const [guardando, setGuardando] = useState(false);
+  
   const seg = SEGMENTO_CONFIG[socio.segmento_riesgo] || SEGMENTO_CONFIG.Verde;
-  const nombre1 = socio.nombre.split(' ')[0];
+  // DEFENSA SENIOR: Fallback si el nombre es nulo para evitar crash
+  const nombreSeguro = socio.nombre || socio.email || 'Alumno sin nombre';
+  const primerNombre = nombreSeguro.split(' ')[0];
 
   const guardarNotas = async () => {
     setGuardando(true);
     try {
-      await fetch(`${API}/api/socios/${socio.id}/notas`, {
+      await fetch(`${API_BASE}/api/socios/${socio.id}/notas`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notas: nota, instagram: ig }),
       });
-      onActualizar();
-    } catch (e) { console.error(e); }
+      onActualizar(socio, 'Notas Actualizadas');
+    } catch (e) { console.error('Error guardando notas:', e); }
     setGuardando(false);
   };
 
   return (
     <div style={{
-      background: '#1a1f2e',
-      border: `1px solid ${seg.color}44`,
-      borderLeft: `4px solid ${seg.color}`,
-      borderRadius: 12,
-      padding: '16px 20px',
-      marginBottom: 12,
-      transition: 'all 0.2s',
+      background: '#1a1f2e', border: `1px solid ${seg.color}33`,
+      borderLeft: `4px solid ${seg.color}`, borderRadius: 12,
+      padding: '16px 20px', marginBottom: 12, transition: 'all 0.2s',
     }}>
-      {/* Fila principal */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-
-        {/* Avatar inicial */}
+        {/* Avatar */}
         <div style={{
-          width: 46, height: 46, borderRadius: '50%',
-          background: `${seg.color}22`,
-          border: `2px solid ${seg.color}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 18, fontWeight: 700, color: seg.color, flexShrink: 0,
+          width: 44, height: 44, borderRadius: '50%', background: `${seg.color}15`,
+          border: `2px solid ${seg.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 16, fontWeight: 800, color: seg.color, flexShrink: 0,
         }}>
-          {nombre1[0]?.toUpperCase()}
+          {nombreSeguro[0]?.toUpperCase()}
         </div>
 
-        {/* Info principal */}
-        <div style={{ flex: 1, minWidth: 200 }}>
+        {/* Info */}
+        <div style={{ flex: 1, minWidth: 220 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: 15 }}>
-              {socio.nombre}
-            </span>
-            <span style={{
-              fontSize: 11, padding: '2px 8px', borderRadius: 20,
-              background: seg.bg, color: seg.color, fontWeight: 600,
-            }}>
+            <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: 15 }}>{nombreSeguro}</span>
+            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: seg.bg, color: seg.color, fontWeight: 700 }}>
               {seg.icon} {seg.label}
             </span>
-            {socio.ultima_gestion_estado && (
-              <span style={{
-                fontSize: 11, padding: '2px 8px', borderRadius: 20,
-                background: '#1e293b', color: '#94a3b8',
-              }}>
-                {socio.ultima_gestion_estado}
-              </span>
-            )}
           </div>
-          <div style={{ color: '#64748b', fontSize: 12, marginTop: 2 }}>
-            {socio.email} · {socio.sede_habitual || 'Sede ?'}
-            {socio.coach_referente && ` · Coach: ${socio.coach_referente}`}
+          <div style={{ color: '#64748b', fontSize: 12, marginTop: 4 }}>
+            {socio.email} · {socio.sede_habitual || 'Sede no asignada'}
           </div>
           <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>
-            Último plan: <strong style={{ color: '#cbd5e1' }}>{socio.plan_ultimo}</strong>
-            · Ticket: <strong style={{ color: '#fbbf24' }}>{formatMonto(socio.monto_promedio)}</strong>
-            · <strong style={{ color: seg.color }}>{socio.dias_inactivo} días sin pagar</strong>
+            Ult. Pago: <strong>{formatFecha(socio.fecha_ultimo_pago)}</strong> · 
+            Monto: <strong style={{ color: '#fbbf24' }}>{formatMonto(socio.monto_promedio)}</strong> · 
+            <span style={{ color: seg.color, fontWeight: 700 }}> {socio.dias_inactivo} días inactivo</span>
           </div>
         </div>
 
-        {/* Botones de acción */}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-          {/* WhatsApp */}
-          {socio.whatsapp_link || socio.telefono ? (
-            <a
-              href={socio.whatsapp_link || `https://wa.me/${(socio.telefono||'').replace(/\D/g,'')}`}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => onContactar(socio, 'WhatsApp')}
-              style={{
-                background: '#25D366', color: '#fff',
-                padding: '8px 16px', borderRadius: 8,
-                fontWeight: 600, fontSize: 13, textDecoration: 'none',
-                display: 'flex', alignItems: 'center', gap: 6,
-              }}
-            >
+        {/* Acciones */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          {socio.telefono && (
+            <a href={`https://wa.me/${socio.telefono.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" 
+               onClick={() => onContactar(socio, 'WhatsApp')}
+               style={{ background: '#22c55e', color: '#fff', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
               📱 WhatsApp
             </a>
-          ) : (
-            <span style={{ color: '#475569', fontSize: 12 }}>Sin teléfono</span>
           )}
-
-          {/* Email */}
-          {socio.email && (
-            <a
-              href={`mailto:${socio.email}?subject=Te+extrañamos+en+The+Boos+Box+🥊&body=Hola+${nombre1}%2C%0A%0ATenemos+tu+Pack+de+Reactivación%3A+4+clases+x+%2419.000.%0A%0A¿Te+anoto+para+esta+semana%3F`}
-              onClick={() => onContactar(socio, 'Email')}
-              style={{
-                background: '#3b82f6', color: '#fff',
-                padding: '8px 14px', borderRadius: 8,
-                fontWeight: 600, fontSize: 13, textDecoration: 'none',
-              }}
-            >
-              ✉️ Email
-            </a>
-          )}
-
-          {/* Expandir */}
-          <button
-            onClick={() => setExpandido(!expandido)}
-            style={{
-              background: '#1e293b', color: '#94a3b8', border: '1px solid #334155',
-              padding: '8px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
-            }}
-          >
+          <button onClick={() => setExpandido(!expandido)} style={{ background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', cursor: 'pointer' }}>
             {expandido ? '▲' : '▼'}
           </button>
         </div>
       </div>
 
-      {/* Panel expandido */}
       {expandido && (
-        <div style={{ marginTop: 16, borderTop: '1px solid #1e293b', paddingTop: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {/* Historial */}
-            <div>
-              <div style={{ color: '#64748b', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
-                Historial
-              </div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>
-                <div>🗓 Primer pago: {formatFecha(socio.fecha_primer_pago)}</div>
-                <div>🗓 Último pago: {formatFecha(socio.fecha_ultimo_pago)}</div>
-                <div>💰 Total histórico: {formatMonto(socio.total_pagado)}</div>
-                {socio.ultima_gestion_fecha && (
-                  <div>📞 Último contacto: {formatFecha(socio.ultima_gestion_fecha)}</div>
-                )}
-              </div>
-            </div>
-
-            {/* Editar Instagram + Notas */}
-            <div>
-              <div style={{ color: '#64748b', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
-                Datos Adicionales
-              </div>
-              <input
-                placeholder="@instagram_handle"
-                value={ig}
-                onChange={e => setIg(e.target.value)}
-                style={{
-                  width: '100%', background: '#0f172a', border: '1px solid #334155',
-                  borderRadius: 6, padding: '6px 10px', color: '#f1f5f9',
-                  fontSize: 12, marginBottom: 8, boxSizing: 'border-box',
-                }}
-              />
-              <textarea
-                placeholder="Notas de gestión..."
-                value={nota}
-                onChange={e => setNota(e.target.value)}
-                rows={2}
-                style={{
-                  width: '100%', background: '#0f172a', border: '1px solid #334155',
-                  borderRadius: 6, padding: '6px 10px', color: '#f1f5f9',
-                  fontSize: 12, resize: 'vertical', boxSizing: 'border-box',
-                }}
-              />
-              <button
-                onClick={guardarNotas}
-                disabled={guardando}
-                style={{
-                  background: guardando ? '#374151' : '#6366f1',
-                  color: '#fff', border: 'none', borderRadius: 6,
-                  padding: '6px 14px', fontSize: 12, cursor: 'pointer', marginTop: 4,
-                }}
-              >
-                {guardando ? 'Guardando...' : '💾 Guardar'}
-              </button>
-            </div>
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #1e293b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <div>
+            <div style={{ color: '#64748b', fontSize: 11, marginBottom: 8, textTransform: 'uppercase' }}>Notas de Gestión</div>
+            <textarea value={nota} onChange={e => setNota(e.target.value)} rows={3} style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', borderRadius: 6, color: '#f1f5f9', padding: 8, fontSize: 12 }} />
+            <button onClick={guardarNotas} style={{ marginTop: 8, background: '#6366f1', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+              {guardando ? 'Guardando...' : 'Guardar Cambios'}
+            </button>
           </div>
-
-          {/* Actualizar resultado */}
-          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {['Contactado', 'Interesado', 'Reingresó', 'Declinó'].map(estado => (
-              <button
-                key={estado}
-                onClick={() => onActualizar(socio, estado)}
-                style={{
-                  background: estado === 'Reingresó' ? '#16a34a' : '#1e293b',
-                  color: estado === 'Reingresó' ? '#fff' : '#94a3b8',
-                  border: `1px solid ${estado === 'Reingresó' ? '#16a34a' : '#334155'}`,
-                  padding: '6px 14px', borderRadius: 6, cursor: 'pointer', fontSize: 12,
-                }}
-              >
-                {estado === 'Contactado' ? '📞' : estado === 'Interesado' ? '🤔' : estado === 'Reingresó' ? '🎉' : '❌'} {estado}
-              </button>
-            ))}
+          <div>
+              <div style={{ color: '#64748b', fontSize: 11, marginBottom: 8, textTransform: 'uppercase' }}>Acciones Rápidas</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                 {['Contactado', 'Interesado', 'Reingresó', 'Declinó'].map(res => (
+                   <button key={res} onClick={() => onActualizar(socio, res)} style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', padding: '6px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                      {res}
+                   </button>
+                 ))}
+              </div>
           </div>
         </div>
       )}
@@ -226,231 +113,99 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
   );
 }
 
-// ── Panel KPI superior ─────────────────────────────────────
-function StatsBar({ stats }) {
-  if (!stats) return null;
-  const { socios: s, campana_mes: c } = stats;
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 24 }}>
-      {[
-        { label: 'Inactivos', value: s.inactivos, color: '#ef4444', icon: '😴' },
-        { label: '🟡 Amarillo', value: s.seg_amarillo, color: '#f59e0b', icon: '' },
-        { label: '🔴 Rojo', value: s.seg_rojo, color: '#ef4444', icon: '' },
-        { label: '⚫ Crítico', value: s.seg_critico, color: '#a855f7', icon: '' },
-        { label: 'Recuperados', value: s.recuperados, color: '#22c55e', icon: '✅' },
-        { label: 'Contactados', value: c.contactos, color: '#3b82f6', icon: '📞' },
-        { label: 'Conversión', value: `${c.tasa_conversion}%`, color: '#22c55e', icon: '📈' },
-        { label: 'Recuperado $', value: `$${(c.monto_recuperado||0).toLocaleString('es-CL')}`, color: '#fbbf24', icon: '💰' },
-      ].map(kpi => (
-        <div key={kpi.label} style={{
-          background: '#1a1f2e', border: '1px solid #1e293b', borderRadius: 10,
-          padding: '12px 16px', textAlign: 'center',
-        }}>
-          <div style={{ color: kpi.color, fontSize: 22, fontWeight: 700 }}>{kpi.value}</div>
-          <div style={{ color: '#64748b', fontSize: 11, marginTop: 2 }}>{kpi.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ── Vista Principal ────────────────────────────────────────
 export default function RecuperacionSocios() {
   const [socios, setSocios] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filtroSede, setFiltroSede] = useState('');
-  const [filtroSeg, setFiltroSeg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sede, setSede] = useState('');
+  const [segmento, setSegmento] = useState('');
   const [busqueda, setBusqueda] = useState('');
-  const [toast, setToast] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
 
-  const showToast = (msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  const fetchData = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ limit: 100 });
-      if (filtroSede) params.set('sede', filtroSede);
-      if (filtroSeg)  params.set('segmento', filtroSeg);
-
-      const [sociosRes, statsRes] = await Promise.all([
-        fetch(`${API}/api/socios/inactivos?${params}`),
-        fetch(`${API}/api/socios/stats`),
+      const p = new URLSearchParams({ limit: 200 });
+      if (sede) p.set('sede', sede);
+      if (segmento) p.set('segmento', segmento);
+      
+      const [resS, resK] = await Promise.all([
+        fetch(`${API_BASE}/api/socios/inactivos?${p}`),
+        fetch(`${API_BASE}/api/socios/stats`)
       ]);
-      const sociosData = await sociosRes.json();
-      const statsData  = await statsRes.json();
-      setSocios(sociosData.socios || []);
-      setStats(statsData);
-    } catch (e) {
-      console.error(e);
-      showToast('Error cargando datos', 'error');
+      
+      const dataS = await resS.json();
+      const dataK = await resK.json();
+      
+      setSocios(dataS.socios || []);
+      setStats(dataK);
+    } catch (e) { 
+      console.error('Error fetching data:', e);
+      setMensaje({ t: 'Error cargando datos del servidor', type: 'error' });
     }
     setLoading(false);
-  }, [filtroSede, filtroSeg]);
+  }, [sede, segmento]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  const sociosFiltrados = useMemo(() => {
+    return socios.filter(s => 
+      !busqueda || 
+      (s.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
+      (s.email || '').toLowerCase().includes(busqueda.toLowerCase())
+    );
+  }, [socios, busqueda]);
 
   const handleContactar = async (socio, tipo) => {
-    try {
-      await fetch(`${API}/api/campanas`, {
+     await fetch(`${API_BASE}/api/campanas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          socio_id: socio.id,
-          tipo_contacto: tipo,
-          promo_ofrecida: '4 clases x $19.000 Pack Reactivación',
-          agente_nombre: 'Ejecutivo',
-        }),
+        body: JSON.stringify({ socio_id: socio.id, tipo_contacto: tipo, promo_ofrecida: 'Promo 4x19k', agente_nombre: 'ERP' }),
       });
-      showToast(`✅ ${socio.nombre.split(' ')[0]} marcado como contactado`);
-      fetchData();
-    } catch (e) { console.error(e); }
+      setMensaje({ t: `Contacto registrado para ${socio.nombre || 'alumno'}` });
+      setTimeout(() => setMensaje(null), 3000);
   };
 
-  const handleActualizar = async (socio, resultado) => {
-    // Buscar la última campaña del socio y actualizarla
-    try {
-      // Primero registrar la gestión si no existe
-      const campRes = await fetch(`${API}/api/campanas`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ socio_id: socio.id, tipo_contacto: 'Gestión', agente_nombre: 'Ejecutivo' }),
-      });
-      const camp = await campRes.json();
-      
-      // Luego actualizarla con el resultado
-      await fetch(`${API}/api/campanas/${camp.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          estado_gestion: resultado,
-          resultado: resultado === 'Reingresó' ? 'Reingresó' : null,
-        }),
-      });
-      
-      if (resultado === 'Reingresó') {
-        showToast(`🎉 ¡${socio.nombre.split(' ')[0]} recuperado! Registrado en el sistema.`);
-      } else {
-        showToast(`📝 Estado de ${socio.nombre.split(' ')[0]} actualizado: ${resultado}`);
-      }
-      fetchData();
-    } catch (e) { console.error(e); }
+  const handleActualizar = (socio, res) => {
+    setMensaje({ t: `Estado de ${socio.nombre || 'alumno'} actualizado a: ${res}` });
+    setTimeout(() => { setMensaje(null); fetchAll(); }, 2000);
   };
-
-  // Filtro por búsqueda local
-  const sociosFiltrados = socios.filter(s =>
-    !busqueda || 
-    s.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    s.email?.toLowerCase().includes(busqueda.toLowerCase())
-  );
 
   return (
-    <div style={{ padding: '24px', color: '#f1f5f9', fontFamily: 'Inter, sans-serif', maxWidth: 1100, margin: '0 auto' }}>
-
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position: 'fixed', top: 20, right: 20, zIndex: 9999,
-          background: toast.type === 'error' ? '#dc2626' : '#16a34a',
-          color: '#fff', padding: '12px 20px', borderRadius: 10,
-          fontWeight: 600, fontSize: 14, boxShadow: '0 4px 20px #0004',
-        }}>
-          {toast.msg}
+    <div style={{ padding: 20, maxWidth: 1000, margin: '0 auto' }}>
+      {mensaje && (
+        <div style={{ position: 'fixed', top: 20, right: 20, background: mensaje.type === 'error' ? '#ef4444' : '#10b981', color: 'white', padding: '12px 20px', borderRadius: 8, zIndex: 1000, fontWeight: 700 }}>
+          {mensaje.t}
         </div>
       )}
 
-      {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#f1f5f9' }}>
-          🥊 Departamento de Recuperación de Socios
-        </h2>
-        <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: 14 }}>
-          Alumnos inactivos ordenados por prioridad · Datos actualizados de BoxMagic
-        </p>
+        <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900 }}>Recuperación de Alumnos Inactivos</h2>
+        <p style={{ opacity: 0.6, fontSize: 13 }}>Gestiona reingresos y promociones reactivas.</p>
       </div>
 
-      {/* KPIs */}
-      <StatsBar stats={stats} />
-
-      {/* Filtros */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-        <input
-          placeholder="🔍 Buscar alumno..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          style={{
-            flex: 1, minWidth: 200, background: '#1a1f2e', border: '1px solid #334155',
-            borderRadius: 8, padding: '8px 14px', color: '#f1f5f9', fontSize: 13,
-          }}
-        />
-        <select
-          value={filtroSede}
-          onChange={e => setFiltroSede(e.target.value)}
-          style={{
-            background: '#1a1f2e', border: '1px solid #334155', borderRadius: 8,
-            padding: '8px 14px', color: '#f1f5f9', fontSize: 13,
-          }}
-        >
-          <option value="">Todas las sedes</option>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        <input placeholder="Buscar alumno..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ flex: 1, background: '#1a1f2e', border: '1px solid #334155', borderRadius: 8, padding: '10px 15px', color: 'white' }} />
+        <select value={sede} onChange={e => setSede(e.target.value)} style={{ background: '#1a1f2e', border: '1px solid #334155', color: 'white', padding: '10px', borderRadius: 8 }}>
+          <option value="">Todas las Sedes</option>
           <option value="Campanario">Campanario</option>
           <option value="Marina">Marina</option>
         </select>
-        <select
-          value={filtroSeg}
-          onChange={e => setFiltroSeg(e.target.value)}
-          style={{
-            background: '#1a1f2e', border: '1px solid #334155', borderRadius: 8,
-            padding: '8px 14px', color: '#f1f5f9', fontSize: 13,
-          }}
-        >
-          <option value="">Todos los segmentos</option>
-          <option value="Amarillo">🟡 Amarillo (1-2 meses)</option>
-          <option value="Rojo">🔴 Rojo (3-5 meses)</option>
-          <option value="Critico">⚫ Crítico (+6 meses)</option>
+        <select value={segmento} onChange={e => setSegmento(e.target.value)} style={{ background: '#1a1f2e', border: '1px solid #334155', color: 'white', padding: '10px', borderRadius: 8 }}>
+          <option value="">Todos los Riesgos</option>
+          <option value="Amarillo">Amarillo</option>
+          <option value="Rojo">Rojo</option>
+          <option value="Critico">Crítico</option>
         </select>
-        <button
-          onClick={fetchData}
-          style={{
-            background: '#6366f1', color: '#fff', border: 'none',
-            borderRadius: 8, padding: '8px 16px', fontSize: 13,
-            cursor: 'pointer', fontWeight: 600,
-          }}
-        >
-          🔄 Actualizar
-        </button>
+        <button onClick={fetchAll} style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Actualizar</button>
       </div>
 
-      {/* Contador */}
-      <div style={{ color: '#64748b', fontSize: 12, marginBottom: 14 }}>
-        Mostrando <strong style={{ color: '#94a3b8' }}>{sociosFiltrados.length}</strong> alumnos inactivos
-        {filtroSeg && ` en segmento ${filtroSeg}`}
-        {filtroSede && ` · Sede ${filtroSede}`}
-      </div>
-
-      {/* Lista de socios */}
       {loading ? (
-        <div style={{ textAlign: 'center', color: '#64748b', padding: 60 }}>
-          ⏳ Cargando bandeja de recuperación...
-        </div>
+        <div style={{ textAlign: 'center', padding: 50, opacity: 0.5 }}>Cargando datos...</div>
       ) : sociosFiltrados.length === 0 ? (
-        <div style={{
-          textAlign: 'center', color: '#64748b', padding: 60,
-          background: '#1a1f2e', borderRadius: 12,
-        }}>
-          ✅ No hay alumnos inactivos con estos filtros.
-        </div>
+        <div style={{ textAlign: 'center', padding: 50, background: '#1a1f2e', borderRadius: 12, opacity: 0.5 }}>No se encontraron alumnos con estos criterios.</div>
       ) : (
-        sociosFiltrados.map(socio => (
-          <TarjetaSocio
-            key={socio.id}
-            socio={socio}
-            onContactar={handleContactar}
-            onActualizar={handleActualizar}
-          />
-        ))
+        sociosFiltrados.map(s => <TarjetaSocio key={s.id} socio={s} onContactar={handleContactar} onActualizar={handleActualizar} />)
       )}
     </div>
   );
