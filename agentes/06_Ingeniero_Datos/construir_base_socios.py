@@ -46,11 +46,12 @@ def dias_inactivo(ultima_fecha):
     if not ultima_fecha: return 9999
     return (HOY - ultima_fecha).days
 
-def segmento_riesgo(dias):
-    if dias < 30: return "Verde"
+def segmento_riesgo(dias, fecha_pago=None):
+    if dias < 36: return "Verde"
     elif dias < 60: return "Amarillo"
     elif dias < 180: return "Rojo"
-    elif dias < 365: return "Critico"
+    if fecha_pago and isinstance(fecha_pago, date) and fecha_pago >= date(2025, 10, 1):
+        return "Critico"
     return "Antiguo"
 
 DDL_SOCIOS = "CREATE TABLE IF NOT EXISTS socios (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), boxmagic_id VARCHAR(20), nombre VARCHAR(150) NOT NULL, email VARCHAR(200), telefono VARCHAR(25), instagram VARCHAR(100), sede_habitual VARCHAR(50), plan_ultimo VARCHAR(150), monto_promedio INTEGER DEFAULT 0, fecha_primer_pago DATE, fecha_ultimo_pago DATE, total_pagado INTEGER DEFAULT 0, dias_inactivo INTEGER DEFAULT 0, coach_referente VARCHAR(100), estado VARCHAR(20) DEFAULT 'Inactivo', segmento_riesgo VARCHAR(20) DEFAULT 'Verde', canal_contacto VARCHAR(30) DEFAULT 'WhatsApp', notas TEXT, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), UNIQUE(email));"
@@ -247,7 +248,7 @@ def poblar_base_datos(conn, contactos, transacciones):
                     telefono = COALESCE(EXCLUDED.telefono, socios.telefono), 
                     sede_habitual = CASE WHEN EXCLUDED.sede_habitual != 'Desconocida' THEN EXCLUDED.sede_habitual ELSE socios.sede_habitual END,
                     updated_at = NOW()
-            """, (f['nombre'], email, f.get('telefono', ''), f['sede_habitual'], f['plan_ultimo'], f['fecha_primer_pago'], f['fecha_ultimo_pago'], f['total_pagado'], dias, 'Activo' if dias < 30 else 'Inactivo', segmento_riesgo(dias)))
+            """, (f['nombre'], email, f.get('telefono', ''), f['sede_habitual'], f['plan_ultimo'], f['fecha_primer_pago'], f['fecha_ultimo_pago'], f['total_pagado'], dias, 'Activo' if dias < 36 else 'Inactivo', segmento_riesgo(dias, f.get('fecha_ultimo_pago'))))
         except: continue
     conn.commit()
     print("[OK] Base de datos actualizada")

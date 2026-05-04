@@ -6,10 +6,11 @@ const API_BASE = window.location.hostname === 'localhost'
     : ''; // Rutas relativas en producción
 
 const SEGMENTO_CONFIG = {
-  Amarillo: { color: '#f59e0b', bg: '#fef3c7', label: '1-2 meses', icon: '🟡' },
-  Rojo:     { color: '#ef4444', bg: '#fee2e2', label: '3-5 meses', icon: '🔴' },
-  Critico:  { color: '#6b21a8', bg: '#f3e8ff', label: '+6 meses',  icon: '⚫' },
-  Verde:    { color: '#22c55e', bg: '#dcfce7', label: 'Al día',    icon: '🟢' },
+  Amarillo: { color: '#f59e0b', bg: '#fef3c7', label: '35-59 días', icon: '🟡' },
+  Rojo:     { color: '#ef4444', bg: '#fee2e2', label: '60-179 días', icon: '🔴' },
+  Critico:  { color: '#6b21a8', bg: '#f3e8ff', label: '180+ (Oct 25)', icon: '⚫' },
+  Antiguo:  { color: '#475569', bg: '#f1f5f9', label: 'Antes Oct 25', icon: '❄️' },
+  Verde:    { color: '#22c55e', bg: '#dcfce7', label: '0-35 días',   icon: '🟢' },
 };
 
 const formatMonto = (m) => m ? `$${Number(m).toLocaleString('es-CL')}` : '$0';
@@ -166,9 +167,40 @@ export default function RecuperacionSocios() {
       setTimeout(() => setMensaje(null), 3000);
   };
 
-  const handleActualizar = (socio, res) => {
-    setMensaje({ t: `Estado de ${socio.nombre || 'alumno'} actualizado a: ${res}` });
-    setTimeout(() => { setMensaje(null); fetchAll(); }, 2000);
+  const handleActualizar = async (socio, resultado) => {
+    try {
+      // 1. Crear registro de campaña
+      const postRes = await fetch(`${API_BASE}/api/campanas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          socio_id: socio.id, 
+          tipo_contacto: resultado, 
+          promo_ofrecida: 'Promo 4x19k', 
+          agente_nombre: 'ERP' 
+        }),
+      });
+      const campana = await postRes.json();
+      
+      // 2. Si hay ID de campaña, actualizar resultado
+      if (campana?.id) {
+        await fetch(`${API_BASE}/api/campanas/${campana.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            estado_gestion: resultado,
+            resultado: resultado === 'Reingresó' ? 'Reingresó' : null 
+          }),
+        });
+      }
+      
+      setMensaje({ t: `✅ ${socio.nombre?.split(' ')[0] || 'Alumno'} marcado como: ${resultado}` });
+      setTimeout(() => { setMensaje(null); fetchAll(); }, 2500);
+    } catch (e) {
+      console.error('Error actualizando estado:', e);
+      setMensaje({ t: 'Error al guardar. Intenta nuevamente.', type: 'error' });
+      setTimeout(() => setMensaje(null), 3000);
+    }
   };
 
   return (
@@ -195,7 +227,8 @@ export default function RecuperacionSocios() {
           <option value="">Todos los Riesgos</option>
           <option value="Amarillo">Amarillo</option>
           <option value="Rojo">Rojo</option>
-          <option value="Critico">Crítico</option>
+          <option value="Critico">Crítico (6-12m)</option>
+          <option value="Antiguo">Antiguo (+1 año)</option>
         </select>
         <button onClick={fetchAll} style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Actualizar</button>
       </div>

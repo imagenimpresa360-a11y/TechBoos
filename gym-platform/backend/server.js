@@ -283,10 +283,11 @@ app.get('/api/socios/inactivos', async (req, res) => {
             UPDATE socios SET
                 dias_inactivo = GREATEST(0, (CURRENT_DATE - fecha_ultimo_pago::date)),
                 segmento_riesgo = CASE
-                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 30  THEN 'Verde'
+                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 36  THEN 'Verde'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 60  THEN 'Amarillo'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 180 THEN 'Rojo'
-                    ELSE 'Critico'
+                    WHEN fecha_ultimo_pago >= '2025-10-01'               THEN 'Critico'
+                    ELSE 'Antiguo'
                 END,
                 estado = CASE
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) >= 30 THEN 'Inactivo'
@@ -301,7 +302,9 @@ app.get('/api/socios/inactivos', async (req, res) => {
         
         if (sede && sede.trim() !== '') {
             params.push(sede.trim());
-            conditions.push(`LOWER(s.sede_habitual) = LOWER($${params.length})`);
+            // Incluir 'Desconocida' junto a la sede pedida para no perder
+            // alumnos cuya sede no pudo determinarse (datos de cartera global)
+            conditions.push(`(LOWER(s.sede_habitual) = LOWER($${params.length}) OR s.sede_habitual = 'Desconocida')`);
         }
         if (segmento && segmento.trim() !== '') {
             params.push(segmento.trim());
@@ -357,7 +360,8 @@ app.get('/api/socios/inactivos', async (req, res) => {
                     WHEN 'Amarillo' THEN 1
                     WHEN 'Rojo'     THEN 2
                     WHEN 'Critico'  THEN 3
-                    ELSE 4
+                    WHEN 'Antiguo'  THEN 4
+                    ELSE 5
                 END ASC,
                 s.monto_promedio DESC
             LIMIT $${params.length - 1} OFFSET $${params.length}
