@@ -15,6 +15,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads_boxmagic")
 CLIENTES_XLS  = os.path.join(DOWNLOADS_DIR, "Clientes.xls")
 VENTAS_CSV_FALLBACK = os.path.join(DOWNLOADS_DIR, "BoxMagic (1).csv")
+INACTIVOS_XLS = os.path.join(DOWNLOADS_DIR, "Alumnos Inactivos.xls")
 DB_URL = os.environ.get("DATABASE_URL")
 if DB_URL and "rlwy.net" in DB_URL and "sslmode" not in DB_URL:
     DB_URL += "&sslmode=require" if "?" in DB_URL else "?sslmode=require"
@@ -49,7 +50,8 @@ def segmento_riesgo(dias):
     if dias < 30: return "Verde"
     elif dias < 60: return "Amarillo"
     elif dias < 180: return "Rojo"
-    return "Critico"
+    elif dias < 365: return "Critico"
+    return "Antiguo"
 
 DDL_SOCIOS = "CREATE TABLE IF NOT EXISTS socios (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), boxmagic_id VARCHAR(20), nombre VARCHAR(150) NOT NULL, email VARCHAR(200), telefono VARCHAR(25), instagram VARCHAR(100), sede_habitual VARCHAR(50), plan_ultimo VARCHAR(150), monto_promedio INTEGER DEFAULT 0, fecha_primer_pago DATE, fecha_ultimo_pago DATE, total_pagado INTEGER DEFAULT 0, dias_inactivo INTEGER DEFAULT 0, coach_referente VARCHAR(100), estado VARCHAR(20) DEFAULT 'Inactivo', segmento_riesgo VARCHAR(20) DEFAULT 'Verde', canal_contacto VARCHAR(30) DEFAULT 'WhatsApp', notas TEXT, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), UNIQUE(email));"
 DDL_HISTORIAL = "CREATE TABLE IF NOT EXISTS historial_pagos (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), socio_id UUID REFERENCES socios(id) ON DELETE CASCADE, fecha DATE NOT NULL, monto INTEGER NOT NULL DEFAULT 0, plan VARCHAR(150), tipo_pago VARCHAR(50), sede VARCHAR(50), estado_membresia VARCHAR(30), origen VARCHAR(30) DEFAULT 'BoxMagic', created_at TIMESTAMP DEFAULT NOW());"
@@ -59,7 +61,7 @@ def leer_clientes_xls():
     print(f"\n[INFO] Leyendo {CLIENTES_XLS}...")
     socios = {}
     try:
-        wb = xlrd.open_workbook(CLIENTES_XLS, encoding_override='utf-8')
+        wb = xlrd.open_workbook(CLIENTES_XLS, encoding_override='utf-8', ignore_workbook_corruption=True)
         ws = wb.sheet_by_index(0)
         header_row = 0
         headers = [str(ws.cell_value(header_row, c)).strip().lower() for c in range(ws.ncols)]
@@ -85,9 +87,11 @@ def leer_clientes_xls():
 def deducir_sede(plan_texto, sede_default):
     if not plan_texto: return sede_default
     p = str(plan_texto).upper()
-    if ' CF M' in p or ' MARINA' in p or '/CF M' in p:
+    # Identificadores de Marina (M)
+    if any(x in p for x in ['MARINA', ' CF M', '/CF M', ' M ', ' 12M', ' 8M', ' 4M', ' SENIOR M']):
         return 'Marina'
-    if ' CF C' in p or ' CAMPANARIO' in p or '/CF C' in p:
+    # Identificadores de Campanario (C)
+    if any(x in p for x in ['CAMPANARIO', ' CF C', '/CF C', ' C ', ' 12C', ' 8C', ' 4C', ' SENIOR C']):
         return 'Campanario'
     return sede_default
 
@@ -147,16 +151,61 @@ def leer_csv_ventas(path_csv, sede_base):
         print(f"   [ERROR] Error leyendo CSV: {e}")
     return transacciones
 
+def leer_inactivos_xls():
+    print(f"\n[INFO] Leyendo {INACTIVOS_XLS}...")
+    transacciones = []
+    try:
+        wb = xlrd.open_workbook(INACTIVOS_XLS, encoding_override='utf-8', ignore_workbook_corruption=True)
+        ws = wb.sheet_by_index(0)
+        header_row = 0
+        headers = [str(ws.cell_value(header_row, c)).strip().lower() for c in range(ws.ncols)]
+        col_map = {}
+        for i, h in enumerate(headers):
+            if 'email' in h: col_map['email'] = i
+            if 'nombre' in h: col_map['nombre'] = i
+            if 'apellido' in h: col_map['apellido'] = i
+            if 'plan' in h: col_map['plan'] = i
+            if 'hasta' in h or 'renov' in h: col_map['fecha'] = i
+        
+        for row in range(header_row + 1, ws.nrows):
+            try:
+                email = str(ws.cell_value(row, col_map['email'])).strip().lower()
+                nombre = f"{ws.cell_value(row, col_map['nombre'])} {ws.cell_value(row, col_map['apellido'])}".strip()
+                plan = str(ws.cell_value(row, col_map['plan']))
+                fecha = parsear_fecha(str(ws.cell_value(row, col_map['fecha'])))
+                if email and '@' in email:
+                    sede = deducir_sede(plan, "Desconocida")
+                    transacciones.append({
+                        'nombre': nombre, 'email': email, 'plan': plan, 
+                        'fecha_pago': fecha, 'sede': sede, 'monto': 0
+                    })
+            except: continue
+        print(f"   [OK] {len(transacciones)} alumnos inactivos leidos de XLS")
+    except Exception as e:
+        print(f"   [ERROR] Error leyendo Inactivos XLS: {e}")
+    return transacciones
+
 def poblar_base_datos(conn, contactos, transacciones):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     fichas = {}
+    
+    # REGLA DE CONFIANZA:
+    # Fuente confiable = CSV específico de sede (campanario/ o marina/)
+    # Fuente no confiable = Cartera global o Inactivos.xls (pueden tener mezcla)
+    # La sede de una fuente confiable NUNCA puede ser sobreescrita por una no confiable.
+    
     for t in transacciones:
         email = t.get('email', '').strip()
         if not email or '@' not in email: continue
+        sede_t = t.get('sede', 'Desconocida')
+        fuente_confiable = t.get('fuente_sede_confiable', False)  # Viene de CSV específico de sede
+        
         if email not in fichas:
             fichas[email] = {
                 'nombre': t.get('nombre', '').title(), 'email': email,
-                'sede_habitual': t.get('sede', ''), 'plan_ultimo': t.get('plan', ''),
+                'sede_habitual': sede_t,
+                'sede_confirmada': fuente_confiable,  # ¿La sede viene de fuente confiable?
+                'plan_ultimo': t.get('plan', ''),
                 'fecha_primer_pago': t.get('fecha_pago'), 'fecha_ultimo_pago': t.get('fecha_pago'),
                 'total_pagado': t.get('monto', 0), 'transacciones': [t]
             }
@@ -168,8 +217,16 @@ def poblar_base_datos(conn, contactos, transacciones):
                 if not f['fecha_ultimo_pago'] or fecha > f['fecha_ultimo_pago']:
                     f['fecha_ultimo_pago'] = fecha
                     f['plan_ultimo'] = t.get('plan', f['plan_ultimo'])
-                    if t.get('sede') and t.get('sede') != 'Desconocida':
-                        f['sede_habitual'] = t.get('sede')
+            
+            # Actualizar sede: la fuente confiable siempre gana.
+            # Si ya tenemos sede de fuente confiable, no la sobreescribimos nunca.
+            if fuente_confiable and sede_t != 'Desconocida':
+                f['sede_habitual'] = sede_t
+                f['sede_confirmada'] = True
+            elif not f['sede_confirmada'] and sede_t != 'Desconocida':
+                # Solo actualizar si la sede actual NO está confirmada
+                f['sede_habitual'] = sede_t
+            
             f['total_pagado'] += t.get('monto', 0)
             f['transacciones'].append(t)
     
@@ -205,12 +262,20 @@ def main():
         conn.commit()
         contactos = leer_clientes_xls()
         todas = []
-        if os.path.exists(VENTAS_CSV_FALLBACK): todas += leer_csv_ventas(VENTAS_CSV_FALLBACK, "Desconocida")
+        # PASO 1: Fuentes NO confiables de sede (mezcla de ambas sedes)
+        if os.path.exists(INACTIVOS_XLS):
+            for t in leer_inactivos_xls(): t['fuente_sede_confiable'] = False; todas.append(t)
+        if os.path.exists(VENTAS_CSV_FALLBACK):
+            for t in leer_csv_ventas(VENTAS_CSV_FALLBACK, 'Desconocida'): t['fuente_sede_confiable'] = False; todas.append(t)
+        # PASO 2: Fuentes CONFIABLES de sede (CSV específicos por sede)
         for s_fol, s_nom in [("campanario", "Campanario"), ("marina", "Marina")]:
             folder = os.path.join(BASE_DIR, "boxmagic", s_fol)
             if os.path.exists(folder):
                 for f in os.listdir(folder):
-                    if f.endswith('.csv'): todas += leer_csv_ventas(os.path.join(folder, f), s_nom)
+                    if f.endswith('.csv'):
+                        for t in leer_csv_ventas(os.path.join(folder, f), s_nom):
+                            t['fuente_sede_confiable'] = True
+                            todas.append(t)
         if todas:
             poblar_base_datos(conn, contactos, todas)
         else:
