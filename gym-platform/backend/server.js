@@ -27,7 +27,9 @@ app.use((req, res, next) => {
 });
 
 // SERVIR FRONTEND (PRODUCCION)
-app.use(express.static(path.join(__dirname, '../dist')));
+const distPath = path.resolve(__dirname, '..', 'dist');
+console.log(`📂 Configurando servidor estático en: ${distPath}`);
+app.use(express.static(distPath));
 
 app.get('/api/cuentas', async (req, res) => {
   try {
@@ -537,7 +539,15 @@ app.post('/api/pago/:id/comprobante', async (req, res) => {
 
 // Comodín para SPA (React Router fallback)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  const indexPath = path.join(distPath, 'index.html');
+  console.log(`🎯 SPA Fallback: Sirviendo ${indexPath} para la ruta ${req.url}`);
+  
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.error(`❌ ERROR: No se encontró index.html en ${indexPath}`);
+    res.status(404).send("Error crítico: El sistema no encuentra el archivo de interfaz (index.html). Contacta a soporte.");
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 SERVIDOR CLOUD v58.1 CORRIENDO EN PUERTO: ${PORT}`); });

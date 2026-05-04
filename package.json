@@ -4,6 +4,8 @@
   "description": "ERP The Boos Box - Cloud Edition",
   "main": "gym-platform/backend/server.js",
   "scripts": {
+    "build": "cd gym-platform && npm install && npm run build",
+    "postinstall": "npm run build",
     "start": "node gym-platform/backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
