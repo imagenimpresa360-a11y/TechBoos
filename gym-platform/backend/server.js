@@ -26,9 +26,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// SERVIR FRONTEND (PRODUCCION)
-const distPath = path.resolve(__dirname, '..', 'dist');
-console.log(`📂 Configurando servidor estático en: ${distPath}`);
+// SERVIR FRONTEND (PRODUCCION) - Sincronizado con Vite Root
+const distPath = path.resolve(__dirname, '..', '..', 'dist');
+console.log(`📂 Servidor estático buscando en: ${distPath}`);
 app.use(express.static(distPath));
 
 app.get('/api/cuentas', async (req, res) => {
@@ -540,13 +540,13 @@ app.post('/api/pago/:id/comprobante', async (req, res) => {
 // Comodín para SPA (React Router fallback)
 app.get('*', (req, res) => {
   const indexPath = path.join(distPath, 'index.html');
-  console.log(`🎯 SPA Fallback: Sirviendo ${indexPath} para la ruta ${req.url}`);
+  console.log(`🎯 SPA Fallback: Buscando ${indexPath} para ${req.url}`);
   
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    console.error(`❌ ERROR: No se encontró index.html en ${indexPath}`);
-    res.status(404).send("Error crítico: El sistema no encuentra el archivo de interfaz (index.html). Contacta a soporte.");
+    console.error(`❌ ERROR CRÍTICO: No existe index.html en ${indexPath}`);
+    res.status(404).send("Error de despliegue: Los archivos de interfaz no están en la ruta esperada.");
   }
 });
 
