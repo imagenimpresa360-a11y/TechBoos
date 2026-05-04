@@ -510,6 +510,27 @@ app.put('/api/socios/:id/notas', async (req, res) => {
     }
 });
 
+// GET /api/pago/:id — Obtener datos para la landing de pago (Público)
+app.get('/api/pago/:id', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT nombre, email, sede_habitual FROM socios WHERE id = $1', [req.params.id]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Link no válido' });
+        res.json(result.rows[0]);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/pago/:id/comprobante — Registrar intención de pago o subida de foto
+app.post('/api/pago/:id/comprobante', async (req, res) => {
+    const { metodo, monto } = req.body;
+    try {
+        await pool.query(`
+            INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, respuesta)
+            VALUES ($1, $2, 'Interesado', $3)
+        `, [req.params.id, 'Landing Pago', `Intención de pago via ${metodo} por $${monto}`]);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ═══════════════════════════════════════════════════════════
 // FIN MÓDULO MRS
 // ═══════════════════════════════════════════════════════════

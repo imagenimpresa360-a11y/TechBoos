@@ -74,19 +74,49 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
           </div>
         </div>
 
-        {/* Acciones */}
-        <div style={{ display: 'flex', gap: 10 }}>
-          {socio.telefono && (
-            <a href={`https://wa.me/${socio.telefono.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" 
-               onClick={() => onContactar(socio, 'WhatsApp')}
-               style={{ background: '#22c55e', color: '#fff', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
-              📱 WhatsApp
-            </a>
-          )}
-          <button onClick={() => setExpandido(!expandido)} style={{ background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', cursor: 'pointer' }}>
-            {expandido ? '▲' : '▼'}
-          </button>
-        </div>
+      {/* Acciones de Contacto Multicanal */}
+      <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {socio.telefono && (
+          <a href={`https://wa.me/${socio.telefono.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" 
+             onClick={() => onContactar(socio, 'WhatsApp')}
+             style={{ background: '#22c55e', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+            🟢 WhatsApp
+          </a>
+        )}
+        {socio.instagram && (
+          <a href={`https://instagram.com/${socio.instagram.replace('@','')}`} target="_blank" rel="noreferrer" 
+             onClick={() => onContactar(socio, 'Instagram')}
+             style={{ background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
+            📸 Instagram
+          </a>
+        )}
+        {socio.email && (
+          <a href={`mailto:${socio.email}?subject=Te extrañamos en The Boos Box!&body=Hola ${primerNombre}, hace tiempo que no nos vemos...`} 
+             onClick={() => onContactar(socio, 'Email')}
+             style={{ background: '#3b82f6', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
+            📧 Mail
+          </a>
+        )}
+        {socio.telefono && (
+          <a href={`tel:${socio.telefono}`} 
+             onClick={() => onContactar(socio, 'Llamada')}
+             style={{ background: '#64748b', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
+            📞 Llamar
+          </a>
+        )}
+        <button 
+          onClick={() => {
+            const link = `${window.location.origin}/pago/${socio.id}`;
+            navigator.clipboard.writeText(link);
+            alert("¡Link de Pago copiado!\n\n" + link);
+          }}
+          style={{ background: '#ff0000', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 800, border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}
+        >
+          🔗 Copiar Link Pago
+        </button>
+        <button onClick={() => setExpandido(!expandido)} style={{ marginLeft: 'auto', background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', borderRadius: 8, padding: '6px 12px', cursor: 'pointer' }}>
+            {expandido ? '▲ Gestión' : '▼ Notas'}
+        </button>
       </div>
 
       {expandido && (
