@@ -268,15 +268,21 @@ def main():
             for t in leer_inactivos_xls(): t['fuente_sede_confiable'] = False; todas.append(t)
         if os.path.exists(VENTAS_CSV_FALLBACK):
             for t in leer_csv_ventas(VENTAS_CSV_FALLBACK, 'Desconocida'): t['fuente_sede_confiable'] = False; todas.append(t)
-        # PASO 2: Fuentes CONFIABLES de sede (CSV específicos por sede)
+        # PASO 2: Fuentes CONFIABLES de sede (CSV específicos por sede en subcarpetas)
         for s_fol, s_nom in [("campanario", "Campanario"), ("marina", "Marina")]:
             folder = os.path.join(BASE_DIR, "boxmagic", s_fol)
             if os.path.exists(folder):
-                for f in os.listdir(folder):
-                    if f.endswith('.csv'):
-                        for t in leer_csv_ventas(os.path.join(folder, f), s_nom):
-                            t['fuente_sede_confiable'] = True
-                            todas.append(t)
+                for root, dirs, files in os.walk(folder):
+                    for f in files:
+                        if f.endswith('.csv'):
+                            # Ignorar versiones incompletas si hay versiones finales o el usuario lo prefiere
+                            if "incompleto" in f.lower():
+                                print(f"   [AVISO] Ignorando archivo marcado como incompleto: {f}")
+                                continue
+                            
+                            for t in leer_csv_ventas(os.path.join(root, f), s_nom):
+                                t['fuente_sede_confiable'] = True
+                                todas.append(t)
         if todas:
             poblar_base_datos(conn, contactos, todas)
         else:
