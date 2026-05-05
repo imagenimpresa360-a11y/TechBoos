@@ -128,6 +128,12 @@ export default function RecuperacionSocios() {
   const [sede, setSede] = useState('');
   const [segmento, setSegmento] = useState('');
   const [busqueda, setBusqueda] = useState('');
+  const [notificacion, setNotificacion] = useState(null);
+
+  const mostrarNotificacion = (msg, tipo = 'success') => {
+    setNotificacion({ msg, tipo });
+    setTimeout(() => setNotificacion(null), 3000);
+  };
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -159,16 +165,44 @@ export default function RecuperacionSocios() {
   };
 
   const handleActualizar = async (socio, resultado) => {
-    await fetch(`${API_BASE}/api/campanas`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ socio_id: socio.id, tipo_contacto: resultado, promo_ofrecida: 'Promo 4x19k' }),
-    });
-    fetchAll();
+    try {
+      const res = await fetch(`${API_BASE}/api/campanas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          socio_id: socio.id, 
+          tipo_contacto: 'Manual ERP', 
+          estado_gestion: resultado,
+          promo_ofrecida: 'Promo 4x19k' 
+        }),
+      });
+      
+      if (res.ok) {
+        mostrarNotificacion(`✅ ${socio.nombre?.split(' ')[0] || 'Socio'} marcado como: ${resultado}`);
+        fetchAll(); // Recargar lista para reflejar cambios
+      } else {
+        mostrarNotificacion('❌ Error al guardar el estado', 'error');
+      }
+    } catch (e) { 
+      console.error(e);
+      mostrarNotificacion('❌ Error de conexión con el servidor', 'error');
+    }
   };
 
   return (
     <div style={{ padding: 20 }}>
+      {/* Toast de Notificación */}
+      {notificacion && (
+        <div style={{
+          position: 'fixed', top: 20, right: 20, zIndex: 9999,
+          background: notificacion.tipo === 'error' ? '#ef4444' : '#10b981',
+          color: 'white', padding: '12px 24px', borderRadius: 8,
+          fontWeight: 700, boxShadow: '0 10px 15px -3px rgba(0,0,0,0.4)',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          {notificacion.msg}
+        </div>
+      )}
       <div style={{ marginBottom: 20, display: 'flex', gap: 10 }}>
         <input placeholder="Buscar alumno..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ flex: 1, background: '#1a1f2e', color: 'white', padding: 10, borderRadius: 8, border: '1px solid #334155' }} />
         <select value={sede} onChange={e => setSede(e.target.value)} style={{ background: '#1a1f2e', color: 'white', padding: 10, borderRadius: 8, border: '1px solid #334155' }}>
