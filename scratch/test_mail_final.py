@@ -4,6 +4,7 @@ import sys
 import psycopg2
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from dotenv import load_dotenv
 
 if sys.stdout.encoding != 'utf-8':
@@ -45,9 +46,17 @@ def enviar_test_real():
     msg = MIMEMultipart()
     msg['From'] = f"The Boos Box <{sender}>"
     msg['To'] = recipient
-    msg['Subject'] = "🏋️‍♂️ ¿Listo para tu próximo WOD? (The Boos Box)"
+    msg['Subject'] = "🚀 NUEVA PRUEBA: Tu desafío CrossFit te espera (The Boos Box)"
     
     msg.attach(MIMEText(html, 'html'))
+    
+    # 5. Adjuntar Logo como CID
+    logo_path = 'agentes/07_Agente_Publicidad/assets/logo_boos.png'
+    if os.path.exists(logo_path):
+        with open(logo_path, 'rb') as f:
+            img = MIMEImage(f.read(), _subtype="png")
+            img.add_header('Content-ID', '<logo_boos>')
+            msg.attach(img)
     
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)

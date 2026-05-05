@@ -3,10 +3,9 @@
 
 ---
 
-## 🎯 MISIÓN ACTUAL: Módulo de Recuperación de Socios (MRS)
+## 🎯 MISIÓN ACTUAL: Módulo de Recuperación de Socios (MRS) / BOOS RESCUE
 
-El agente `06_Ingeniero_Datos` ha sido ampliado con una nueva misión:
-**Departamento de Recuperación de Socios (DRS)**. El objetivo es convertir alumnos inactivos (>30 días sin pago) en ingresos recuperados mediante un panel integrado en el ERP.
+El sistema ha sido estructurado como un multisistema coordinado por agentes especializados. La misión actual es la **Reactivación de Socios Inactivos** mediante el flujo automatizado del nuevo Agente 08.
 
 ---
 
@@ -103,12 +102,24 @@ Con 439 registros analizados del CSV de membresías (solo Campanario):
 | Archivo | Ubicación | Estado |
 |---|---|---|
 | `AGENTE_MEMORIA.md` | Raíz | ✅ Actualizado hoy |
-| `construir_base_socios.py` | `agentes/06_Ingeniero_Datos/` | 🔄 En construcción |
-| `clasificar_inactivos.py` | `agentes/06_Ingeniero_Datos/` | 📋 Pendiente |
+| `construir_base_socios.py` | `agentes/06_Ingeniero_Datos/` | ✅ Funcional |
+| `motor_rescate.py` | `agentes/08_Agente_Retencion_Rescue/` | 🔄 En diseño |
 | `server.js` | `gym-platform/backend/` | ✅ Base existente |
-| `App.jsx` | `gym-platform/src/` | 🔄 Agregar módulo MRS |
-| `Clientes.xls` | `agentes/06_Ingeniero_Datos/downloads_boxmagic/` | ✅ Descargado hoy |
-| `BoxMagic (1).csv` | `agentes/06_Ingeniero_Datos/downloads_boxmagic/` | ✅ Descargado hoy |
+| `App.jsx` | `gym-platform/src/` | 🔄 Integrando BOOS RESCUE |
+| `Clientes.xls` | `agentes/06_Ingeniero_Datos/downloads_boxmagic/` | ✅ Datos base |
+
+---
+
+## 🤝 COORDINACIÓN DE AGENTES (Protocolo de Respuesta)
+
+Para asegurar que el agente correcto responda ante un problema o solicitud, el sistema se rige por la **Especialización de Dominio**:
+
+1.  **Agente 01 (CTO/Sistemas):** Responde ante caídas del servidor, errores de base de datos Postgres o fallos en el despliegue de Railway.
+2.  **Agente 06 (Ingeniero de Datos):** Responde ante problemas de ingesta (BoxMagic, Lioren, VirtualPost). Si un CSV no carga o un RUT está mal formateado, es su jurisdicción.
+3.  **Agente 07 (Publicidad/Marketing):** Responde por el contenido de los mails, diseño de plantillas y estrategia de marca.
+4.  **Agente 08 (Retención - BOOS RESCUE):** Responde por el flujo de contacto (¿Por qué no se envió el mail masivo? ¿Quién hizo clic?).
+
+**Regla de Oro:** Mi respuesta (Antigravity) siempre usará el "sombrero" del agente correspondiente según el archivo o la función que estemos tocando. Si hay un error en el script de contacto, me presentaré como el Agente 08 para resolverlo.
 
 ---
 

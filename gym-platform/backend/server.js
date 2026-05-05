@@ -28,8 +28,22 @@ app.use((req, res, next) => {
 
 // SERVIR FRONTEND (PRODUCCION) - Sincronizado con Vite Root
 const distPath = path.resolve(__dirname, '..', '..', 'dist');
-console.log(`📂 Servidor estático buscando en: ${distPath}`);
+const indexPath = path.join(distPath, 'index.html');
+
+console.log(`📂 Servidor configurado para servir dist desde: ${distPath}`);
+
+// Middleware para servir archivos estáticos
 app.use(express.static(distPath));
+
+// Ruta explícita para la Landing de Pago (Respaldo)
+app.get('/pago/:id', (req, res) => {
+  console.log(`🎯 Acceso a Landing de Pago para Socio: ${req.params.id}`);
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send("Error: No se encontró la interfaz de usuario (dist/index.html).");
+  }
+});
 
 app.get('/api/cuentas', async (req, res) => {
   try {
@@ -288,7 +302,7 @@ app.get('/api/socios/inactivos', async (req, res) => {
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 36  THEN 'Verde'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 60  THEN 'Amarillo'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 180 THEN 'Rojo'
-                    WHEN fecha_ultimo_pago >= '2025-10-01'               THEN 'Critico'
+                    WHEN (CURRENT_DATE - fecha_ultimo_pago::date) >= 180 THEN 'Critico'
                     ELSE 'Antiguo'
                 END,
                 estado = CASE
@@ -539,14 +553,17 @@ app.post('/api/pago/:id/comprobante', async (req, res) => {
 
 // Comodín para SPA (React Router fallback)
 app.get('*', (req, res) => {
-  const indexPath = path.join(distPath, 'index.html');
-  console.log(`🎯 SPA Fallback: Buscando ${indexPath} para ${req.url}`);
-  
+  // Si es una ruta de API que no existe, enviamos 404 JSON
+  if (req.url.startsWith('/api')) {
+    return res.status(404).json({ error: `API Route ${req.url} not found` });
+  }
+
+  console.log(`🎯 SPA Fallback: Sirviendo index.html para ${req.url}`);
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    console.error(`❌ ERROR CRÍTICO: No existe index.html en ${indexPath}`);
-    res.status(404).send("Error de despliegue: Los archivos de interfaz no están en la ruta esperada.");
+    console.error(`❌ ERROR CRÍTICO: No existe index.html en ${distPath}`);
+    res.status(404).send("Error de despliegue: Los archivos de interfaz (dist) no están en la ruta esperada.");
   }
 });
 
