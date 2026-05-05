@@ -306,6 +306,7 @@ app.get('/api/socios/inactivos', async (req, res) => {
                     ELSE 'Antiguo'
                 END,
                 estado = CASE
+                    WHEN estado = 'Recuperado' THEN 'Recuperado'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) >= 30 THEN 'Inactivo'
                     ELSE 'Activo'
                 END
