@@ -8,8 +8,8 @@ const API_BASE = window.location.hostname === 'localhost'
 const SEGMENTO_CONFIG = {
   Amarillo: { color: '#f59e0b', bg: '#fef3c7', label: '35-59 días', icon: '🟡' },
   Rojo:     { color: '#ef4444', bg: '#fee2e2', label: '60-179 días', icon: '🔴' },
-  Critico:  { color: '#6b21a8', bg: '#f3e8ff', label: '180+ (Oct 25)', icon: '⚫' },
-  Antiguo:  { color: '#475569', bg: '#f1f5f9', label: 'Antes Oct 25', icon: '❄️' },
+  Critico:  { color: '#6b21a8', bg: '#f3e8ff', label: 'Riesgo Crítico (+180d)', icon: '⚫' },
+  Antiguo:  { color: '#475569', bg: '#f1f5f9', label: 'Socio Histórico', icon: '❄️' },
   Verde:    { color: '#22c55e', bg: '#dcfce7', label: '0-35 días',   icon: '🟢' },
 };
 
@@ -172,8 +172,9 @@ export default function RecuperacionSocios() {
         body: JSON.stringify({ 
           socio_id: socio.id, 
           tipo_contacto: 'Manual ERP', 
-          estado_gestion: resultado,
-          promo_ofrecida: 'Promo 4x19k' 
+          resultado: resultado,
+          estado_gestion: resultado === 'Reingresó' ? 'Cerrado' : 'Contactado',
+          promo_ofrecida: 'Reingreso sin promo' 
         }),
       });
       

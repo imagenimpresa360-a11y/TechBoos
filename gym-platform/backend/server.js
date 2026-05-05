@@ -456,20 +456,32 @@ app.get('/api/socios/stats', async (req, res) => {
 
 // POST /api/campanas — Registrar un contacto de recuperación
 app.post('/api/campanas', async (req, res) => {
-    const { socio_id, tipo_contacto, promo_ofrecida, agente_nombre } = req.body;
+    const { socio_id, tipo_contacto, promo_ofrecida, agente_nombre, estado_gestion, resultado } = req.body;
     if (!socio_id) return res.status(400).json({ error: 'socio_id requerido' });
     try {
         const result = await pool.query(`
             INSERT INTO campanas_recuperacion 
-                (socio_id, tipo_contacto, promo_ofrecida, agente_nombre, estado_gestion)
-            VALUES ($1, $2, $3, $4, 'Contactado')
+                (socio_id, tipo_contacto, promo_ofrecida, agente_nombre, estado_gestion, resultado, fecha_respuesta)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `, [
             socio_id,
             tipo_contacto || 'WhatsApp',
             promo_ofrecida || '4 clases x $19.000 Pack Reactivación',
-            agente_nombre || 'Ejecutivo'
+            agente_nombre || 'Ejecutivo',
+            estado_gestion || 'Contactado',
+            resultado || null,
+            (resultado || estado_gestion) === 'Reingresó' ? new Date() : null
         ]);
+
+        // Si el resultado o estado es 'Reingresó', actualizar estado del socio inmediatamente
+        if (resultado === 'Reingresó' || estado_gestion === 'Reingresó') {
+            await pool.query(`
+                UPDATE socios SET estado = 'Recuperado', updated_at = NOW()
+                WHERE id = $1
+            `, [socio_id]);
+        }
+
         res.json(result.rows[0]);
     } catch (err) {
         console.error('[MRS] Error en POST /api/campanas:', err);
