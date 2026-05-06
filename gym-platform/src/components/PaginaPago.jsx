@@ -158,13 +158,44 @@ export default function PaginaPago() {
             </div>
           </>
         ) : (
-          <div style={{ padding: '40px 20px', animation: 'fadeIn 0.5s' }}>
-            <div style={{ fontSize: '60px', marginBottom: '20px' }}>🏁</div>
-            <h2 style={{ fontSize: '24px', fontWeight: '900' }}>¡REGISTRO RECIBIDO!</h2>
-            <p style={{ color: '#94a3b8', lineHeight: '1.6' }}>
-              Hemos notificado al equipo de **The Boos Box**. <br/>
-              En breve validaremos tu pago y activaremos tus clases. <br/>
-              **¡Nos vemos en el Box!**
+          <div style={{ padding: '30px 20px', animation: 'fadeIn 0.5s', textAlign: 'center' }}>
+            <div style={{ width: '80px', height: '80px', background: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)' }}>
+              <span style={{ fontSize: '40px' }}>✓</span>
+            </div>
+            
+            <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#fff', marginBottom: '10px' }}>¡REGISTRO EXITOSO!</h2>
+            <div style={{ background: '#111', border: '1px solid #333', padding: '15px', borderRadius: '12px', marginBottom: '25px' }}>
+              <span style={{ color: '#94a3b8', fontSize: '11px', textTransform: 'uppercase' }}>Ticket de Operación</span>
+              <div style={{ fontSize: '18px', fontWeight: '700', color: '#ff0000', letterSpacing: '2px' }}>TBB-{id.substring(0, 5).toUpperCase()}</div>
+            </div>
+
+            <div style={{ textAlign: 'left', background: '#0a0a0a', padding: '20px', borderRadius: '12px', border: '1px solid #1a1a1a' }}>
+              <p style={{ color: '#fff', fontSize: '14px', fontWeight: '700', marginBottom: '15px' }}>Próximos Pasos:</p>
+              
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ color: '#10b981', fontSize: '14px' }}>●</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
+                  <strong style={{ color: '#fff' }}>Validación:</strong> Nuestro equipo revisará el comprobante (Plazo: 2-4 hrs hábiles).
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ color: '#666', fontSize: '14px' }}>●</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
+                  <strong style={{ color: '#fff' }}>Activación:</strong> Recibirás un aviso en tu App BoxMagic una vez habilitado.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <div style={{ color: '#666', fontSize: '14px' }}>●</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
+                  <strong style={{ color: '#fff' }}>¡A Entrenar!:</strong> Ya podrás reservar tus clases normalmente.
+                </div>
+              </div>
+            </div>
+
+            <p style={{ color: '#444', fontSize: '12px', marginTop: '25px', fontStyle: 'italic' }}>
+              "Gracias por confiar en el proceso. Nos vemos en el Box."
             </p>
           </div>
         )}

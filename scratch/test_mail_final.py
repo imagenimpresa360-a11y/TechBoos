@@ -17,18 +17,36 @@ def enviar_test_real():
     password = os.environ.get('SMTP_PASS')
     recipient = "rubenrojasb@gmail.com"
     
-    # 1. Obtener un ID real de un alumno critico para el link
+    # 1. Obtener el ID del socio con precisión quirúrgica
     try:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
-        cur.execute("SELECT id, nombre FROM socios WHERE segmento_riesgo='Critico' LIMIT 1")
+        
+        # PRIORIDAD: Primero buscar por EMAIL exacto. Si no, por nombre parecido.
+        cur.execute("""
+            SELECT id, nombre FROM socios 
+            WHERE email = %s 
+            OR nombre ILIKE %s 
+            ORDER BY (email = %s) DESC, segmento_riesgo ASC 
+            LIMIT 1
+        """, (recipient, '%Ruben Rojas%', recipient))
+        
         res = cur.fetchone()
+        if not res:
+            # Fallback a cualquier critico si no hay rastro del usuario
+            cur.execute("SELECT id, nombre FROM socios WHERE segmento_riesgo='Critico' LIMIT 1")
+            res = cur.fetchone()
+        
         conn.close()
         socio_id = res[0] if res else 1
-    except:
+        socio_nombre = res[1].split(' ')[0] if res else 'Rubén'
+        print(f"🎯 Socio Identificado Quirúrgicamente: {res[1]} (ID: {socio_id})")
+    except Exception as e:
+        print(f"⚠️ Error en identificación: {e}")
         socio_id = 1
+        socio_nombre = 'Rubén'
 
-    # 2. Configurar Link de Pago (Simulado en Railway)
+    # 2. Configurar Link de Pago (Producción Activa)
     base_url = "https://techboos-production-edd2.up.railway.app"
     pago_link = f"{base_url}/pago/{socio_id}"
     
@@ -39,14 +57,14 @@ def enviar_test_real():
         html = f.read()
 
     # 4. Reemplazar datos
-    html = html.replace('[Nombre]', 'Rubén')
+    html = html.replace('[Nombre]', socio_nombre)
     # Actualizar el link del botón en la plantilla
     html = html.replace('https://wa.me/569XXXXXXXX?text=Hola!%20Quiero%20mi%20pack%20de%20reactivacion%20CrossFit', pago_link)
     
     msg = MIMEMultipart()
     msg['From'] = f"The Boos Box <{sender}>"
     msg['To'] = recipient
-    msg['Subject'] = "🚀 NUEVA PRUEBA: Tu desafío CrossFit te espera (The Boos Box)"
+    msg['Subject'] = "🚀 ÚLTIMA PRUEBA (Quirúrgica): Tu desafío CrossFit te espera"
     
     msg.attach(MIMEText(html, 'html'))
     
@@ -64,7 +82,7 @@ def enviar_test_real():
         server.login(sender, password)
         server.send_message(msg)
         server.quit()
-        print(f"✅ ¡Correo final enviado exitosamente!")
+        print(f"✅ ¡Correo quirúrgico enviado exitosamente!")
     except Exception as e:
         print(f"❌ Error: {e}")
 
