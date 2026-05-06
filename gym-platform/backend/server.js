@@ -7,6 +7,30 @@ const xlsx = require('xlsx');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+// Configuración de Email Transaccional
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
+
+const sendEmail = async (to, subject, html) => {
+  try {
+    await transporter.sendMail({
+      from: `"The Boos Box" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      html
+    });
+    console.log(`📧 Email enviado exitosamente a: ${to}`);
+  } catch (error) {
+    console.error(`❌ Error enviando email a ${to}:`, error);
+  }
+};
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -492,6 +516,29 @@ app.post('/api/campanas', async (req, res) => {
                 UPDATE socios SET estado = 'Recuperado', updated_at = NOW()
                 WHERE id = $1
             `, [socio_id]);
+
+            // PASO 2: Notificación de Activación Final
+            const socioRes = await pool.query('SELECT nombre, email FROM socios WHERE id = $1', [socio_id]);
+            if (socioRes.rows.length > 0) {
+                const s = socioRes.rows[0];
+                const html = `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                        <div style="background: #ff0000; color: #fff; padding: 30px; text-align: center;">
+                            <h1 style="margin: 0;">¡BIENVENIDO DE VUELTA! 🥊</h1>
+                        </div>
+                        <div style="padding: 30px; color: #333;">
+                            <p>Hola <strong>${s.nombre.split(' ')[0]}</strong>,</p>
+                            <p>¡Excelentes noticias! Hemos verificado tu pago y tu plan ya se encuentra <strong>ACTIVO</strong>.</p>
+                            <p>Ya puedes entrar a la App <strong>BoxMagic</strong> y reservar tus clases normalmente.</p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="https://app.boxmagic.cl" style="background: #000; color: #fff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">IR A BOXMAGIC</a>
+                            </div>
+                            <p style="font-size: 12px; color: #999;">Nos vemos en el Box.</p>
+                        </div>
+                    </div>
+                `;
+                sendEmail(s.email, "¡Plan Activado! Ya puedes entrenar 🥊", html);
+            }
         }
 
         res.json(result.rows[0]);
@@ -567,6 +614,28 @@ app.post('/api/pago/:id/comprobante', async (req, res) => {
             INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, respuesta, evidencia_pago)
             VALUES ($1, $2, 'Interesado', $3, $4)
         `, [req.params.id, 'Landing Pago', `Intención de pago via ${metodo} por $${monto}`, comprobante]);
+
+        // PASO 1: Notificación de Recibo
+        const socioRes = await pool.query('SELECT nombre, email FROM socios WHERE id = $1', [req.params.id]);
+        if (socioRes.rows.length > 0) {
+            const s = socioRes.rows[0];
+            const html = `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                    <div style="background: #000; color: #fff; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0; color: #ff0000;">REGISTRO RECIBIDO ✅</h1>
+                    </div>
+                    <div style="padding: 30px; color: #333;">
+                        <p>Hola <strong>${s.nombre.split(' ')[0]}</strong>,</p>
+                        <p>Hemos recibido correctamente tu comprobante de pago por el <strong>Pack de Reactivación</strong>.</p>
+                        <p>Tu ticket de seguimiento es: <strong>TBB-${req.params.id.substring(0,5).toUpperCase()}</strong></p>
+                        <p>Nuestro equipo validará la transacción en un plazo de <strong>2 a 4 horas hábiles</strong>. Te avisaremos por este mismo medio cuando tus clases estén habilitadas.</p>
+                        <p style="font-size: 12px; color: #999;">The Boos Box ERP - Sistema de Pago Seguro</p>
+                    </div>
+                </div>
+            `;
+            sendEmail(s.email, "Hemos recibido tu comprobante (The Boos Box)", html);
+        }
+
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
