@@ -41,8 +41,18 @@ app.get('/pago/:id', (req, res) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(404).send("Error: No se encontró la interfaz de usuario (dist/index.html).");
+    res.status(404).send(`Error: No se encontró la interfaz de usuario. Ruta buscada: ${indexPath}`);
   }
+});
+
+app.get('/api/debug/path', (req, res) => {
+  res.json({
+    __dirname,
+    distPath,
+    indexPath,
+    exists: fs.existsSync(indexPath),
+    files_in_dist: fs.existsSync(distPath) ? fs.readdirSync(distPath) : 'dist not found'
+  });
 });
 
 app.get('/api/cuentas', async (req, res) => {
