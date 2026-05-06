@@ -363,6 +363,7 @@ app.get('/api/socios/inactivos', async (req, res) => {
                 c.estado_gestion   AS ultima_gestion_estado,
                 c.fecha_contacto   AS ultima_gestion_fecha,
                 c.promo_ofrecida   AS ultima_promo,
+                c.evidencia_pago   AS ultima_gestion_evidencia,
                 -- Link WhatsApp pre-armado
                 CASE 
                     WHEN s.telefono IS NOT NULL AND s.telefono != '' THEN
@@ -375,7 +376,7 @@ app.get('/api/socios/inactivos', async (req, res) => {
                 END AS whatsapp_link
             FROM socios s
             LEFT JOIN LATERAL (
-                SELECT estado_gestion, fecha_contacto, promo_ofrecida
+                SELECT estado_gestion, fecha_contacto, promo_ofrecida, evidencia_pago
                 FROM campanas_recuperacion
                 WHERE socio_id = s.id
                 ORDER BY fecha_contacto DESC

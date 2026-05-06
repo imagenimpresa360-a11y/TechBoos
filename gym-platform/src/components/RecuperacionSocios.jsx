@@ -20,6 +20,7 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
   const [expandido, setExpandido] = useState(false);
   const [nota, setNota] = useState(socio.notas || '');
   const [guardando, setGuardando] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
   
   const seg = SEGMENTO_CONFIG[socio.segmento_riesgo] || SEGMENTO_CONFIG.Verde;
   const nombreSeguro = socio.nombre || socio.email || 'Alumno sin nombre';
@@ -98,7 +99,28 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
         <button onClick={() => setExpandido(!expandido)} style={{ marginLeft: 'auto', background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', borderRadius: 8, padding: '6px 12px', cursor: 'pointer' }}>
             {expandido ? '▲ Gestión' : '▼ Notas'}
         </button>
+        {socio.ultima_gestion_evidencia && (
+          <button 
+            onClick={() => setMostrarModal(true)}
+            style={{ background: '#10b981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '11px', fontWeight: '700' }}
+          >
+            👁️ Ver Comprobante
+          </button>
+        )}
       </div>
+
+      {/* Modal de Comprobante */}
+      {mostrarModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }} onClick={() => setMostrarModal(false)}>
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }} onClick={e => e.stopPropagation()}>
+            <img src={socio.ultima_gestion_evidencia} alt="Comprobante" style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '12px', border: '4px solid #fff' }} />
+            <button onClick={() => setMostrarModal(false)} style={{ position: 'absolute', top: -20, right: -20, background: '#ff0000', color: '#fff', border: 'none', borderRadius: '50%', width: 40, height: 40, cursor: 'pointer', fontWeight: 'bold' }}>X</button>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+               <button onClick={() => { onActualizar(socio, 'Reingresó'); setMostrarModal(false); }} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer' }}>✅ Validar y Activar Plan</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {expandido && (
         <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #1e293b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
