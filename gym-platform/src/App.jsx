@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Building2, ShieldCheck, Users, Activity, CheckCircle2, Trash2, Plus, LayoutDashboard, Receipt, Settings, Landmark, AlertTriangle, Smartphone, CreditCard, Ticket, Calendar, Calculator, FileText, Download, CheckSquare, Search, MapPin, Coins, Database } from 'lucide-react';
 import RecuperacionSocios from './components/RecuperacionSocios';
 import PaginaPago from './components/PaginaPago';
+import ReporteROI from './components/ReporteROI';
 import './index.css';
 
 // Configuración de API
@@ -225,6 +226,8 @@ export default function App() {
           )}
 
           {view === 'recuperacion' && <RecuperacionSocios />}
+          
+          {view === 'reportes' && <ReporteROI />}
           
           {view === 'conc_diaria' && (
             <div className="fade-in">
