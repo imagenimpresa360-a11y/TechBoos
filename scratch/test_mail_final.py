@@ -29,7 +29,7 @@ def enviar_test_real():
         socio_id = 1
 
     # 2. Configurar Link de Pago (Simulado en Railway)
-    base_url = "https://techboos-erp.railway.app" # URL de producción estimada
+    base_url = "https://techboos-production-edd2.up.railway.app"
     pago_link = f"{base_url}/pago/{socio_id}"
     
     print(f"🚀 Enviando mail final a {recipient} con link de pago: {pago_link}")

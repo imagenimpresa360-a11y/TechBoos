@@ -560,12 +560,12 @@ app.get('/api/pago/:id', async (req, res) => {
 
 // POST /api/pago/:id/comprobante — Registrar intención de pago o subida de foto
 app.post('/api/pago/:id/comprobante', async (req, res) => {
-    const { metodo, monto } = req.body;
+    const { metodo, monto, comprobante } = req.body;
     try {
         await pool.query(`
-            INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, respuesta)
-            VALUES ($1, $2, 'Interesado', $3)
-        `, [req.params.id, 'Landing Pago', `Intención de pago via ${metodo} por $${monto}`]);
+            INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, respuesta, evidencia_pago)
+            VALUES ($1, $2, 'Interesado', $3, $4)
+        `, [req.params.id, 'Landing Pago', `Intención de pago via ${metodo} por $${monto}`, comprobante]);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });

@@ -8,6 +8,9 @@ export default function PaginaPago() {
   const [socio, setSocio] = useState(null);
   const [metodo, setMetodo] = useState(null); // 'transfer' o 'card'
   const [enviado, setEnviado] = useState(false);
+  const [comprobante, setComprobante] = useState(null);
+  const [comprobantePreview, setComprobantePreview] = useState(null);
+  const [subiendo, setSubiendo] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/pago/${id}`)
@@ -16,13 +19,33 @@ export default function PaginaPago() {
       .catch(err => console.error(err));
   }, [id]);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setComprobante(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setComprobantePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const informarPago = async (m) => {
-    await fetch(`${API_BASE}/api/pago/${id}/comprobante`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ metodo: m, monto: m === 'transfer' ? 19000 : 19800 })
-    });
-    setEnviado(true);
+    setSubiendo(true);
+    try {
+      await fetch(`${API_BASE}/api/pago/${id}/comprobante`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          metodo: m, 
+          monto: m === 'transfer' ? 19000 : 19800,
+          comprobante: comprobantePreview // Enviamos Base64
+        })
+      });
+      setEnviado(true);
+    } catch (e) {
+      alert("Error al enviar comprobante. Intenta nuevamente.");
+    }
+    setSubiendo(false);
   };
 
   if (!socio) return <div style={{ background: '#000', color: '#fff', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cargando desafío...</div>;
@@ -68,12 +91,41 @@ export default function PaginaPago() {
                   <span style={{ display: 'block', color: '#ccc' }}>N° 46669086</span>
                   <span style={{ display: 'block', color: '#ccc' }}>Contactoboosbox@gmail.com</span>
                   
+                  <div style={{ marginTop: '20px', border: '1px dashed #444', padding: '15px', borderRadius: '8px', textAlign: 'center' }}>
+                    <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#94a3b8' }}>Sube tu comprobante o toma una foto:</p>
+                    <input 
+                      type="file" 
+                      accept="image/*,application/pdf" 
+                      capture="environment" 
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }} 
+                      id="upload-file" 
+                    />
+                    <label htmlFor="upload-file" style={{ background: '#1e293b', color: '#fff', padding: '8px 15px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', display: 'inline-block' }}>
+                      {comprobante ? '📎 Archivo seleccionado' : '📸 Tomar Foto / Subir'}
+                    </label>
+                    {comprobantePreview && (
+                      <div style={{ marginTop: '10px' }}>
+                        <img src={comprobantePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100px', borderRadius: '4px' }} />
+                      </div>
+                    )}
+                  </div>
+
                   <button 
                     onClick={() => informarPago('transfer')}
-                    style={{ width: '100%', marginTop: '20px', background: '#ff0000', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
+                    disabled={!comprobante || subiendo}
+                    style={{ 
+                      width: '100%', marginTop: '15px', background: '#ff0000', color: '#fff', 
+                      border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', 
+                      cursor: (comprobante && !subiendo) ? 'pointer' : 'not-allowed',
+                      opacity: (comprobante && !subiendo) ? 1 : 0.5 
+                    }}
                   >
-                    Ya transferí, informar pago ✅
+                    {subiendo ? 'Enviando...' : 'Informar Pago ✅'}
                   </button>
+                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '10px', textAlign: 'center' }}>
+                    ⚠️ Validación manual: 2 a 4 horas hábiles.
+                  </p>
                 </div>
               )}
 
