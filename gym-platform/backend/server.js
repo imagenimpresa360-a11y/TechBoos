@@ -50,8 +50,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// SERVIR FRONTEND (PRODUCCION) - Sincronizado con Vite Root
-const distPath = path.resolve(__dirname, '..', '..', 'dist');
+// SERVIR FRONTEND (PRODUCCION) - Lógica de detección de rutas para Railway
+let distPath = path.resolve(__dirname, '..', '..', 'dist');
+if (!fs.existsSync(path.join(distPath, 'index.html'))) {
+    distPath = path.resolve(__dirname, '..', 'dist'); // Intento 2
+}
 const indexPath = path.join(distPath, 'index.html');
 
 console.log(`📂 Servidor configurado para servir dist desde: ${distPath}`);
@@ -645,19 +648,16 @@ app.post('/api/pago/:id/comprobante', async (req, res) => {
 // FIN MÓDULO MRS
 // ═══════════════════════════════════════════════════════════
 
-// Comodín para SPA (React Router fallback) - Compatible con Express 5
+// Comodín para SPA (React Router fallback) - Versión Regex Literal (Seguro para Express 5)
 app.get(/.*/, (req, res) => {
-  // Si es una ruta de API que no existe, enviamos 404 JSON
   if (req.url.startsWith('/api')) {
     return res.status(404).json({ error: `API Route ${req.url} not found` });
   }
-
-  console.log(`🎯 SPA Fallback: Sirviendo index.html para ${req.url}`);
+  
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    console.error(`❌ ERROR CRÍTICO: No existe index.html en ${distPath}`);
-    res.status(404).send("Error de despliegue: Los archivos de interfaz (dist) no están en la ruta esperada.");
+    res.status(404).send("Error de despliegue: No se encuentra index.html");
   }
 });
 
