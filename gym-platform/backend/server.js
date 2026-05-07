@@ -333,6 +333,7 @@ app.get('/api/socios/inactivos', async (req, res) => {
             UPDATE socios SET
                 dias_inactivo = GREATEST(0, (CURRENT_DATE - fecha_ultimo_pago::date)),
                 segmento_riesgo = CASE
+                    WHEN segmento_riesgo = 'Alumnosfuga' THEN 'Alumnosfuga'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 36  THEN 'Verde'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 60  THEN 'Amarillo'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 180 THEN 'Rojo'

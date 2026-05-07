@@ -69,10 +69,10 @@ def enviar_test_real():
     msg.attach(MIMEText(html, 'html'))
     
     # 5. Adjuntar Logo como CID
-    logo_path = 'agentes/07_Agente_Publicidad/assets/logo_boos.png'
+    logo_path = 'agentes/07_Agente_Publicidad/assets/logo_boos.jpg'
     if os.path.exists(logo_path):
         with open(logo_path, 'rb') as f:
-            img = MIMEImage(f.read(), _subtype="png")
+            img = MIMEImage(f.read(), _subtype="jpeg")
             img.add_header('Content-ID', '<logo_boos>')
             msg.attach(img)
     

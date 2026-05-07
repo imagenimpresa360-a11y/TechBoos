@@ -57,6 +57,13 @@ Tres nuevas tablas para Railway PostgreSQL:
 - [ ] Configurar envío de email automático (SendGrid / Mailchimp)
 - [ ] Migración completa a Railway (base de datos de producción)
 - [ ] Reporte mensual de ROI por campaña de recuperación
+- [ ] **Boos Rescue Team (BRT):** Crear grupos de WhatsApp por sede para coordinación de coaches
+- [ ] **Módulo ERP para Coaches:** Crear pantalla ultra-simple (móvil) para reportar estados:
+  - [ ] No ha venido
+  - [ ] Desmotivado
+  - [ ] Lesionado
+  - [ ] Sin trabajo (NUEVO)
+  - [ ] Se cambió de casa (NUEVO)
 
 ---
 

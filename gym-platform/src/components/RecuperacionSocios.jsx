@@ -9,6 +9,7 @@ const SEGMENTO_CONFIG = {
   Amarillo: { color: '#f59e0b', bg: '#fef3c7', label: '35-59 días', icon: '🟡' },
   Rojo:     { color: '#ef4444', bg: '#fee2e2', label: '60-179 días', icon: '🔴' },
   Critico:  { color: '#6b21a8', bg: '#f3e8ff', label: 'Riesgo Crítico (+180d)', icon: '⚫' },
+  Alumnosfuga: { color: '#f43f5e', bg: '#fff1f2', label: 'Alumnos Fuga (2024)', icon: '🏚️' },
   Antiguo:  { color: '#475569', bg: '#f1f5f9', label: 'Socio Histórico', icon: '❄️' },
   Verde:    { color: '#22c55e', bg: '#dcfce7', label: '0-35 días',   icon: '🟢' },
 };
