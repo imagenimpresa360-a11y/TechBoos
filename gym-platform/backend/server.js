@@ -646,7 +646,7 @@ app.post('/api/pago/:id/comprobante', async (req, res) => {
 // ═══════════════════════════════════════════════════════════
 
 // Comodín para SPA (React Router fallback) - Compatible con Express 5
-app.get('(.*)', (req, res) => {
+app.get(/.*/, (req, res) => {
   // Si es una ruta de API que no existe, enviamos 404 JSON
   if (req.url.startsWith('/api')) {
     return res.status(404).json({ error: `API Route ${req.url} not found` });
