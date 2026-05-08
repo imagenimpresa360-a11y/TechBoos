@@ -7,36 +7,30 @@ const xlsx = require('xlsx');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const virtualPosService = require('./services/virtualposService');
 
-// Configuracion de Email Transaccional
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
+// Motor de Email via HTTP (Railway bloquea SMTP - usamos Resend API)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (to, subject, html) => {
   console.log(`[EMAIL] Intentando enviar correo a: ${to}...`);
   try {
-    const info = await transporter.sendMail({
-      from: `"The Boos Box" <${process.env.SMTP_USER}>`,
+    if (!process.env.RESEND_API_KEY) {
+      console.error('[EMAIL] ❌ Variable RESEND_API_KEY no configurada en Railway');
+      return false;
+    }
+    const { data, error } = await resend.emails.send({
+      from: 'The Boos Box <contactoboosbox@gmail.com>',
       to,
       subject,
       html
     });
-    console.log(`[EMAIL] ✅ Enviado correctamente: ${info.messageId}`);
+    if (error) throw new Error(error.message);
+    console.log(`[EMAIL] ✅ Enviado correctamente. ID: ${data.id}`);
     return true;
   } catch (error) {
     console.error(`[EMAIL] ❌ Error crítico enviando a ${to}:`, error.message);
-    if (error.message.includes('Invalid login')) {
-        console.error('[EMAIL] ERROR DE AUTENTICACIÓN: Revisa que SMTP_PASS sea una "Contraseña de Aplicación" de Gmail.');
-    }
     return false;
   }
 };
