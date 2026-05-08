@@ -82,46 +82,48 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
           </a>
         )}
         {socio.email && (
-          <button 
-             onClick={async () => {
-                try {
-                  const res = await fetch(`${API_BASE}/api/campanas/encolar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ socio_id: socio.id })
-                  });
-                  const data = await res.json();
-                  if(res.ok) {
-                    alert(`🌙 ${socio.nombre.split(' ')[0]} añadido a la cola de despacho nocturno (22:00 hrs).`);
-                  } else {
-                    alert(`❌ Error: ${data.error}`);
-                  }
-                } catch(e) { alert("❌ Error de conexión"); }
-             }}
-             style={{ background: '#1e293b', color: '#94a3b8', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            🌙 Encolar Despacho
-          </button>
+          <>
+            <button 
+               onClick={async () => {
+                  try {
+                    const res = await fetch(`${API_BASE}/api/campanas/encolar`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ socio_id: socio.id })
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                      alert(`🌙 ${socio.nombre.split(' ')[0]} añadido a la cola de despacho nocturno (22:00 hrs).`);
+                    } else {
+                      alert(`❌ Error: ${data.error}`);
+                    }
+                  } catch(e) { alert("❌ Error de conexión"); }
+               }}
+               style={{ background: '#1e293b', color: '#94a3b8', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🌙 Encolar Despacho
+            </button>
 
-          <button 
-             onClick={async () => {
-                if(!window.confirm(`¿Enviar email de promoción INSTANTÁNEO a ${socio.email}?`)) return;
-                try {
-                  const res = await fetch(`${API_BASE}/api/campanas/email`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ socio_id: socio.id })
-                  });
-                  const data = await res.json();
-                  if(res.ok) {
-                    alert(`✅ ${data.mensaje || 'Email enviado exitosamente'}`);
-                  } else {
-                    alert(`❌ Error: ${data.error}`);
-                  }
-                } catch(e) { alert("❌ Error de conexión"); }
-             }}
-             style={{ background: '#3b82f6', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            📧 Enviar Ahora
-          </button>
+            <button 
+               onClick={async () => {
+                  if(!window.confirm(`¿Enviar email de promoción INSTANTÁNEO a ${socio.email}?`)) return;
+                  try {
+                    const res = await fetch(`${API_BASE}/api/campanas/email`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ socio_id: socio.id })
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                      alert(`✅ ${data.mensaje || 'Email enviado exitosamente'}`);
+                    } else {
+                      alert(`❌ Error: ${data.error}`);
+                    }
+                  } catch(e) { alert("❌ Error de conexión"); }
+               }}
+               style={{ background: '#3b82f6', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              📧 Enviar Ahora
+            </button>
+          </>
         )}
         <button 
           onClick={() => {
