@@ -669,20 +669,28 @@ app.get(/.*/, (req, res) => {
 
 // Endpoint para crear link de pago (Boos Rescue)
 app.post('/api/payments/create-link', async (req, res) => {
-  const { socioId, amount, description } = req.body;
+  const { socioId, amount, description, sede } = req.body;
+  console.log(`[PAYMENT] Iniciando cobro de $${amount} para Socio ID: ${socioId} (${sede || 'General'})`);
   try {
     const socioRes = await pool.query('SELECT * FROM socios WHERE id = $1', [socioId]);
-    if (socioRes.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
+    if (socioRes.rows.length === 0) {
+        console.error(`[PAYMENT] Socio ${socioId} no encontrado en DB`);
+        return res.status(404).json({ error: 'Socio no encontrado' });
+    }
     
     const socio = socioRes.rows[0];
-    const payment = await virtualPosService.createPayment(amount, description, socio.email, socio.nombre);
+    const finalDescription = `${description} (${sede || 'General'})`;
+    
+    const payment = await virtualPosService.createPayment(amount, finalDescription, socio.email, socio.nombre);
     
     // Guardar el UUID del pago en el socio para seguimiento
     await pool.query('UPDATE socios SET vpos_uuid = $1, updated_at = NOW() WHERE id = $2', [payment.uuid, socioId]);
     
+    console.log(`[PAYMENT] Link generado exitosamente: ${payment.web_checkout_url}`);
     res.json({ url: payment.web_checkout_url, uuid: payment.uuid });
   } catch (error) {
-    res.status(500).json({ error: 'Error al generar link de pago' });
+    console.error('[PAYMENT] Error crítico:', error.message);
+    res.status(500).json({ error: 'Error al generar link de pago: ' + error.message });
   }
 });
 

@@ -18,33 +18,38 @@ export default function PaginaPago() {
   }, [id]);
 
   const handlePayment = async () => {
+    if (!socio || !socio.id) return;
     setProcessing(true);
     try {
+      console.log("Iniciando pago para socio:", socio.id);
       const res = await fetch(`${API_BASE}/api/payments/create-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           socioId: socio.id,
-          amount: 19000,
-          description: 'Pack Boos Rescue - 4 Clases'
+          amount: 27000,
+          description: 'Pack Boos Rescue Campanario - 4 Clases',
+          sede: 'Campanario'
         })
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url; // Redirigir a VirtualPos
+        window.location.href = data.url; 
+      } else {
+        throw new Error(data.error || "No se recibió URL de pago");
       }
     } catch (err) {
-      alert("Error al conectar con la pasarela de pago. Intenta nuevamente.");
+      console.error("Error en handlePayment:", err);
+      alert("Error al conectar con la pasarela: " + err.message);
     } finally {
       setProcessing(false);
     }
   };
 
   if (loading) return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white' }}>
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0c', color: 'white' }}>
       <div style={{ textAlign: 'center' }}>
-        <div className="spinner" style={{ border: '4px solid rgba(255,255,255,0.1)', borderTop: '4px solid #f59e0b', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }}></div>
-        <p style={{ fontSize: '14px', letterSpacing: '1px' }}>PREPARANDO TU ARENA...</p>
+        <p style={{ fontSize: '14px', letterSpacing: '2px', animation: 'pulse 1.5s infinite' }}>CARGANDO EXPERIENCIA...</p>
       </div>
     </div>
   );
@@ -55,7 +60,7 @@ export default function PaginaPago() {
       {/* Header / Logo */}
       <div style={{ textAlign: 'center', margin: '40px 0' }}>
         <div style={{ fontSize: '28px', fontWeight: '900', color: '#f59e0b', letterSpacing: '3px' }}>THE BOOS BOX</div>
-        <div style={{ fontSize: '11px', color: '#4b5563', marginTop: '5px', fontWeight: 'bold' }}>SISTEMA DE RECUPERACIÓN OFICIAL</div>
+        <div style={{ fontSize: '11px', color: '#4b5563', marginTop: '5px', fontWeight: 'bold', textTransform: 'uppercase' }}>SEDE CAMPANARIO · RECUPERACIÓN</div>
       </div>
 
       {/* Tarjeta de Oferta */}
@@ -63,18 +68,18 @@ export default function PaginaPago() {
         
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>¡Hola {socio?.nombre.split(' ')[0]}!</h2>
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>Es momento de retomar el entrenamiento.</p>
+          <p style={{ color: '#9ca3af', fontSize: '14px' }}>Regresa a entrenar en Sede Campanario.</p>
         </div>
         
         <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '20px', padding: '25px', marginBottom: '35px' }}>
-          <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Pack Rescue Especial</div>
+          <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Pack Boos Rescue Exclusive</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <div style={{ fontSize: '42px', fontWeight: '900' }}>$19.000</div>
+            <div style={{ fontSize: '42px', fontWeight: '900' }}>$27.000</div>
             <div style={{ fontSize: '16px', color: '#4b5563', textDecoration: 'line-through' }}>$39.900</div>
           </div>
           
           <div style={{ marginTop: '20px', display: 'grid', gap: '12px' }}>
-            {['4 Clases de Crossfit/Funcional', 'Acceso a todas nuestras sedes', 'Seguro de accidentes activado'].map((item, i) => (
+            {['4 Clases de Crossfit/Funcional', 'Uso exclusivo en Sede Campanario', 'Activación automática inmediata'].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: '#d1d5db' }}>
                 <span style={{ color: '#10b981' }}>✓</span> {item}
               </div>
@@ -100,7 +105,7 @@ export default function PaginaPago() {
             transform: processing ? 'scale(0.98)' : 'scale(1)'
           }}
         >
-          {processing ? 'INICIANDO TRANSACCIÓN...' : 'PAGAR Y ACTIVAR AHORA'}
+          {processing ? 'CONECTANDO...' : 'PAGAR Y ACTIVAR AHORA'}
         </button>
 
         <div style={{ textAlign: 'center', marginTop: '25px', opacity: 0.6 }}>
