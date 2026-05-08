@@ -12,6 +12,9 @@ class VirtualPosService {
      * Genera la firma Signature requerida por VirtualPos (HMAC-SHA256)
      */
     generateSignature(payload) {
+        if (!this.secretKey) {
+            throw new Error('CONFIG_ERROR: Falta VIRTUALPOS_SECRET_KEY en las variables de entorno de Railway.');
+        }
         return crypto
             .createHmac('sha256', this.secretKey)
             .update(JSON.stringify(payload))

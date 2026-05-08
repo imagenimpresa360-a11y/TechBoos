@@ -93,7 +93,7 @@ cron.schedule('0 2 * * *', async () => {
                         <h2>¡Hola ${primerNombre}! 👋</h2>
                         <p>Te extrañamos en el Box. Regresa a entrenar con nosotros.</p>
                         <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e2e8f0; text-align: center;">
-                            <h3 style="color: #f59e0b;">PACK RESCUE $27.000</h3>
+                            <h3 style="color: #f59e0b;">PACK RESCUE $19.900</h3>
                         </div>
                         <div style="text-align: center;">
                             <a href="${linkPago}" style="background: #000; color: #fff; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RECLAMAR AHORA</a>
@@ -104,7 +104,7 @@ cron.schedule('0 2 * * *', async () => {
             const enviado = await sendEmail(job.email, `🥊 ¡Te extrañamos, ${primerNombre}!`, html);
             if (enviado) {
                 await pool.query("UPDATE cola_emails SET estado = 'Enviado', fecha_envio_programado = NOW() WHERE id = $1", [job.id]);
-                await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Nocturno', 'Contactado', 'Pack Rescue $27k')", [job.socio_uuid]);
+                await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Nocturno', 'Contactado', 'Pack Rescue $19.9k')", [job.socio_uuid]);
             }
         }
     } catch (err) { console.error('[CRON] Error:', err.message); }
@@ -297,10 +297,10 @@ app.post('/api/campanas/email', async (req, res) => {
         if (socioRes.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
         const s = socioRes.rows[0];
         const linkPago = `https://techboos-production-edd2.up.railway.app/pago/${s.id}`;
-        const html = `<div style="font-family:sans-serif;background:#000;color:#fff;padding:40px;text-align:center;border-radius:12px;"><h1>THE BOOS BOX</h1><p>Hola ${s.nombre.split(' ')[0]}, regresa al Box con nuestra promo Rescue.</p><a href="${linkPago}" style="background:#f59e0b;color:#000;padding:15px 25px;text-decoration:none;border-radius:8px;font-weight:bold;">RECLAMAR PROMO $27.000</a></div>`;
+        const html = `<div style="font-family:sans-serif;background:#000;color:#fff;padding:40px;text-align:center;border-radius:12px;"><h1>THE BOOS BOX</h1><p>Hola ${s.nombre.split(' ')[0]}, regresa al Box con nuestra promo Rescue.</p><a href="${linkPago}" style="background:#f59e0b;color:#000;padding:15px 25px;text-decoration:none;border-radius:8px;font-weight:bold;">RECLAMAR PROMO $19.900</a></div>`;
         const enviado = await sendEmail(s.email, "🥊 ¡Regresa a The Boos Box!", html);
         if (enviado) {
-            await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Auto', 'Contactado', 'Pack Rescue $27k')", [socio_id]);
+            await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Auto', 'Contactado', 'Pack Rescue $19.9k')", [socio_id]);
             res.json({ success: true });
         } else res.status(500).json({ error: 'Error al enviar email' });
     } catch (err) { res.status(500).json({ error: err.message }); }

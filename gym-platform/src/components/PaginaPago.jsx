@@ -31,7 +31,7 @@ export default function PaginaPago() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           socioId: id,
-          amount: 27000,
+          amount: 19900,
           description: 'Pack Boos Rescue Campanario - 4 Clases',
           sede: 'Campanario'
         })
@@ -84,8 +84,8 @@ export default function PaginaPago() {
         <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '20px', padding: '25px', marginBottom: '35px' }}>
           <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Pack Boos Rescue Exclusive</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <div style={{ fontSize: '42px', fontWeight: '900' }}>$27.000</div>
-            <div style={{ fontSize: '16px', color: '#4b5563', textDecoration: 'line-through' }}>$39.900</div>
+            <div style={{ fontSize: '42px', fontWeight: '900' }}>$19.900</div>
+            <div style={{ fontSize: '16px', color: '#4b5563', textDecoration: 'line-through' }}>$27.000</div>
           </div>
           
           <div style={{ marginTop: '20px', display: 'grid', gap: '12px' }}>
