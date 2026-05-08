@@ -377,40 +377,22 @@ app.get('/api/socios/inactivos', async (req, res) => {
                 s.id,
                 s.nombre,
                 s.email,
-                s.telefono,
-                s.instagram,
-                s.sede_habitual,
-                s.plan_ultimo,
-                s.monto_promedio,
-                s.dias_inactivo,
-                s.fecha_ultimo_pago,
-                s.total_pagado,
-                s.coach_referente,
-                s.segmento_riesgo,
-                s.notas,
-                -- Ãšltima gestiÃ³n de recuperaciÃ³n
-                c.estado_gestion   AS ultima_gestion_estado,
-                c.fecha_contacto   AS ultima_gestion_fecha,
-                c.promo_ofrecida   AS ultima_promo,
-                c.evidencia_pago   AS ultima_gestion_evidencia,
-                -- Link WhatsApp pre-armado
+                s.*,
+                (
+                    SELECT json_agg(h ORDER BY h.fecha_contacto DESC)
+                    FROM campanas_recuperacion h
+                    WHERE h.socio_id = s.id
+                ) as historial,
                 CASE 
-                    WHEN s.telefono IS NOT NULL AND s.telefono != '' THEN
-                        'https://wa.me/' || REPLACE(s.telefono, '+', '') || 
+                    WHEN s.telefono IS NOT NULL THEN 
+                        'https://wa.me/' || REGEXP_REPLACE(s.telefono, '\\D', '', 'g') || 
                         '?text=' || ENCODE(('Hola ' || SPLIT_PART(s.nombre, ' ', 1) || 
-                        ', soy de The Boos Box! ðŸ¥Š Te extraÃ±amos. ' ||
-                        'Tenemos tu *Pack de ReactivaciÃ³n*: 4 clases por solo $19.000. ' ||
-                        'Â¿Te apunto para esta semana?')::BYTEA, 'escape')
+                        ', soy de The Boos Box! 🥊 Te extrañamos. ' ||
+                        'Tenemos tu *Pack de Reactivación*: 4 clases por solo $27.000. ' ||
+                        '¿Te apunto para esta semana?')::BYTEA, 'escape')
                     ELSE NULL
                 END AS whatsapp_link
             FROM socios s
-            LEFT JOIN LATERAL (
-                SELECT estado_gestion, fecha_contacto, promo_ofrecida, evidencia_pago
-                FROM campanas_recuperacion
-                WHERE socio_id = s.id
-                ORDER BY fecha_contacto DESC
-                LIMIT 1
-            ) c ON true
             ${whereClause}
             ORDER BY 
                 CASE s.segmento_riesgo

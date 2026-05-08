@@ -136,19 +136,34 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
       )}
 
       {expandido && (
-        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #1e293b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div>
-            <textarea value={nota} onChange={e => setNota(e.target.value)} rows={3} style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', borderRadius: 6, color: '#f1f5f9', padding: 8, fontSize: 12 }} />
-            <button onClick={guardarNotas} style={{ marginTop: 8, background: '#6366f1', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
-              {guardando ? 'Guardando...' : 'Guardar Notas'}
-            </button>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-             {['Contactado', 'Interesado', 'Reingresó', 'Declinó'].map(res => (
-               <button key={res} onClick={() => onActualizar(socio, res)} style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', padding: '6px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
-                  {res}
-               </button>
-             ))}
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #1e293b' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Notas de Seguimiento</div>
+              <textarea value={nota} onChange={e => setNota(e.target.value)} rows={3} style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', borderRadius: 6, color: '#f1f5f9', padding: 8, fontSize: 12 }} />
+              <button onClick={guardarNotas} style={{ marginTop: 8, background: '#6366f1', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                {guardando ? 'Guardando...' : 'Guardar Notas'}
+              </button>
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Historial de Gestión</div>
+              <div style={{ maxHeight: '100px', overflowY: 'auto', background: '#0f172a', borderRadius: 6, padding: '8px', fontSize: '11px' }}>
+                {(socio.historial || []).length > 0 ? socio.historial.map((h, i) => (
+                  <div key={i} style={{ marginBottom: '6px', borderBottom: '1px solid #1e293b', paddingBottom: '4px' }}>
+                    <span style={{ color: '#94a3b8' }}>{new Date(h.fecha_contacto).toLocaleDateString()}</span> · 
+                    <strong style={{ color: '#f59e0b' }}> {h.tipo_contacto}</strong>
+                    <div style={{ color: '#64748b' }}>{h.resultado || h.promo_ofrecida}</div>
+                  </div>
+                )) : <div style={{ color: '#475569' }}>Sin gestiones previas.</div>}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: '10px' }}>
+                {['Interesado', 'Reingresó', 'Declinó'].map(res => (
+                  <button key={res} onClick={() => onActualizar(socio, res)} style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', padding: '6px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                      {res}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
