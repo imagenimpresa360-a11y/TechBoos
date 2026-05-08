@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const virtualPosService = require('./services/virtualposService');
 
 // Configuración de Email Transaccional
 const transporter = nodemailer.createTransport({
@@ -662,4 +663,76 @@ app.get(/.*/, (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 SERVIDOR CLOUD v58.1 CORRIENDO EN PUERTO: ${PORT}`); });
+// ==========================================
+// MÓDULO VIRTUALPOS - PAGOS AUTOMATIZADOS
+// ==========================================
+
+// Endpoint para crear link de pago (Boos Rescue)
+app.post('/api/payments/create-link', async (req, res) => {
+  const { socioId, amount, description } = req.body;
+  try {
+    const socioRes = await pool.query('SELECT * FROM socios WHERE id = $1', [socioId]);
+    if (socioRes.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
+    
+    const socio = socioRes.rows[0];
+    const payment = await virtualPosService.createPayment(amount, description, socio.email, socio.nombre);
+    
+    // Guardar el UUID del pago en el socio para seguimiento
+    await pool.query('UPDATE socios SET vpos_uuid = $1, updated_at = NOW() WHERE id = $2', [payment.uuid, socioId]);
+    
+    res.json({ url: payment.web_checkout_url, uuid: payment.uuid });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al generar link de pago' });
+  }
+});
+
+// WEBHOOK de VirtualPos (Recibe notificaciones de pago)
+app.post('/api/payments/webhook', async (req, res) => {
+  const { uuid } = req.body;
+  console.log(`🔔 Webhook recibido de VirtualPos para el pago: ${uuid}`);
+
+  try {
+    // Validar el estado real con VirtualPos (Seguridad adicional)
+    const paymentDetail = await virtualPosService.getPaymentStatus(uuid);
+    
+    if (paymentDetail.status === 'paid' || paymentDetail.status === 'approved') {
+      const socioRes = await pool.query('SELECT * FROM socios WHERE vpos_uuid = $1', [uuid]);
+      if (socioRes.rows.length > 0) {
+        const socio = socioRes.rows[0];
+        
+        // MARCAR COMO RECUPERADO
+        await pool.query("UPDATE socios SET estado = 'Recuperado', segmento_riesgo = 'Limpio', updated_at = NOW() WHERE vpos_uuid = $1", [uuid]);
+        
+        console.log(`✅ Socio recuperado automáticamente: ${socio.nombre}`);
+        
+        // Enviar email de bienvenida
+        await sendEmail(socio.email, "¡Bienvenido de vuelta a The Boos Box! 🥊", `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #1a1f2e; text-align: center;">¡Pago Confirmado!</h2>
+            <p>Hola <strong>${socio.nombre}</strong>,</p>
+            <p>Estamos muy felices de confirmarte que tu pago para el <strong>Pack Boos Rescue</strong> ha sido procesado exitosamente.</p>
+            <p style="background: #f8fafc; padding: 15px; border-left: 4px solid #10b981;">
+              <strong>Próximo paso:</strong> Te esperamos en tu sede habitual para tu primera clase. ¡Dale con todo!
+            </p>
+            <p style="text-align: center; color: #64748b; font-size: 0.9em; margin-top: 30px;">
+              The Boos Box — Infraestructura Múltiple Protegida
+            </p>
+          </div>
+        `);
+      }
+    }
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('❌ Error en el procesamiento del Webhook:', error);
+    res.sendStatus(500);
+  }
+});
+
+// MANEJO DE RUTAS SPA (DEBE IR AL FINAL)
+app.get(/^(?!\/api).*$/, (req, res) => {
+    res.sendFile(indexPath);
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor ERP Boos Cloud corriendo en puerto ${PORT}`);
+});

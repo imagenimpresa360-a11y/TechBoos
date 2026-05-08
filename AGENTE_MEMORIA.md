@@ -64,6 +64,18 @@ Tres nuevas tablas para Railway PostgreSQL:
   - [ ] Lesionado
   - [ ] Sin trabajo (NUEVO)
   - [ ] Se cambió de casa (NUEVO)
+- [ ] **Monitor de Deserción (ALTA PRIORIDAD):** Implementar script que detecte 4 días de inasistencia desde BoxMagic.
+- [ ] **Estrategia Onboarding 30/60/90:** Implementar mensajes automatizados de seguimiento para los nuevos de la promo $19k.
+- [ ] **Promo Post-Promo:** Lanzar la oferta "Membresía Fundadora" (3 meses + Kit Supervivencia).
+
+---
+
+## 📈 ESTRATEGIAS DE MARKETING (Benchmarking 2024-2025)
+
+1.  **Crédito de Conversión:** Los $19.000 se abonan al plan mensual si se inscribe antes de terminar las 4 clases.
+2.  **The Boos Legacy Lock:** Congelar el precio de por vida si el "Alumnofuga" reingresa ahora.
+3.  **The Boos Buddy:** Alumno antiguo apadrina a uno nuevo por beneficios mutuos.
+4.  **Seminarios de Especialidad:** Clases magistrales gratuitas solo para inscritos en plan mensual.
 
 ---
 
