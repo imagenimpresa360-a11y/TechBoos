@@ -7,7 +7,7 @@ const xlsx = require('xlsx');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+// Resend se importa de forma lazy dentro de sendEmail() para evitar crash al arrancar
 const cron = require('node-cron');
 const virtualPosService = require('./services/virtualposService');
 
@@ -23,8 +23,7 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Email y Archivos
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Email (inicialización lazy - NO se instancia aquí para evitar crash si falta la variable)
 const upload = multer({ dest: 'uploads/' });
 
 // Middlewares Globales
@@ -42,10 +41,13 @@ const sendEmail = async (to, subject, html) => {
   console.log(`[EMAIL] Intentando enviar correo a: ${to}...`);
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error('[EMAIL] ❌ Variable RESEND_API_KEY no configurada en Railway');
+      console.error('[EMAIL] ❌ Variable RESEND_API_KEY no configurada en Railway. Email no enviado.');
       return false;
     }
-    const { data, error } = await resend.emails.send({
+    // Inicialización lazy: solo se crea cuando se necesita y la key existe
+    const { Resend: ResendClient } = require('resend');
+    const resendInstance = new ResendClient(process.env.RESEND_API_KEY);
+    const { data, error } = await resendInstance.emails.send({
       from: 'The Boos Box <contactoboosbox@gmail.com>',
       to,
       subject,
