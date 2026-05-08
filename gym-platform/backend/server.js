@@ -416,8 +416,9 @@ app.get('/api/socios/inactivos', async (req, res) => {
                     WHEN 'Amarillo' THEN 1
                     WHEN 'Rojo'     THEN 2
                     WHEN 'Critico'  THEN 3
-                    WHEN 'Antiguo'  THEN 4
-                    ELSE 5
+                    WHEN 'Alumnosfuga' THEN 4
+                    WHEN 'Antiguo'  THEN 5
+                    ELSE 6
                 END ASC,
                 s.monto_promedio DESC
             LIMIT $${params.length - 1} OFFSET $${params.length}

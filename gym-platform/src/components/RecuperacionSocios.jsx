@@ -239,6 +239,7 @@ export default function RecuperacionSocios() {
           <option value="Amarillo">Amarillo</option>
           <option value="Rojo">Rojo</option>
           <option value="Critico">Crítico</option>
+          <option value="Alumnosfuga">Alumnos Fuga (2024)</option>
         </select>
       </div>
 
