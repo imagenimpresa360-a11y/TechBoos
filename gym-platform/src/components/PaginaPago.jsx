@@ -6,204 +6,123 @@ const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:30
 export default function PaginaPago() {
   const { id } = useParams();
   const [socio, setSocio] = useState(null);
-  const [metodo, setMetodo] = useState(null); // 'transfer' o 'card'
-  const [enviado, setEnviado] = useState(false);
-  const [comprobante, setComprobante] = useState(null);
-  const [comprobantePreview, setComprobantePreview] = useState(null);
-  const [subiendo, setSubiendo] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/pago/${id}`)
       .then(res => res.json())
       .then(data => setSocio(data))
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setComprobante(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setComprobantePreview(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const informarPago = async (m) => {
-    setSubiendo(true);
+  const handlePayment = async () => {
+    setProcessing(true);
     try {
-      await fetch(`${API_BASE}/api/pago/${id}/comprobante`, {
+      const res = await fetch(`${API_BASE}/api/payments/create-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          metodo: m, 
-          monto: m === 'transfer' ? 19000 : 19800,
-          comprobante: comprobantePreview // Enviamos Base64
+        body: JSON.stringify({
+          socioId: socio.id,
+          amount: 19000,
+          description: 'Pack Boos Rescue - 4 Clases'
         })
       });
-      setEnviado(true);
-    } catch (e) {
-      alert("Error al enviar comprobante. Intenta nuevamente.");
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirigir a VirtualPos
+      }
+    } catch (err) {
+      alert("Error al conectar con la pasarela de pago. Intenta nuevamente.");
+    } finally {
+      setProcessing(false);
     }
-    setSubiendo(false);
   };
 
-  if (!socio) return <div style={{ background: '#000', color: '#fff', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cargando desafío...</div>;
+  if (loading) return (
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div className="spinner" style={{ border: '4px solid rgba(255,255,255,0.1)', borderTop: '4px solid #f59e0b', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }}></div>
+        <p style={{ fontSize: '14px', letterSpacing: '1px' }}>PREPARANDO TU ARENA...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'system-ui, sans-serif', padding: '20px' }}>
-      <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0c', color: 'white', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+      
+      {/* Header / Logo */}
+      <div style={{ textAlign: 'center', margin: '40px 0' }}>
+        <div style={{ fontSize: '28px', fontWeight: '900', color: '#f59e0b', letterSpacing: '3px' }}>THE BOOS BOX</div>
+        <div style={{ fontSize: '11px', color: '#4b5563', marginTop: '5px', fontWeight: 'bold' }}>SISTEMA DE RECUPERACIÓN OFICIAL</div>
+      </div>
+
+      {/* Tarjeta de Oferta */}
+      <div style={{ background: 'linear-gradient(145deg, #111827, #000000)', border: '1px solid #1f2937', borderRadius: '32px', padding: '40px 30px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)' }}>
         
-        {/* Header */}
-        <div style={{ background: '#ff0000', padding: '30px', marginBottom: '30px', borderRadius: '0 0 20px 20px' }}>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '900', letterSpacing: '1px' }}>THE BOOS BOX</h1>
-          <p style={{ margin: '5px 0 0 0', fontSize: '14px', opacity: 0.8 }}>PACK REACTIVACIÓN CROSSFIT</p>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>¡Hola {socio?.nombre.split(' ')[0]}!</h2>
+          <p style={{ color: '#9ca3af', fontSize: '14px' }}>Es momento de retomar el entrenamiento.</p>
+        </div>
+        
+        <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '20px', padding: '25px', marginBottom: '35px' }}>
+          <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Pack Rescue Especial</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: '900' }}>$19.000</div>
+            <div style={{ fontSize: '16px', color: '#4b5563', textDecoration: 'line-through' }}>$39.900</div>
+          </div>
+          
+          <div style={{ marginTop: '20px', display: 'grid', gap: '12px' }}>
+            {['4 Clases de Crossfit/Funcional', 'Acceso a todas nuestras sedes', 'Seguro de accidentes activado'].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: '#d1d5db' }}>
+                <span style={{ color: '#10b981' }}>✓</span> {item}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {!enviado ? (
-          <>
-            <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>¡Hola {socio.nombre.split(' ')[0]}! 🏋️‍♂️</h2>
-            <p style={{ color: '#94a3b8', fontSize: '15px', marginBottom: '30px' }}>Selecciona tu método de pago para activar tus 4 clases.</p>
+        <button 
+          onClick={handlePayment}
+          disabled={processing}
+          style={{ 
+            width: '100%', 
+            background: processing ? '#1f2937' : '#f59e0b', 
+            color: 'black', 
+            border: 'none', 
+            padding: '20px', 
+            borderRadius: '16px', 
+            fontSize: '18px', 
+            fontWeight: '900', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            boxShadow: processing ? 'none' : '0 10px 20px -5px rgba(245, 158, 11, 0.5)',
+            transform: processing ? 'scale(0.98)' : 'scale(1)'
+          }}
+        >
+          {processing ? 'INICIANDO TRANSACCIÓN...' : 'PAGAR Y ACTIVAR AHORA'}
+        </button>
 
-            {/* Opciones */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              
-              {/* Transferencia */}
-              <button 
-                onClick={() => setMetodo('transfer')}
-                style={{ 
-                  background: metodo === 'transfer' ? '#111' : '#000', 
-                  border: `2px solid ${metodo === 'transfer' ? '#ff0000' : '#333'}`,
-                  padding: '20px', borderRadius: '12px', cursor: 'pointer', textAlign: 'left'
-                }}
-              >
-                <div style={{ color: '#ff0000', fontWeight: '800', fontSize: '18px' }}>$19.000</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>Transferencia Bancaria</div>
-                <div style={{ color: '#666', fontSize: '12px' }}>Sin comisiones adicionales</div>
-              </button>
-
-              {metodo === 'transfer' && (
-                <div style={{ background: '#111', padding: '20px', borderRadius: '12px', border: '1px solid #333', textAlign: 'left', animation: 'fadeIn 0.3s' }}>
-                  <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#94a3b8' }}>Datos para transferir:</p>
-                  <strong style={{ display: 'block', fontSize: '15px' }}>THE BOOS BOX SPA</strong>
-                  <span style={{ display: 'block', color: '#ccc' }}>RUT: 77.265.501-0</span>
-                  <span style={{ display: 'block', color: '#ccc' }}>Banco BCI · Cuenta Corriente</span>
-                  <span style={{ display: 'block', color: '#ccc' }}>N° 46669086</span>
-                  <span style={{ display: 'block', color: '#ccc' }}>Contactoboosbox@gmail.com</span>
-                  
-                  <div style={{ marginTop: '20px', border: '1px dashed #444', padding: '15px', borderRadius: '8px', textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#94a3b8' }}>Sube tu comprobante o toma una foto:</p>
-                    <input 
-                      type="file" 
-                      accept="image/*,application/pdf" 
-                      capture="environment" 
-                      onChange={handleFileChange}
-                      style={{ display: 'none' }} 
-                      id="upload-file" 
-                    />
-                    <label htmlFor="upload-file" style={{ background: '#1e293b', color: '#fff', padding: '8px 15px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', display: 'inline-block' }}>
-                      {comprobante ? '📎 Archivo seleccionado' : '📸 Tomar Foto / Subir'}
-                    </label>
-                    {comprobantePreview && (
-                      <div style={{ marginTop: '10px' }}>
-                        <img src={comprobantePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100px', borderRadius: '4px' }} />
-                      </div>
-                    )}
-                  </div>
-
-                  <button 
-                    onClick={() => informarPago('transfer')}
-                    disabled={!comprobante || subiendo}
-                    style={{ 
-                      width: '100%', marginTop: '15px', background: '#ff0000', color: '#fff', 
-                      border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', 
-                      cursor: (comprobante && !subiendo) ? 'pointer' : 'not-allowed',
-                      opacity: (comprobante && !subiendo) ? 1 : 0.5 
-                    }}
-                  >
-                    {subiendo ? 'Enviando...' : 'Informar Pago ✅'}
-                  </button>
-                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '10px', textAlign: 'center' }}>
-                    ⚠️ Validación manual: 2 a 4 horas hábiles.
-                  </p>
-                </div>
-              )}
-
-              {/* Tarjeta */}
-              <button 
-                onClick={() => setMetodo('card')}
-                style={{ 
-                  background: metodo === 'card' ? '#111' : '#000', 
-                  border: `2px solid ${metodo === 'card' ? '#ff0000' : '#333'}`,
-                  padding: '20px', borderRadius: '12px', cursor: 'pointer', textAlign: 'left'
-                }}
-              >
-                <div style={{ color: '#ff0000', fontWeight: '800', fontSize: '18px' }}>$19.800</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>Tarjeta Crédito / Débito</div>
-                <div style={{ color: '#666', fontSize: '12px' }}>Incluye comisión de servicio</div>
-              </button>
-
-              {metodo === 'card' && (
-                <div style={{ background: '#111', padding: '20px', borderRadius: '12px', border: '1px solid #333', animation: 'fadeIn 0.3s' }}>
-                  <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '15px' }}>Serás redirigido a nuestra pasarela segura.</p>
-                  <button 
-                    onClick={() => informarPago('card')}
-                    style={{ width: '100%', background: '#ff0000', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}
-                  >
-                    Pagar con Flow/Webpay 💳
-                  </button>
-                </div>
-              )}
-
-            </div>
-          </>
-        ) : (
-          <div style={{ padding: '30px 20px', animation: 'fadeIn 0.5s', textAlign: 'center' }}>
-            <div style={{ width: '80px', height: '80px', background: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)' }}>
-              <span style={{ fontSize: '40px' }}>✓</span>
-            </div>
-            
-            <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#fff', marginBottom: '10px' }}>¡REGISTRO EXITOSO!</h2>
-            <div style={{ background: '#111', border: '1px solid #333', padding: '15px', borderRadius: '12px', marginBottom: '25px' }}>
-              <span style={{ color: '#94a3b8', fontSize: '11px', textTransform: 'uppercase' }}>Ticket de Operación</span>
-              <div style={{ fontSize: '18px', fontWeight: '700', color: '#ff0000', letterSpacing: '2px' }}>TBB-{id.substring(0, 5).toUpperCase()}</div>
-            </div>
-
-            <div style={{ textAlign: 'left', background: '#0a0a0a', padding: '20px', borderRadius: '12px', border: '1px solid #1a1a1a' }}>
-              <p style={{ color: '#fff', fontSize: '14px', fontWeight: '700', marginBottom: '15px' }}>Próximos Pasos:</p>
-              
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ color: '#10b981', fontSize: '14px' }}>●</div>
-                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
-                  <strong style={{ color: '#fff' }}>Validación:</strong> Nuestro equipo revisará el comprobante (Plazo: 2-4 hrs hábiles).
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ color: '#666', fontSize: '14px' }}>●</div>
-                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
-                  <strong style={{ color: '#fff' }}>Activación:</strong> Recibirás un aviso en tu App BoxMagic una vez habilitado.
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ color: '#666', fontSize: '14px' }}>●</div>
-                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
-                  <strong style={{ color: '#fff' }}>¡A Entrenar!:</strong> Ya podrás reservar tus clases normalmente.
-                </div>
-              </div>
-            </div>
-
-            <p style={{ color: '#444', fontSize: '12px', marginTop: '25px', fontStyle: 'italic' }}>
-              "Gracias por confiar en el proceso. Nos vemos en el Box."
-            </p>
+        <div style={{ textAlign: 'center', marginTop: '25px', opacity: 0.6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '11px' }}>
+             🔒 Pago Seguro 100% cifrado · VirtualPos
           </div>
-        )}
-
-        <div style={{ marginTop: '50px', color: '#444', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          TechBoos ERP · Secure Payment System
         </div>
       </div>
+
+      {/* Footer */}
+      <div style={{ marginTop: 'auto', padding: '40px 20px', textAlign: 'center' }}>
+        <p style={{ fontSize: '10px', color: '#374151', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          The Boos Box SpA — Todos los derechos reservados.<br/>
+          Infraestructura Múltiple Protegida 2026.
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        button:active { transform: scale(0.95) !important; }
+      `}</style>
+
     </div>
   );
 }
