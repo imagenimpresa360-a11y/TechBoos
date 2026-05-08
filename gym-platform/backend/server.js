@@ -306,6 +306,15 @@ app.post('/api/campanas/email', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// GET /api/pago/:id — Obtener datos para la landing de pago (Público)
+app.get('/api/pago/:id', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT nombre, email, sede_habitual FROM socios WHERE id = $1', [req.params.id]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Link no válido' });
+        res.json(result.rows[0]);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ==========================================
 // 6. ENDPOINTS API - INGESTA Y CONCILIACION
 // ==========================================
@@ -343,6 +352,33 @@ app.post('/api/servicios/sesiones', async (req, res) => {
     const result = await pool.query(`INSERT INTO sesiones_servicios (profesional_id, socio_nombre, monto_total, monto_box, monto_profesional) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [profesional_id, socio_nombre, monto_total, 5000, monto_total - 5000]);
     res.json(result.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ==========================================
+// 8. MÓDULO VIRTUALPOS - PAGOS AUTOMATIZADOS
+// ==========================================
+app.post('/api/payments/create-link', async (req, res) => {
+  const { socioId, amount, description, sede } = req.body;
+  try {
+    const socioRes = await pool.query('SELECT * FROM socios WHERE id = $1', [socioId]);
+    if (socioRes.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
+    const socio = socioRes.rows[0];
+    const payment = await virtualPosService.createPayment(amount, description, socio.email, socio.nombre);
+    await pool.query('UPDATE socios SET vpos_uuid = $1, updated_at = NOW() WHERE id = $2', [payment.uuid, socioId]);
+    res.json({ url: payment.web_checkout_url, uuid: payment.uuid });
+  } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+app.post('/api/payments/webhook', async (req, res) => {
+  const { uuid } = req.body;
+  try {
+    const paymentDetail = await virtualPosService.getPaymentStatus(uuid);
+    if (paymentDetail.status === 'paid' || paymentDetail.status === 'approved') {
+      await pool.query("UPDATE socios SET estado = 'Recuperado', updated_at = NOW() WHERE vpos_uuid = $1", [uuid]);
+      // Enviar email de bienvenida (Opcional)
+    }
+    res.sendStatus(200);
+  } catch (error) { res.sendStatus(500); }
 });
 
 // ==========================================
