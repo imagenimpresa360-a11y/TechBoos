@@ -74,22 +74,34 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
 
       <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {socio.telefono && (
-          <a href={`https://wa.me/${socio.telefono.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" 
+          <a href={`https://wa.me/${socio.telefono.replace(/\D/g,'')}?text=${encodeURIComponent(`¡Hola ${primerNombre}! 🥊 Te extrañamos en The Boos Box. Tenemos una promo de REINGRESO exclusiva para ti: Pack 4 Clases por solo $27.000 (Sede Campanario). Puedes activarlo aquí: https://techboos-production-edd2.up.railway.app/pago/${socio.id}`)}`} 
+             target="_blank" rel="noreferrer" 
              onClick={() => onContactar(socio, 'WhatsApp')}
-             style={{ background: '#22c55e', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
-            WhatsApp
+             style={{ background: '#22c55e', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            📲 WhatsApp Promo
           </a>
         )}
         {socio.email && (
-          <a href={`mailto:${socio.email}?subject=Te extrañamos en The Boos Box!&body=Hola ${primerNombre}, hace tiempo que no nos vemos...`} 
-             onClick={() => onContactar(socio, 'Email')}
-             style={{ background: '#3b82f6', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
-            Mail
-          </a>
+          <button 
+             onClick={async () => {
+                if(!window.confirm(`¿Enviar email de promoción a ${socio.email}?`)) return;
+                try {
+                  const res = await fetch(`${API_BASE}/api/campanas/email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ socio_id: socio.id })
+                  });
+                  if(res.ok) alert("📧 Email enviado exitosamente");
+                  else alert("❌ Error al enviar email");
+                } catch(e) { alert("❌ Error de conexión"); }
+             }}
+             style={{ background: '#3b82f6', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            📧 Enviar Email Rescue
+          </button>
         )}
         <button 
           onClick={() => {
-            const link = `${window.location.origin}/pago/${socio.id}`;
+            const link = `https://techboos-production-edd2.up.railway.app/pago/${socio.id}`;
             navigator.clipboard.writeText(link);
             alert("¡Link de Pago copiado!");
           }}

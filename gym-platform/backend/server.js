@@ -585,6 +585,56 @@ app.put('/api/campanas/:id', async (req, res) => {
     }
 });
 
+// POST /api/campanas/email — Enviar email de promoción automático
+app.post('/api/campanas/email', async (req, res) => {
+    const { socio_id } = req.body;
+    try {
+        const socioRes = await pool.query('SELECT * FROM socios WHERE id = $1', [socio_id]);
+        if (socioRes.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
+        
+        const s = socioRes.rows[0];
+        const linkPago = `https://techboos-production-edd2.up.railway.app/pago/${s.id}`;
+        
+        const html = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #000;">
+                <div style="padding: 40px; text-align: center;">
+                    <h1 style="color: #f59e0b; font-size: 28px; margin: 0; letter-spacing: 2px;">THE BOOS BOX</h1>
+                    <p style="color: #64748b; font-size: 12px; text-transform: uppercase;">Módulo de Recuperación · Sede Campanario</p>
+                </div>
+                <div style="padding: 40px; background: #fff; color: #333;">
+                    <h2 style="margin-top: 0;">¡Hola ${s.nombre.split(' ')[0]}! Te extrañamos en el Box.</h2>
+                    <p>Hace tiempo que no te vemos en la arena y queremos que vuelvas a entrenar con nosotros.</p>
+                    <div style="background: #f8fafc; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #e2e8f0;">
+                        <h3 style="margin-top: 0; color: #f59e0b;">PROMO EXCLUSIVA: PACK RESCUE</h3>
+                        <p style="font-size: 24px; font-weight: bold; margin: 10px 0;">$27.000 <span style="font-size: 14px; text-decoration: line-through; color: #94a3b8;">$39.900</span></p>
+                        <ul style="padding-left: 20px; font-size: 14px;">
+                            <li>4 Clases de Crossfit / Funcional</li>
+                            <li>Válido para Sede Campanario</li>
+                            <li>Activación inmediata post-pago</li>
+                        </ul>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="${linkPago}" style="background: #000; color: #fff; padding: 18px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RECLAMAR MI PACK AHORA</a>
+                    </div>
+                </div>
+                <div style="padding: 20px; text-align: center; color: #475569; font-size: 11px;">
+                    The Boos Box SpA — Infraestructura Múltiple Protegida
+                </div>
+            </div>
+        `;
+
+        await sendEmail(s.email, "🥊 ¡Regresa a The Boos Box! Tenemos un regalo para ti", html);
+        
+        // Registrar la gestión en el historial
+        await pool.query(`
+            INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida)
+            VALUES ($1, 'Email Auto', 'Contactado', 'Pack Rescue $27k')
+        `, [socio_id]);
+
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // PUT /api/socios/:id/notas â€” Actualizar notas del socio
 app.put('/api/socios/:id/notas', async (req, res) => {
     const { id } = req.params;
@@ -734,6 +784,46 @@ app.post('/api/payments/webhook', async (req, res) => {
     console.error('âŒ Error en el procesamiento del Webhook:', error);
     res.sendStatus(500);
   }
+});
+
+// ==========================================
+// MÓDULO SERVICIOS COMPLEMENTARIOS (KINE/NUTRI)
+// ==========================================
+
+// GET /api/servicios/profesionales
+app.get('/api/servicios/profesionales', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM profesionales WHERE activo = true');
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/servicios/sesiones
+app.get('/api/servicios/sesiones', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT s.*, p.nombre as profesional_nombre 
+      FROM sesiones_servicios s
+      JOIN profesionales p ON s.profesional_id = p.id
+      ORDER BY s.fecha_sesion DESC
+    `);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/servicios/sesiones
+app.post('/api/servicios/sesiones', async (req, res) => {
+  const { profesional_id, socio_nombre, monto_total } = req.body;
+  const monto_box = 5000;
+  const monto_profesional = monto_total - monto_box;
+
+  try {
+    const result = await pool.query(`
+      INSERT INTO sesiones_servicios (profesional_id, socio_nombre, monto_total, monto_box, monto_profesional)
+      VALUES ($1, $2, $3, $4, $5) RETURNING *
+    `, [profesional_id, socio_nombre, monto_total, monto_box, monto_profesional]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // MANEJO DE RUTAS SPA (DEBE IR AL FINAL)

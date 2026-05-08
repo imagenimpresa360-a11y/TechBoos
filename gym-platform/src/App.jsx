@@ -4,6 +4,7 @@ import { Building2, ShieldCheck, Users, Activity, CheckCircle2, Trash2, Plus, La
 import RecuperacionSocios from './components/RecuperacionSocios';
 import PaginaPago from './components/PaginaPago';
 import ReporteROI from './components/ReporteROI';
+import GestionServicios from './components/GestionServicios';
 import './index.css';
 
 // Configuración de API
@@ -193,6 +194,7 @@ export default function App() {
           <button onClick={() => setView('boxmagic')} className={view === 'boxmagic' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Filtro BoxMagic</button>
           <div className="nav-separator">CRECIMIENTO</div>
           <button onClick={() => setView('recuperacion')} className={view === 'recuperacion' ? 'nav-item active' : 'nav-item'}><Users size={18}/> Recuperación Socios</button>
+          <button onClick={() => setView('servicios')} className={view === 'servicios' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Kine / Nutri (Agente 09)</button>
           <div className="nav-separator">AUDITORÍA FISCAL</div>
           <button onClick={() => setView('conc_diaria')} className={view === 'conc_diaria' ? 'nav-item active' : 'nav-item'}><ShieldCheck size={18}/> Conciliación Diaria</button>
           <button onClick={() => setView('ingesta')} className={view === 'ingesta' ? 'nav-item active' : 'nav-item'}><Database size={18}/> Ingesta de Datos</button>
@@ -226,6 +228,8 @@ export default function App() {
           )}
 
           {view === 'recuperacion' && <RecuperacionSocios />}
+          
+          {view === 'servicios' && <GestionServicios />}
           
           {view === 'reportes' && <ReporteROI />}
           
