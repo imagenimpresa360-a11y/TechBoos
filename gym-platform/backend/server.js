@@ -12,7 +12,9 @@ const virtualPosService = require('./services/virtualposService');
 
 // Configuracion de Email Transaccional
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
@@ -20,16 +22,22 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async (to, subject, html) => {
+  console.log(`[EMAIL] Intentando enviar correo a: ${to}...`);
   try {
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"The Boos Box" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html
     });
-    console.log(`Email enviado exitosamente a: ${to}`);
+    console.log(`[EMAIL] ✅ Enviado correctamente: ${info.messageId}`);
+    return true;
   } catch (error) {
-    console.error(`âŒ Error enviando email a ${to}:`, error);
+    console.error(`[EMAIL] ❌ Error crítico enviando a ${to}:`, error.message);
+    if (error.message.includes('Invalid login')) {
+        console.error('[EMAIL] ERROR DE AUTENTICACIÓN: Revisa que SMTP_PASS sea una "Contraseña de Aplicación" de Gmail.');
+    }
+    return false;
   }
 };
 
