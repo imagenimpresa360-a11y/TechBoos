@@ -173,14 +173,24 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
             </div>
             <div>
               <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Historial de Gestión</div>
-              <div style={{ maxHeight: '100px', overflowY: 'auto', background: '#0f172a', borderRadius: 6, padding: '8px', fontSize: '11px' }}>
+              <div style={{ maxHeight: '120px', overflowY: 'auto', background: '#0f172a', borderRadius: 8, padding: '12px', border: '1px solid #1e293b' }}>
                 {(socio.historial || []).length > 0 ? socio.historial.map((h, i) => (
-                  <div key={i} style={{ marginBottom: '6px', borderBottom: '1px solid #1e293b', paddingBottom: '4px' }}>
-                    <span style={{ color: '#94a3b8' }}>{new Date(h.fecha_contacto).toLocaleDateString()}</span> · 
-                    <strong style={{ color: '#f59e0b' }}> {h.tipo_contacto}</strong>
-                    <div style={{ color: '#64748b' }}>{h.resultado || h.promo_ofrecida}</div>
+                  <div key={i} style={{ marginBottom: '10px', borderBottom: i === socio.historial.length - 1 ? 'none' : '1px solid #1e293b', paddingBottom: '8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '11px' }}>
+                        {h.tipo_contacto?.includes('Email') ? '📧' : '📱'} {h.tipo_contacto}
+                      </span>
+                      <span style={{ color: '#475569', fontSize: '10px' }}>{new Date(h.fecha_contacto).toLocaleDateString('es-CL')}</span>
+                    </div>
+                    <div style={{ color: '#94a3b8', fontSize: '11px', fontStyle: 'italic' }}>
+                      {h.resultado || h.promo_ofrecida || 'Sin detalle'}
+                    </div>
                   </div>
-                )) : <div style={{ color: '#475569' }}>Sin gestiones previas.</div>}
+                )) : (
+                  <div style={{ color: '#334155', fontSize: '11px', textAlign: 'center', marginTop: '20px' }}>
+                    Sin gestiones previas.
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: '10px' }}>
                 {['Interesado', 'Reingresó', 'Declinó'].map(res => (
