@@ -91,9 +91,13 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ socio_id: socio.id })
                   });
-                  if(res.ok) alert("📧 Email enviado exitosamente");
-                  else alert("❌ Error al enviar email");
-                } catch(e) { alert("❌ Error de conexión"); }
+                  const data = await res.json();
+                  if(res.ok) {
+                    alert(`✅ ${data.mensaje || 'Email enviado exitosamente a ' + socio.email}`);
+                  } else {
+                    alert(`❌ Error: ${data.error || 'No se pudo enviar el correo'}`);
+                  }
+                } catch(e) { alert("❌ Error de conexión con el servidor"); }
              }}
              style={{ background: '#3b82f6', color: '#fff', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
             📧 Enviar Email Rescue

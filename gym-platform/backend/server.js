@@ -340,12 +340,15 @@ app.get('/api/stats/:mes', async (req, res) => {
 app.get('/api/socios/inactivos', async (req, res) => {
     const { sede, segmento, limit = 200, offset = 0 } = req.query;
     try {
-        // Primero actualizamos dias_inactivo en tiempo real para mayor precisiÃ³n
+        // Actualizar dias_inactivo y recalcular segmentos dinámicamente
+        // REGLA: 'Alumnosfuga' = último pago en año 2024 (registros históricos importados)
+        // Los demás segmentos se calculan por días de inactividad desde hoy
         await pool.query(`
             UPDATE socios SET
                 dias_inactivo = GREATEST(0, (CURRENT_DATE - fecha_ultimo_pago::date)),
                 segmento_riesgo = CASE
-                    WHEN segmento_riesgo = 'Alumnosfuga' THEN 'Alumnosfuga'
+                    -- Alumnosfuga: SOLO alumnos cuyo último pago fue en el año 2024
+                    WHEN EXTRACT(YEAR FROM fecha_ultimo_pago::date) = 2024 THEN 'Alumnosfuga'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 36  THEN 'Verde'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 60  THEN 'Amarillo'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) < 180 THEN 'Rojo'
@@ -360,19 +363,21 @@ app.get('/api/socios/inactivos', async (req, res) => {
             WHERE fecha_ultimo_pago IS NOT NULL
         `);
 
-        // Solo filtrar por estado=Inactivo (sin el filtro fijo de dias_inactivo)
+        // Filtrar socios inactivos
         let conditions = ["s.estado = 'Inactivo'"];
         const params = [];
         
         if (sede && sede.trim() !== '') {
             params.push(sede.trim());
-            // Incluir 'Desconocida' junto a la sede pedida para no perder
-            // alumnos cuya sede no pudo determinarse (datos de cartera global)
-            conditions.push(`(LOWER(s.sede_habitual) = LOWER($${params.length}) OR s.sede_habitual = 'Desconocida')`);
+            conditions.push(`LOWER(s.sede_habitual) = LOWER($${params.length})`);
         }
         if (segmento && segmento.trim() !== '') {
             params.push(segmento.trim());
             conditions.push(`s.segmento_riesgo = $${params.length}`);
+            // Si es Alumnosfuga, filtrar ESTRICTAMENTE por año 2024
+            if (segmento.trim() === 'Alumnosfuga') {
+                conditions.push(`EXTRACT(YEAR FROM s.fecha_ultimo_pago::date) = 2024`);
+            }
         }
         
         params.push(parseInt(limit));
@@ -613,15 +618,27 @@ app.post('/api/campanas/email', async (req, res) => {
             </div>
         `;
 
-        await sendEmail(s.email, "🥊 ¡Regresa a The Boos Box! Tenemos un regalo para ti", html);
+        // Verificar que SMTP esté configurado antes de intentar
+        if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+            console.error('[EMAIL] ❌ Variables SMTP_USER y/o SMTP_PASS no configuradas en Railway');
+            return res.status(500).json({ error: 'Servidor de correo no configurado. Contacta al administrador.' });
+        }
+
+        const enviado = await sendEmail(s.email, "🥊 ¡Regresa a The Boos Box! Tenemos un regalo para ti", html);
         
-        // Registrar la gestión en el historial
+        if (!enviado) {
+            return res.status(500).json({ 
+                error: `No se pudo enviar el correo a ${s.email}. Revisa los logs del servidor o verifica la Contraseña de Aplicación de Gmail en las variables de entorno de Railway.` 
+            });
+        }
+
+        // Registrar la gestión en el historial SOLO si el email fue exitoso
         await pool.query(`
             INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida)
             VALUES ($1, 'Email Auto', 'Contactado', 'Pack Rescue $27k')
         `, [socio_id]);
 
-        res.json({ success: true });
+        res.json({ success: true, mensaje: `Email enviado correctamente a ${s.email}` });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
