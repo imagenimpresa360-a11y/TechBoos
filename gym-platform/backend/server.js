@@ -9,10 +9,80 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { Resend } = require('resend');
 const virtualPosService = require('./services/virtualposService');
+const cron = require('node-cron');
 
 // Motor de Email via HTTP (Railway bloquea SMTP - usamos Resend API)
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// DESPACHO NOCTURNO: Tarea automática a las 22:00 (Chile) / 02:00 (UTC)
+cron.schedule('0 2 * * *', async () => {
+    console.log('[CRON] 🌙 Iniciando despacho nocturno personalizado...');
+    try {
+        const pendientes = await pool.query(`
+            SELECT c.*, s.nombre, s.email, s.id as socio_uuid
+            FROM cola_emails c
+            JOIN socios s ON c.socio_id = s.id
+            WHERE c.estado = 'Pendiente'
+        `);
+
+        console.log(`[CRON] 📦 Procesando ${pendientes.rows.length} correos en cola...`);
+
+        for (const job of pendientes.rows) {
+            const primerNombre = job.nombre.split(' ')[0];
+            const linkPago = `https://techboos-production-edd2.up.railway.app/pago/${job.socio_uuid}`;
+            
+            const html = `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #000;">
+                    <div style="padding: 40px; text-align: center;">
+                        <h1 style="color: #f59e0b; font-size: 28px; margin: 0; letter-spacing: 2px;">THE BOOS BOX</h1>
+                        <p style="color: #64748b; font-size: 12px; text-transform: uppercase;">Módulo de Recuperación · Sede Campanario</p>
+                    </div>
+                    <div style="padding: 40px; background: #fff; color: #333;">
+                        <h2 style="margin-top: 0;">¡Hola ${primerNombre}! 👋</h2>
+                        <p>Te escribo porque hace tiempo que no nos vemos en el Box y queremos que vuelvas a entrenar.</p>
+                        <p>Hemos preparado una **Promo de Reingreso** exclusiva para ti en Sede Campanario:</p>
+                        <div style="background: #f8fafc; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #e2e8f0; text-align: center;">
+                            <h3 style="margin-top: 0; color: #f59e0b;">PACK RESCUE BOOS</h3>
+                            <p style="font-size: 32px; font-weight: bold; margin: 10px 0;">$27.000</p>
+                            <p style="font-size: 14px; color: #64748b;">(4 Clases de Crossfit / Funcional)</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <a href="${linkPago}" style="background: #000; color: #fff; padding: 18px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">ACTIVAR MI PACK AHORA</a>
+                        </div>
+                        <p style="margin-top: 30px; font-size: 13px; color: #64748b; font-style: italic;">
+                            "El dolor de hoy es la fuerza del mañana. ¡Te esperamos!"
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            const enviado = await sendEmail(job.email, `🥊 ¡Te extrañamos, ${primerNombre}! Regresa a The Boos Box`, html);
+            
+            if (enviado) {
+                await pool.query("UPDATE cola_emails SET estado = 'Enviado', fecha_envio_programado = NOW() WHERE id = $1", [job.id]);
+                await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Nocturno', 'Contactado', 'Pack Rescue $27k')", [job.socio_uuid]);
+            } else {
+                await pool.query("UPDATE cola_emails SET estado = 'Error', error_log = 'Fallo en API Resend' WHERE id = $1", [job.id]);
+            }
+        }
+        console.log('[CRON] ✅ Despacho nocturno finalizado.');
+    } catch (err) {
+        console.error('[CRON] ❌ Error en despacho nocturno:', err.message);
+    }
+}, {
+    timezone: "America/Santiago"
+});
+
+// POST /api/campanas/encolar — Añadir a la cola de despacho nocturno
+app.post('/api/campanas/encolar', async (req, res) => {
+    const { socio_id } = req.body;
+    try {
+        await pool.query("INSERT INTO cola_emails (socio_id, estado) VALUES ($1, 'Pendiente')", [socio_id]);
+        res.json({ success: true, mensaje: 'Añadido a la cola de despacho nocturno' });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/campanas/email — Enviar email de promoción automático (Instantáneo)
 const sendEmail = async (to, subject, html) => {
   console.log(`[EMAIL] Intentando enviar correo a: ${to}...`);
   try {
