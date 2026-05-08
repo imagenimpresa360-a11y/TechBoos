@@ -17,6 +17,7 @@ graph TD
     
     AG01 --> ERP[ERP Cloud - Railway/Postgres]
     AG01 --> INFRA[Infraestructura & Seguridad]
+    AG01 --> CRON[Motor Cron - Despacho Nocturno 22:00]
     
     AG06 --> INGESTA[Ingesta BoxMagic / Lioren / Excel]
     AG06 --> LIMPIEZA[Normalización & De-duplicación]
@@ -25,7 +26,7 @@ graph TD
     AG07 --> MAILS[Plantillas Transaccionales HTML]
     
     AG08 --> RESCUE[Módulo Recuperación Socios]
-    AG08 --> WHATSAPP[Integración WhatsApp Business API]
+    AG08 --> RESEND[Integración Resend API - HTTP]
     AG08 --> LANDING[Landing Page de Pago & Tickets]
     
     ERP --> FRONT[Frontend: React / Vite]
@@ -38,7 +39,8 @@ graph TD
 
 ### 🛡️ Agente 01: CTO / Sistemas
 *   **Responsabilidad:** Estabilidad del servidor, despliegues en Railway y ruteo de red.
-*   **Sub-Agentes:** Monitor de Status, Gestor de SSL.
+*   **Capacidad Nueva:** **Motor Cron Automático** configurado para tareas programadas (Chile TZ).
+*   **Sub-Agentes:** Monitor de Status, Gestor de SSL, Guardián de Despacho.
 
 ### 📊 Agente 06: Ingeniero de Datos
 *   **Responsabilidad:** Procesamiento de carteras de socios e inteligencia financiera.
@@ -50,9 +52,11 @@ graph TD
 
 ### 🥊 Agente 08: Retención (BOOS RESCUE)
 *   **Responsabilidad:** El "brazo armado" de ventas. Recuperar socios inactivos.
+*   **Capacidad Nueva:** **Despacho Automático vía Resend** y **Historial de Gestión Dinámico**.
 *   **Sub-Agentes:** 
     *   **Gestor de WhatsApp:** Envío de promos y contacto directo.
-    *   **Monitor de Deserción (NUEVO):** Alertas automáticas de inasistencia (4 días).
+    *   **Motor de Email (NUEVO):** Cola de despacho inteligente para campañas nocturnas.
+    *   **Monitor de Deserción:** Alertas automáticas de inasistencia (4 días).
     *   **Validador de Comprobantes:** Generador de Tickets (TBB-XXXX).
     *   **Estratega de Onboarding:** Plan 30/60/90 para nuevos reingresos.
 
