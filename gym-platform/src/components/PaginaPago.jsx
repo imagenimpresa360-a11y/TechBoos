@@ -8,25 +8,29 @@ export default function PaginaPago() {
   const [socio, setSocio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/pago/${id}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Link de pago no válido o expirado');
+        return res.json();
+      })
       .then(data => setSocio(data))
-      .catch(err => console.error(err))
+      .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);
 
   const handlePayment = async () => {
-    if (!socio || !socio.id) return;
+    // BUG FIX: usar 'id' directo de la URL, no socio.id (que no existe en la respuesta del API)
+    if (!id) return;
     setProcessing(true);
     try {
-      console.log("Iniciando pago para socio:", socio.id);
       const res = await fetch(`${API_BASE}/api/payments/create-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          socioId: socio.id,
+          socioId: id,
           amount: 27000,
           description: 'Pack Boos Rescue Campanario - 4 Clases',
           sede: 'Campanario'
@@ -34,13 +38,13 @@ export default function PaginaPago() {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url; 
+        window.location.href = data.url;
       } else {
-        throw new Error(data.error || "No se recibió URL de pago");
+        throw new Error(data.error || 'No se recibió URL de pago del servidor');
       }
     } catch (err) {
-      console.error("Error en handlePayment:", err);
-      alert("Error al conectar con la pasarela: " + err.message);
+      console.error('Error en handlePayment:', err);
+      alert('Error al conectar con la pasarela: ' + err.message);
     } finally {
       setProcessing(false);
     }
@@ -48,9 +52,15 @@ export default function PaginaPago() {
 
   if (loading) return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0c', color: 'white' }}>
-      <div style={{ textAlign: 'center' }}>
-        <p style={{ fontSize: '14px', letterSpacing: '2px', animation: 'pulse 1.5s infinite' }}>CARGANDO EXPERIENCIA...</p>
-      </div>
+      <p style={{ fontSize: '14px', letterSpacing: '2px' }}>CARGANDO EXPERIENCIA...</p>
+    </div>
+  );
+
+  if (error || !socio) return (
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0c', color: 'white', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ fontSize: '40px' }}>🥊</div>
+      <h2 style={{ color: '#ef4444', margin: 0 }}>Link no válido</h2>
+      <p style={{ color: '#64748b', textAlign: 'center' }}>{error || 'Este link de pago no existe o ya fue procesado.'}</p>
     </div>
   );
 
