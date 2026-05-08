@@ -369,15 +369,14 @@ app.get('/api/socios/inactivos', async (req, res) => {
         
         if (sede && sede.trim() !== '') {
             params.push(sede.trim());
-            conditions.push(`LOWER(s.sede_habitual) = LOWER($${params.length})`);
+            // Incluir también registros sin sede asignada (importados del 2024)
+            // ya que muchos alumnos históricos no tienen sede_habitual definida
+            conditions.push(`(LOWER(s.sede_habitual) = LOWER($${params.length}) OR s.sede_habitual IS NULL OR s.sede_habitual = 'Desconocida')`);
         }
         if (segmento && segmento.trim() !== '') {
             params.push(segmento.trim());
+            // Usar solo el segmento_riesgo pre-calculado en el UPDATE anterior
             conditions.push(`s.segmento_riesgo = $${params.length}`);
-            // Si es Alumnosfuga, filtrar ESTRICTAMENTE por año 2024
-            if (segmento.trim() === 'Alumnosfuga') {
-                conditions.push(`EXTRACT(YEAR FROM s.fecha_ultimo_pago::date) = 2024`);
-            }
         }
         
         params.push(parseInt(limit));
