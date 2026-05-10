@@ -77,12 +77,12 @@ export default function PaginaPago() {
       <div style={{ background: 'linear-gradient(145deg, #111827, #000000)', border: '1px solid #1f2937', borderRadius: '32px', padding: '40px 30px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>¡Hola {socio?.nombre.split(' ')[0]}!</h2>
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>Regresa a entrenar en Sede Campanario.</p>
+          <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>¡Hola {socio?.nombre.split(' ')[0]}! 👋</h2>
+          <p style={{ color: '#9ca3af', fontSize: '14px' }}>Es el momento ideal para retomar tu entrenamiento.</p>
         </div>
         
         <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '20px', padding: '25px', marginBottom: '35px' }}>
-          <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Pack Boos Rescue Exclusive</div>
+          <div style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>PACK REINCORPORACIÓN</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
             <div style={{ fontSize: '42px', fontWeight: '900' }}>$19.900</div>
             <div style={{ fontSize: '16px', color: '#4b5563', textDecoration: 'line-through' }}>$27.000</div>

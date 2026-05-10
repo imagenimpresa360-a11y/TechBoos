@@ -91,12 +91,15 @@ cron.schedule('0 2 * * *', async () => {
                     </div>
                     <div style="padding: 40px; background: #fff; color: #333;">
                         <h2>¡Hola ${primerNombre}! 👋</h2>
-                        <p>Te extrañamos en el Box. Regresa a entrenar con nosotros.</p>
+                        <p>Hace tiempo que no te vemos en el Box y la comunidad extraña tu energía. Sabemos que quieres retomar tus entrenamientos y que solo estás esperando el momento ideal para hacerlo. ¡Ese momento es ahora!</p>
+                        <p>Vuelve con nuestra promoción exclusiva y reincorpórate con todo a <strong>The Boos Box</strong>:</p>
                         <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e2e8f0; text-align: center;">
-                            <h3 style="color: #f59e0b;">PACK RESCUE $19.900</h3>
+                            <h3 style="color: #f59e0b; text-transform: uppercase; letter-spacing: 1px;">PACK REINCORPORACIÓN</h3>
+                            <p style="font-size: 32px; font-weight: 900; margin: 10px 0;">$19.900</p>
+                            <p style="font-size: 13px; color: #64748b;">(4 Clases de Crossfit / Funcional)</p>
                         </div>
                         <div style="text-align: center;">
-                            <a href="${linkPago}" style="background: #000; color: #fff; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RECLAMAR AHORA</a>
+                            <a href="${linkPago}" style="background: #000; color: #fff; padding: 18px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RECLAMAR MI LUGAR AHORA</a>
                         </div>
                     </div>
                 </div>
@@ -297,7 +300,23 @@ app.post('/api/campanas/email', async (req, res) => {
         if (socioRes.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
         const s = socioRes.rows[0];
         const linkPago = `https://techboos-production-edd2.up.railway.app/pago/${s.id}`;
-        const html = `<div style="font-family:sans-serif;background:#000;color:#fff;padding:40px;text-align:center;border-radius:12px;"><h1>THE BOOS BOX</h1><p>Hola ${s.nombre.split(' ')[0]}, regresa al Box con nuestra promo Rescue.</p><a href="${linkPago}" style="background:#f59e0b;color:#000;padding:15px 25px;text-decoration:none;border-radius:8px;font-weight:bold;">RECLAMAR PROMO $19.900</a></div>`;
+        const html = `
+            <div style="font-family: sans-serif; background: #000; color: #fff; padding: 40px; text-align: center; border-radius: 12px;">
+                <h1 style="color: #f59e0b; letter-spacing: 2px;">THE BOOS BOX</h1>
+                <div style="background: #fff; color: #333; padding: 30px; border-radius: 8px; margin-top: 20px; text-align: left;">
+                    <h2 style="margin-top: 0;">¡Hola ${s.nombre.split(' ')[0]}! 👋</h2>
+                    <p>Hace tiempo que no te vemos en el Box y la comunidad extraña tu energía. Sabemos que quieres retomar tus entrenamientos y que solo estás esperando el momento ideal para hacerlo.</p>
+                    <p>Vuelve hoy mismo con nuestra promoción de reincorporación:</p>
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e2e8f0; text-align: center;">
+                        <h3 style="color: #f59e0b; text-transform: uppercase;">PACK REINCORPORACIÓN</h3>
+                        <p style="font-size: 32px; font-weight: 900; margin: 10px 0;">$19.900</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="${linkPago}" style="background: #000; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RECLAMAR PROMO AHORA</a>
+                    </div>
+                </div>
+            </div>
+        `;
         const enviado = await sendEmail(s.email, "🥊 ¡Regresa a The Boos Box!", html);
         if (enviado) {
             await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Auto', 'Contactado', 'Pack Rescue $19.9k')", [socio_id]);
