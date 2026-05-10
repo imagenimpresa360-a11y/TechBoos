@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 
 const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '';
 const BOXMAGIC_LINK = 'https://boxmagic.cl/market/plan/Vd0jPNrLrx';
-const BANCO = { banco: 'Banco Estado', tipo: 'Cuenta Corriente', numero: '123-456789-01', rut: '76.XXX.XXX-X', nombre: 'The Boos Box SpA' };
+const BANCO = { banco: 'Banco BCI', tipo: 'Cuenta Corriente', numero: '46669086', rut: '77.265.501-0', nombre: 'THE BOOS BOX SPA' };
 
 export default function PaginaPago() {
   const { id } = useParams();
