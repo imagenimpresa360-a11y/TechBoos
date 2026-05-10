@@ -334,6 +334,64 @@ app.get('/api/pago/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// POST /api/pagos/comprobante — Recibir comprobante de transferencia y notificar al admin
+app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res) => {
+    const { socioId, nombre, email } = req.body;
+    try {
+        // 1. Registrar la gestión en la BD
+        await pool.query(
+            "INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Transferencia', 'Pendiente Validación', 'Pack Reincorporación $19.900')",
+            [socioId]
+        );
+
+        // 2. Notificar al administrador por email con el comprobante adjunto
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com', port: 465, secure: true,
+            auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+        });
+
+        const mailOptions = {
+            from: `"The Boos Box ERP" <${process.env.SMTP_USER}>`,
+            to: process.env.SMTP_USER, // Se notifica a contactoboosbox@gmail.com
+            subject: `🏦 COMPROBANTE RECIBIDO — ${nombre} — Pack Reincorporación $19.900`,
+            html: `
+                <div style="font-family:sans-serif;max-width:500px;margin:0 auto;">
+                    <h2 style="color:#f59e0b;">🥊 Nuevo Comprobante de Transferencia</h2>
+                    <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Alumno</td><td style="padding:8px;">${nombre}</td></tr>
+                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Email</td><td style="padding:8px;">${email}</td></tr>
+                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Pack</td><td style="padding:8px;">Reincorporación $19.900</td></tr>
+                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Estado</td><td style="padding:8px;color:#f59e0b;font-weight:bold;">⏳ Pendiente de activación en BoxMagic</td></tr>
+                    </table>
+                    <p style="background:#fef3c7;padding:15px;border-radius:8px;border-left:4px solid #f59e0b;">
+                        👉 <strong>Acción requerida:</strong> Activa el plan del alumno en BoxMagic y luego márcalo como "Reingresó" en el ERP.
+                    </p>
+                    <p style="color:#64748b;font-size:12px;">Comprobante adjunto en este correo.</p>
+                </div>
+            `,
+            attachments: req.file ? [{
+                filename: req.file.originalname || 'comprobante.jpg',
+                path: req.file.path
+            }] : []
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        // 3. Limpiar archivo temporal
+        if (req.file) {
+            const fs = require('fs');
+            setTimeout(() => { try { fs.unlinkSync(req.file.path); } catch(e) {} }, 5000);
+        }
+
+        res.json({ success: true, mensaje: 'Comprobante recibido. Validaremos tu pago en breve.' });
+    } catch (err) {
+        console.error('❌ Error en comprobante:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 // ==========================================
 // 6. ENDPOINTS API - INGESTA Y CONCILIACION
 // ==========================================
