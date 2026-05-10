@@ -336,15 +336,16 @@ app.get('/api/pago/:id', async (req, res) => {
 
 // POST /api/pagos/comprobante — Recibir comprobante de transferencia y notificar al admin
 app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res) => {
-    const { socioId, nombre, email } = req.body;
+    const { socioId, nombre, email, emailConfirm, telefono } = req.body;
+    const telefonoLimpio = (telefono || '').replace(/\s+/g, '').replace('+', '');
     try {
-        // 1. Registrar la gestión en la BD
+        // 1. Registrar la gestión en la BD con teléfono y email confirmado
         await pool.query(
             "INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Transferencia', 'Pendiente Validación', 'Pack Reincorporación $19.900')",
             [socioId]
         );
 
-        // 2. Notificar al administrador por email con el comprobante adjunto
+        // 2. Notificar al administrador por email
         const nodemailer = require('nodemailer');
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com', port: 465, secure: true,
@@ -353,21 +354,44 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
 
         const mailOptions = {
             from: `"The Boos Box ERP" <${process.env.SMTP_USER}>`,
-            to: process.env.SMTP_USER, // Se notifica a contactoboosbox@gmail.com
-            subject: `🏦 COMPROBANTE RECIBIDO — ${nombre} — Pack Reincorporación $19.900`,
+            to: process.env.SMTP_USER,
+            subject: `🏦 NUEVO PAGO — ${nombre} — $19.900 Pack Reincorporación`,
             html: `
-                <div style="font-family:sans-serif;max-width:500px;margin:0 auto;">
-                    <h2 style="color:#f59e0b;">🥊 Nuevo Comprobante de Transferencia</h2>
-                    <table style="width:100%;border-collapse:collapse;margin:20px 0;">
-                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Alumno</td><td style="padding:8px;">${nombre}</td></tr>
-                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Email</td><td style="padding:8px;">${email}</td></tr>
-                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Pack</td><td style="padding:8px;">Reincorporación $19.900</td></tr>
-                        <tr><td style="padding:8px;background:#f8fafc;font-weight:bold;">Estado</td><td style="padding:8px;color:#f59e0b;font-weight:bold;">⏳ Pendiente de activación en BoxMagic</td></tr>
-                    </table>
-                    <p style="background:#fef3c7;padding:15px;border-radius:8px;border-left:4px solid #f59e0b;">
-                        👉 <strong>Acción requerida:</strong> Activa el plan del alumno en BoxMagic y luego márcalo como "Reingresó" en el ERP.
-                    </p>
-                    <p style="color:#64748b;font-size:12px;">Comprobante adjunto en este correo.</p>
+                <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;overflow:hidden;">
+                    <div style="background:#000;padding:24px;text-align:center;">
+                        <h1 style="color:#f59e0b;margin:0;font-size:22px;letter-spacing:2px;">THE BOOS BOX</h1>
+                        <p style="color:#444;margin:6px 0 0;font-size:12px;">COMPROBANTE DE TRANSFERENCIA RECIBIDO</p>
+                    </div>
+                    <div style="padding:24px;">
+                        <h2 style="color:#10b981;margin:0 0 20px;">✅ Nuevo Pago por Transferencia</h2>
+
+                        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+                            <tr style="background:#f8fafc;"><td style="padding:10px 12px;font-weight:bold;font-size:13px;width:40%;">Alumno</td><td style="padding:10px 12px;font-size:13px;">${nombre}</td></tr>
+                            <tr><td style="padding:10px 12px;font-weight:bold;font-size:13px;background:#f8fafc;">Email (BD)</td><td style="padding:10px 12px;font-size:13px;">${email}</td></tr>
+                            <tr style="background:#f8fafc;"><td style="padding:10px 12px;font-weight:bold;font-size:13px;">Email Confirmado</td><td style="padding:10px 12px;font-size:13px;"><strong>${emailConfirm || 'No ingresado'}</strong></td></tr>
+                            <tr><td style="padding:10px 12px;font-weight:bold;font-size:13px;background:#f8fafc;">Teléfono WA</td><td style="padding:10px 12px;font-size:13px;"><strong style="color:#10b981;">${telefono || 'No ingresado'}</strong></td></tr>
+                            <tr style="background:#f8fafc;"><td style="padding:10px 12px;font-weight:bold;font-size:13px;">Pack</td><td style="padding:10px 12px;font-size:13px;">Reincorporación $19.900</td></tr>
+                            <tr><td style="padding:10px 12px;font-weight:bold;font-size:13px;background:#f8fafc;">Estado</td><td style="padding:10px 12px;font-size:13px;color:#f59e0b;font-weight:bold;">⏳ Pendiente activación BoxMagic</td></tr>
+                        </table>
+
+                        <div style="background:#fef3c7;padding:16px;border-radius:10px;border-left:4px solid #f59e0b;margin-bottom:20px;">
+                            <p style="margin:0;font-size:14px;">👉 <strong>Acción requerida:</strong><br/>
+                            1. Busca a <strong>${emailConfirm || email}</strong> en BoxMagic.<br/>
+                            2. Activa el <strong>Plan Reincorporación $19.900</strong>.<br/>
+                            3. Avisa al alumno por WhatsApp que su plan está activo.<br/>
+                            4. Márcalo como <strong>"Reingresó"</strong> en el ERP.</p>
+                        </div>
+
+                        ${telefonoLimpio ? `
+                        <div style="text-align:center;margin-bottom:20px;">
+                            <a href="https://wa.me/${telefonoLimpio}?text=Hola%20${encodeURIComponent(nombre.split(' ')[0])}%2C%20tu%20plan%20Pack%20Reincorporaci%C3%B3n%20en%20The%20Boos%20Box%20ya%20est%C3%A1%20activo%21%20%F0%9F%A5%8A"
+                               style="background:#25D366;color:#fff;padding:14px 24px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;font-size:14px;">
+                               📱 Avisar por WhatsApp a ${nombre.split(' ')[0]}
+                            </a>
+                        </div>` : ''}
+
+                        <p style="color:#94a3b8;font-size:12px;text-align:center;margin:0;">Comprobante de pago adjunto en este correo.</p>
+                    </div>
                 </div>
             `,
             attachments: req.file ? [{
@@ -384,7 +408,7 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
             setTimeout(() => { try { fs.unlinkSync(req.file.path); } catch(e) {} }, 5000);
         }
 
-        res.json({ success: true, mensaje: 'Comprobante recibido. Validaremos tu pago en breve.' });
+        res.json({ success: true, mensaje: 'Comprobante recibido. Te avisaremos cuando tu plan esté activo.' });
     } catch (err) {
         console.error('❌ Error en comprobante:', err.message);
         res.status(500).json({ error: err.message });

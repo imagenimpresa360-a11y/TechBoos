@@ -11,9 +11,11 @@ export default function PaginaPago() {
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
   const [modo, setModo]         = useState(null); // 'tarjeta' | 'transferencia'
-  const [archivo, setArchivo]   = useState(null);
-  const [enviando, setEnviando] = useState(false);
-  const [exito, setExito]       = useState(false);
+  const [archivo, setArchivo]       = useState(null);
+  const [enviando, setEnviando]     = useState(false);
+  const [exito, setExito]           = useState(false);
+  const [emailConfirm, setEmailConfirm] = useState('');
+  const [telefono, setTelefono]     = useState('');
 
   useEffect(() => {
     fetch(`${API_BASE}/api/pago/${id}`)
@@ -24,14 +26,18 @@ export default function PaginaPago() {
   }, [id]);
 
   const handleEnviarComprobante = async () => {
-    if (!archivo) return alert('Por favor adjunta el comprobante de transferencia.');
+    if (!archivo)       return alert('Por favor adjunta el comprobante de transferencia.');
+    if (!emailConfirm)  return alert('Por favor ingresa tu email para poder localizarte en el sistema.');
+    if (!telefono)      return alert('Por favor ingresa tu teléfono para avisarte cuando tu plan esté activo.');
     setEnviando(true);
     try {
       const form = new FormData();
-      form.append('comprobante', archivo);
-      form.append('socioId', id);
-      form.append('nombre', socio?.nombre);
-      form.append('email', socio?.email);
+      form.append('comprobante',   archivo);
+      form.append('socioId',       id);
+      form.append('nombre',        socio?.nombre);
+      form.append('email',         socio?.email);
+      form.append('emailConfirm',  emailConfirm);
+      form.append('telefono',      telefono);
       const res = await fetch(`${API_BASE}/api/pagos/comprobante`, { method: 'POST', body: form });
       if (!res.ok) throw new Error('Error al subir el comprobante');
       setExito(true);
@@ -165,8 +171,34 @@ export default function PaginaPago() {
               </div>
             </div>
 
+            {/* Datos de contacto del alumno */}
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px', marginTop: '4px' }}>Ingresa tus datos para ubicarte y avisarte cuando tu plan esté activo:</p>
+
+            <div style={{ display: 'grid', gap: '10px', marginBottom: '18px' }}>
+              <div>
+                <label style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '6px' }}>Tu Email</label>
+                <input
+                  type="email"
+                  placeholder="correo@ejemplo.com"
+                  value={emailConfirm}
+                  onChange={e => setEmailConfirm(e.target.value)}
+                  style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px', color: '#f1f5f9', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '6px' }}>Tu Teléfono (WhatsApp)</label>
+                <input
+                  type="tel"
+                  placeholder="+56 9 XXXX XXXX"
+                  value={telefono}
+                  onChange={e => setTelefono(e.target.value)}
+                  style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px', color: '#f1f5f9', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
             {/* Subir comprobante */}
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>Una vez realizada la transferencia, adjunta el comprobante:</p>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '10px' }}>Adjunta el comprobante de transferencia:</p>
 
             <label style={{ display: 'block', border: '2px dashed #334155', borderRadius: '12px', padding: '20px', textAlign: 'center', cursor: 'pointer', marginBottom: '16px', transition: 'all 0.2s', background: archivo ? 'rgba(16,185,129,0.05)' : 'transparent' }}>
               <input type="file" accept="image/*,.pdf" onChange={e => setArchivo(e.target.files[0])} style={{ display: 'none' }} />
@@ -179,13 +211,13 @@ export default function PaginaPago() {
 
             <button className="btn-hover"
               onClick={handleEnviarComprobante}
-              disabled={enviando || !archivo}
-              style={{ width: '100%', background: enviando || !archivo ? '#1e293b' : '#10b981', color: enviando || !archivo ? '#475569' : '#000', border: 'none', padding: '18px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: enviando || !archivo ? 'not-allowed' : 'pointer', transition: 'all 0.3s' }}>
+              disabled={enviando || !archivo || !emailConfirm || !telefono}
+              style={{ width: '100%', background: (enviando || !archivo || !emailConfirm || !telefono) ? '#1e293b' : '#10b981', color: (enviando || !archivo || !emailConfirm || !telefono) ? '#475569' : '#000', border: 'none', padding: '18px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: (enviando || !archivo || !emailConfirm || !telefono) ? 'not-allowed' : 'pointer', transition: 'all 0.3s' }}>
               {enviando ? 'ENVIANDO...' : 'ENVIAR COMPROBANTE'}
             </button>
 
             <p style={{ textAlign: 'center', fontSize: '11px', color: '#374151', marginTop: '12px' }}>
-              Validaremos tu pago y activaremos tu plan en breve. 🥊
+              Validaremos tu pago y te avisaremos al WhatsApp cuando tu plan esté activo. 🥊
             </p>
           </div>
         )}

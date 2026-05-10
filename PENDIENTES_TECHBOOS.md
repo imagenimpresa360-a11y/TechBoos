@@ -1,24 +1,28 @@
-# 📋 PENDIENTES TECHBOOS - Recuperación Automática
+# 📋 PENDIENTES TECHBOOS - Recuperación Automática (POST QA STAGE 3)
 
-Este documento detalla los pasos finales para activar la autonomía total del sistema de despacho nocturno y pagos.
+## ✅ COMPLETADO HOY
+- Rediseño de **Email** con tono motivador y premium.
+- Implementación de **Landing Page Dual** (Tarjeta BoxMagic / Transferencia BCI).
+- Backend para recepción de **Comprobantes y Notificación** al admin.
+- Validación de **Etapa 1 (Servidor)**, **Etapa 2 (Email)** y **Etapa 3 (BoxMagic Link)**.
 
-## 🚀 PRIORIDAD 1: Configuración en Railway (Variables)
-Para que el sistema funcione en la nube sin errores, debes agregar estas llaves en el panel de **Variables** de Railway:
+## 🚀 PENDIENTES PRÓXIMA SESIÓN
 
-- [ ] `RESEND_API_KEY`: Necesaria para que el despacho de las 22:00 hrs funcione. (Obtener en Resend.com)
-- [ ] `VIRTUALPOS_API_KEY`: Necesaria para generar links de pago reales.
-- [ ] `VIRTUALPOS_SECRET_KEY`: Necesaria para firmar los pagos de forma segura.
+### 🧪 Etapa 4: Validación de Transferencia
+- [ ] Confirmar llegada del correo de prueba a `contactoboosbox@gmail.com` con el comprobante de Ruben.
+- [ ] Verificar que el alumno se registre como "Pendiente Validación" en el dashboard del ERP.
 
-## 🌙 PRIORIDAD 2: Monitoreo de Despacho
-- [ ] **Revisar Logs:** Hoy a las 22:00 (Chile), revisar los logs de Railway para confirmar que aparezca el mensaje: `[CRON] 🌙 Iniciando despacho nocturno...`.
-- [ ] **Validación de Correos:** Confirmar con algún alumno de confianza (o contigo mismo) que el correo llegó con el nuevo precio de **$19.900**.
+### 🔑 Configuración de Producción
+- [ ] **RESEND_API_KEY:** Ingresar la llave en Railway para habilitar el motor nocturno automático.
+- [ ] **VIRTUALPOS_KEYS:** (Opcional si se usa BoxMagic para todo lo que es tarjeta).
 
-## 🎨 PRIORIDAD 3: Ajustes Visuales
-- [ ] **Validar Historial:** Confirmar que los iconos 📧 y 📱 aparecen correctamente en la sección de "Gestión" tras el despacho de esta noche.
+### 🚀 Etapa 5: Lanzamiento Controlado
+- [ ] Seleccionar 5 alumnos reales de "Alumnos Fuga 2024".
+- [ ] Enviar promoción manualmente desde el ERP.
+- [ ] Monitorear apertura de correos y clics.
 
 ---
-**Estado Actual:**
-- Servidor: ✅ ESTABLE (Node v20)
-- Precio: ✅ $19.900 (Actualizado)
-- Base de Datos: ✅ Conectada y con cola activa (2 pendientes).
-- Emails: ✅ Listos (Modo Lazy Init para evitar caídas).
+**Estado del Sistema:**
+- Landing Page: ✅ OPERATIVA en Railway.
+- Motor de Email: ✅ LISTO (Esperando API Key de Resend).
+- Base de Datos: ✅ SINCRONIZADA con 70 prospectos 2024.
