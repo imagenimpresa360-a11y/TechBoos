@@ -65,7 +65,7 @@ async function sendTelegramMessage(text) {
   const chatId = '8674219703';
   try {
     const https = require('https');
-    const data = JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' });
+    const data = JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'Markdown' });
     const options = {
       hostname: 'api.telegram.org',
       port: 443,
@@ -404,8 +404,8 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                 if (error) throw error;
                 console.log(`✅ Notificación enviada vía Resend para ${nombre}`);
 
-                // 4. ALERTA TELEGRAM: Aviso instantáneo al móvil
-                const msjTelegram = `🔔 <b>NUEVA TRANSFERENCIA</b>\n\n👤 <b>Alumno:</b> ${nombre}\n📧 <b>Email:</b> ${emailConfirm || email}\n📱 <b>WhatsApp:</b> ${telefono || 'No entregado'}\n\n👉 <a href="https://wa.me/${telefonoLimpio}">Abrir WhatsApp para confirmar</a>`;
+                // 4. ALERTA TELEGRAM: Aviso instantáneo al móvil (Formato Markdown para mayor compatibilidad)
+                const msjTelegram = `🔔 *NUEVA TRANSFERENCIA*\n\n👤 *Alumno:* ${nombre}\n📧 *Email:* ${emailConfirm || email}\n📱 *WhatsApp:* ${telefono || 'No entregado'}\n\n👉 https://wa.me/${telefonoLimpio}`;
                 await sendTelegramMessage(msjTelegram);
 
             } catch (mailErr) {
