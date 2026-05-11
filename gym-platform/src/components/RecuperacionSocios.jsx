@@ -223,11 +223,17 @@ export default function RecuperacionSocios() {
   }, [sede, segmento]);
 
   const fetchCola = useCallback(async () => {
+    console.log('[DEBUG] Consultando cola de despacho...');
     try {
       const res = await fetch(`${API_BASE}/api/campanas/cola`);
+      if (!res.ok) throw new Error('Error en servidor');
       const data = await res.json();
+      console.log('[DEBUG] Cola recibida:', data);
       setCola(data || []);
-    } catch (e) { console.error('Error fetching cola:', e); }
+    } catch (e) { 
+      console.error('Error fetching cola:', e);
+      setCola([]);
+    }
   }, []);
 
   useEffect(() => { 
@@ -339,8 +345,8 @@ export default function RecuperacionSocios() {
 
       {/* Modal de Cola de Despacho */}
       {mostrarCola && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#1a1f2e', border: '1px solid #334155', borderRadius: 16, width: '100%', maxWidth: '500px', padding: '24px' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#1a1f2e', border: '1px solid #6366f1', borderRadius: 16, width: '100%', maxWidth: '500px', padding: '32px', boxShadow: '0 0 40px rgba(99, 102, 241, 0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <h3 style={{ margin: 0, color: 'white' }}>📋 Cola de Despacho Nocturno</h3>
                     <button onClick={() => setMostrarCola(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '20px' }}>×</button>
