@@ -308,22 +308,32 @@ app.get('/api/socios/stats', async (req, res) => {
 app.post('/api/campanas/encolar', async (req, res) => {
     const { socio_id } = req.body;
     try {
-        await pool.query("INSERT INTO cola_emails (socio_id, estado) VALUES ($1, 'Pendiente')", [socio_id]);
+        // Schema real de Railway: id, socio_id, tipo_campana, estado, fecha_creacion, fecha_envio_programado, error_log
+        await pool.query(
+            "INSERT INTO cola_emails (socio_id, tipo_campana, estado) VALUES ($1, 'Reingreso', 'Pendiente')",
+            [socio_id]
+        );
         res.json({ success: true, mensaje: 'Encolado exitosamente' });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        console.error('[ENCOLAR] Error:', err.message);
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 app.get('/api/campanas/cola', async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT c.id, s.nombre, s.email, c.fecha_encolado 
+            SELECT c.id, s.nombre, s.email, c.fecha_creacion as fecha_encolado
             FROM cola_emails c 
             JOIN socios s ON c.socio_id = s.id 
             WHERE c.estado = 'Pendiente'
-            ORDER BY c.fecha_encolado DESC
+            ORDER BY c.fecha_creacion DESC
         `);
         res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        console.error('[COLA] Error:', err.message);
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 app.post('/api/campanas/email', async (req, res) => {
@@ -696,7 +706,13 @@ cron.schedule('*/30 * * * *', async () => {
 cron.schedule('0 22 * * *', async () => {
     console.log('[CRON] 🌙 Iniciando despacho nocturno de emails...');
     try {
-        const cola = await pool.query("SELECT c.id, c.socio_id, s.nombre, s.email FROM cola_emails c JOIN socios s ON c.socio_id = s.id WHERE c.estado = 'Pendiente'");
+        // Usar columnas reales de Railway: fecha_creacion en lugar de fecha_encolado
+        const cola = await pool.query(`
+            SELECT c.id, c.socio_id, s.nombre, s.email 
+            FROM cola_emails c 
+            JOIN socios s ON c.socio_id = s.id 
+            WHERE c.estado = 'Pendiente'
+        `);
         
         if (cola.rows.length === 0) {
             console.log('[CRON] No hay emails pendientes para despachar.');
