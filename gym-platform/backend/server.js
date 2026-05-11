@@ -408,6 +408,29 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                 const msjTelegram = `🔔 *NUEVA TRANSFERENCIA*\n\n👤 *Alumno:* ${nombre}\n📧 *Email:* ${emailConfirm || email}\n📱 *WhatsApp:* ${telefono || 'No entregado'}\n\n👉 https://wa.me/${telefonoLimpio}`;
                 await sendTelegramMessage(msjTelegram);
 
+                // 5. EMAIL AL ALUMNO: Confirmación de recepción
+                await resend.emails.send({
+                    from: 'The Boos Box <onboarding@resend.dev>',
+                    to: emailConfirm || email,
+                    subject: '🥊 ¡Comprobante recibido! — The Boos Box',
+                    html: `
+                        <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;overflow:hidden;background:#000;">
+                            <div style="padding:40px;text-align:center;">
+                                <h1 style="color:#f59e0b;font-size:24px;margin:0;letter-spacing:1px;">THE BOOS BOX</h1>
+                            </div>
+                            <div style="padding:40px;background:#fff;color:#333;">
+                                <h2 style="margin-top:0;">¡Hola ${nombre.split(' ')[0]}! 👋</h2>
+                                <p style="font-size:16px;line-height:1.6;">Hemos recibido correctamente tu comprobante de transferencia.</p>
+                                <div style="background:#f8fafc;padding:20px;border-radius:12px;margin:20px 0;border:1px solid #e2e8f0;">
+                                    <p style="margin:0;font-size:14px;color:#64748b;"><strong>¿Qué sigue ahora?</strong></p>
+                                    <p style="margin:10px 0 0 0;font-size:15px;">Nuestro equipo validará el depósito y activaremos tu plan en <strong>BoxMagic</strong> en un plazo máximo de 2 horas hábiles.</p>
+                                </div>
+                                <p style="font-size:15px;">Te enviaremos un nuevo aviso apenas estés listo para volver a entrenar. ¡Nos vemos en el Box!</p>
+                            </div>
+                        </div>
+                    `
+                });
+
             } catch (mailErr) {
                 console.error('⚠️ Error en Resend Notification:', mailErr.message);
             } finally {
