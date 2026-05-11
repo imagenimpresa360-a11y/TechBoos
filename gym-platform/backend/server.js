@@ -679,6 +679,50 @@ cron.schedule('*/30 * * * *', async () => {
     }
 });
 
+// CRON: Despacho Nocturno de Emails Encolados (Todos los días a las 22:00)
+cron.schedule('0 22 * * *', async () => {
+    console.log('[CRON] 🌙 Iniciando despacho nocturno de emails...');
+    try {
+        const cola = await pool.query("SELECT c.id, c.socio_id, s.nombre, s.email FROM cola_emails c JOIN socios s ON c.socio_id = s.id WHERE c.estado = 'Pendiente'");
+        
+        if (cola.rows.length === 0) {
+            console.log('[CRON] No hay emails pendientes para despachar.');
+            return;
+        }
+
+        let enviados = 0;
+        for (const item of cola.rows) {
+            const linkPago = `https://techboos-production-edd2.up.railway.app/pago/${item.socio_id}`;
+            const html = `
+                <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#000;border-radius:16px;overflow:hidden;">
+                    <div style="padding:40px;text-align:center;"><h1 style="color:#f59e0b;margin:0;letter-spacing:2px;">THE BOOS BOX</h1></div>
+                    <div style="padding:40px;background:#fff;color:#333;">
+                        <h2>¡Hola ${item.nombre.split(' ')[0]}! 👋</h2>
+                        <p>Te extrañamos en el Box. Tenemos un <strong>Pack de Reingreso</strong> esperándote.</p>
+                        <div style="background:#f8fafc;padding:25px;border-radius:16px;margin:24px 0;border:1px solid #e2e8f0;text-align:center;">
+                            <h3 style="color:#f59e0b;margin:0;font-size:14px;">PACK EXCLUSIVO</h3>
+                            <p style="font-size:48px;font-weight:900;margin:0;">$19.900</p>
+                            <p style="color:#64748b;">(4 Clases de Crossfit / Funcional)</p>
+                        </div>
+                        <div style="text-align:center;"><a href="${linkPago}" style="background:#000;color:#fff;padding:20px 32px;text-decoration:none;border-radius:10px;font-weight:900;display:inline-block;">VOLVER A ENTRENAR</a></div>
+                    </div>
+                </div>
+            `;
+            
+            const exito = await sendEmail(item.email, "🥊 ¡Tu lugar te espera en The Boos Box!", html);
+            if (exito) {
+                await pool.query("UPDATE cola_emails SET estado = 'Enviado', fecha_envio = NOW() WHERE id = $1", [item.id]);
+                await pool.query("INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Email Nocturno', 'Contactado', 'Pack 19.9k')", [item.socio_id]);
+                enviados++;
+            }
+        }
+
+        await sendTelegramMessage(`🌙 *DESPACHO NOCTURNO COMPLETADO*\n✅ Se enviaron ${enviados} correos de reincorporación.`);
+    } catch (err) {
+        console.error('[CRON] ❌ Error en despacho nocturno:', err.message);
+    }
+});
+
 // ==========================================
 // 9. LANZAMIENTO
 // ==========================================
