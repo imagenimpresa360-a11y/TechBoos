@@ -68,7 +68,7 @@ async function sendTelegramMessage(text) {
     const data = JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' });
     const options = {
       hostname: 'api.telegram.org',
-      port: 445,
+      port: 443,
       path: `/bot${token}/sendMessage`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': data.length }
