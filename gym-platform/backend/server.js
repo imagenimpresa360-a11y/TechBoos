@@ -377,17 +377,24 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
         // 2. Responder al alumno de inmediato para que no se quede pegado el botón
         res.json({ success: true, mensaje: 'Comprobante recibido exitosamente.' });
 
-        // 3. SEGUNDO PLANO: Notificar al admin vía RESEND (Garantizado)
-        (async () => {
-            try {
+                // 3. SEGUNDO PLANO: Notificar al admin vía RESEND (Garantizado)
                 const { Resend } = require('resend');
                 const resend = new Resend('re_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk');
-                
-                // Nota: Mientras no validemos dominio, enviamos desde onboarding@resend.dev
+
+                const attachments = [];
+                if (req.file) {
+                    const fs = require('fs');
+                    attachments.push({
+                        filename: req.file.originalname || 'comprobante.png',
+                        content: fs.readFileSync(req.file.path)
+                    });
+                }
+
                 const { data, error } = await resend.emails.send({
                     from: 'The Boos Box ERP <pagos@theboosbox.cl>',
-                    to: 'rubenrojasb@gmail.com',
+                    to: 'contactoboosbox@gmail.com',
                     subject: `🏦 NUEVO PAGO — ${nombre} — $19.900`,
+                    attachments: attachments,
                     html: `
                         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;padding:24px;">
                             <h2 style="color:#10b981;">✅ Nuevo Pago Recibido</h2>
@@ -397,6 +404,7 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                             <hr/>
                             <p>👉 Activa el plan en BoxMagic y avísale por WhatsApp.</p>
                             <a href="https://wa.me/${telefonoLimpio}" style="background:#25D366;color:#fff;padding:12px 20px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">📱 Abrir WhatsApp</a>
+                            <p style="font-size:12px;color:#666;margin-top:20px;">* El comprobante se adjunta a este correo.</p>
                         </div>
                     `
                 });
@@ -404,7 +412,7 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                 if (error) throw error;
                 console.log(`✅ Notificación enviada vía Resend para ${nombre}`);
 
-                // 4. ALERTA TELEGRAM: Aviso instantáneo al móvil (Formato Markdown para mayor compatibilidad)
+                // 4. ALERTA TELEGRAM: Aviso instantáneo al móvil
                 const msjTelegram = `🔔 *NUEVA TRANSFERENCIA*\n\n👤 *Alumno:* ${nombre}\n📧 *Email:* ${emailConfirm || email}\n📱 *WhatsApp:* ${telefono || 'No entregado'}\n\n👉 https://wa.me/${telefonoLimpio}`;
                 await sendTelegramMessage(msjTelegram);
 

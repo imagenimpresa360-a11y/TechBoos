@@ -9,9 +9,9 @@
 
 ## 📌 Pendientes Críticos (Próxima Sesión)
 
-### 1. Verificación de Dominio (Prioridad 1) 🌐
+### 1. Verificación de Dominio (Prioridad 1) 🌐 ✅
 - Configurar registros DNS en el panel de control del dominio (NIC Chile/Hosting) para validar `theboosbox.cl` en Resend.
-- **Objetivo:** Que los correos lleguen directo a la Bandeja de Entrada (Inbox) y no a SPAM.
+- **Estado:** COMPLETADO. Dominio verificado y configurado en cPanel.
 
 ### 2. Personalización de Remitente 📧
 - Una vez verificado el dominio, cambiar el `from` en `server.js` de `onboarding@resend.dev` a `pagos@theboosbox.cl`.
