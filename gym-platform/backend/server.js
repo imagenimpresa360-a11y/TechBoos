@@ -59,6 +59,29 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
+// Función para enviar alertas por Telegram
+async function sendTelegramMessage(text) {
+  const token = '8445378549:AAEKUyEmsRj1t7STKq1yn6FIlybg18dfNzk';
+  const chatId = '8674219703';
+  try {
+    const https = require('https');
+    const data = JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' });
+    const options = {
+      hostname: 'api.telegram.org',
+      port: 445,
+      path: `/bot${token}/sendMessage`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': data.length }
+    };
+    const req = https.request(options);
+    req.write(data);
+    req.end();
+    console.log('✅ Alerta de Telegram enviada');
+  } catch (err) {
+    console.error('❌ Error enviando Telegram:', err.message);
+  }
+}
+
 const cleanAmt = (v) => {
     if(!v) return 0;
     const s = String(v).replace(/\$|\.|\s/g, '').replace(',', '.');
@@ -380,6 +403,11 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
 
                 if (error) throw error;
                 console.log(`✅ Notificación enviada vía Resend para ${nombre}`);
+
+                // 4. ALERTA TELEGRAM: Aviso instantáneo al móvil
+                const msjTelegram = `🔔 <b>NUEVA TRANSFERENCIA</b>\n\n👤 <b>Alumno:</b> ${nombre}\n📧 <b>Email:</b> ${emailConfirm || email}\n📱 <b>WhatsApp:</b> ${telefono || 'No entregado'}\n\n👉 <a href="https://wa.me/${telefonoLimpio}">Abrir WhatsApp para confirmar</a>`;
+                await sendTelegramMessage(msjTelegram);
+
             } catch (mailErr) {
                 console.error('⚠️ Error en Resend Notification:', mailErr.message);
             } finally {
