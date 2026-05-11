@@ -368,18 +368,61 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
     const telefonoLimpio = (telefono || '').replace(/\s+/g, '').replace('+', '');
     
     try {
-        // 1. PRIORIDAD: Registrar en la BD para que no se pierda la venta
+        // 1. PRIORIDAD: Registrar en la BD para evitar timeouts
         await pool.query(
             "INSERT INTO campanas_recuperacion (socio_id, tipo_contacto, estado_gestion, promo_ofrecida) VALUES ($1, 'Transferencia', 'Pendiente Validación', 'Pack Reincorporación $19.900')",
             [socioId]
         );
 
-        // 2. Responder al alumno de inmediato para que no se quede pegado el botón
+        // 2. Responder al alumno de inmediato
         res.json({ success: true, mensaje: 'Comprobante recibido exitosamente.' });
 
-                // 3. SEGUNDO PLANO: Notificar al admin vía RESEND (Garantizado)
+        // 3. SEGUNDO PLANO: Escudo de Seguridad (OCR + Duplicados) y Notificaciones
+        (async () => {
+            let transactionId = 'No detectado';
+            let isDuplicate = false;
+
+            try {
                 const { Resend } = require('resend');
                 const resend = new Resend('re_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk');
+                const fs = require('fs');
+
+                // --- CAPA 1: OCR y Detección de Duplicados ---
+                try {
+                    const Tesseract = require('tesseract.js');
+                    const { data: { text } } = await Tesseract.recognize(req.file.path, 'spa');
+                    
+                    const matches = text.match(/\b\d{6,12}\b/g);
+                    if (matches && matches.length > 0) {
+                        transactionId = matches[matches.length - 1];
+                        const dupCheck = await pool.query("SELECT id FROM campanas_recuperacion WHERE transaction_id = $1", [transactionId]);
+                        if (dupCheck.rows.length > 0) {
+                            isDuplicate = true;
+                        }
+                    }
+                } catch (ocrErr) {
+                    console.error('⚠️ Error OCR:', ocrErr.message);
+                }
+
+                // --- CASO DUPLICADO ---
+                if (isDuplicate) {
+                    await sendTelegramMessage(`🚨 *ALERTA DE SEGURIDAD*\n👤 *Alumno:* ${nombre}\n⚠️ *Motivo:* Comprobante DUPLICADO\n🆔 *ID:* ${transactionId}`);
+                    await resend.emails.send({
+                        from: 'SEGURIDAD The Boos Box <pagos@theboosbox.cl>',
+                        to: 'contactoboosbox@gmail.com',
+                        subject: `🚨 ALERTA: Pago Duplicado — ${nombre}`,
+                        html: `<div style="border:2px solid red;padding:20px;"><h2>🚨 Intento de Pago Duplicado</h2><p>Alumno: ${nombre}</p><p>ID: ${transactionId}</p></div>`
+                    });
+                    return;
+                }
+
+                // --- CASO LIMPIO: Actualizar ID y Notificar ---
+                if (transactionId !== 'No detectado') {
+                    await pool.query(
+                        "UPDATE campanas_recuperacion SET transaction_id = $1 WHERE socio_id = $2 AND tipo_contacto = 'Transferencia' AND estado_gestion = 'Pendiente Validación' ORDER BY fecha_contacto DESC LIMIT 1",
+                        [transactionId, socioId]
+                    );
+                }
 
                 const attachments = [];
                 if (req.file) {
@@ -390,57 +433,37 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                     });
                 }
 
-                const { data, error } = await resend.emails.send({
+                // Notificación Admin
+                await resend.emails.send({
                     from: 'The Boos Box ERP <pagos@theboosbox.cl>',
                     to: 'contactoboosbox@gmail.com',
                     subject: `🏦 NUEVO PAGO — ${nombre} — $19.900`,
                     attachments: attachments,
                     html: `
-                        <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;padding:24px;">
+                        <div style="font-family:sans-serif;padding:24px;border:1px solid #eee;border-radius:12px;">
                             <h2 style="color:#10b981;">✅ Nuevo Pago Recibido</h2>
                             <p><strong>Alumno:</strong> ${nombre}</p>
-                            <p><strong>Email Confirmado:</strong> ${emailConfirm || email}</p>
                             <p><strong>WhatsApp:</strong> ${telefono || 'No ingresado'}</p>
+                            <p><strong>ID Transacción (OCR):</strong> ${transactionId}</p>
                             <hr/>
-                            <p>👉 Activa el plan en BoxMagic y avísale por WhatsApp.</p>
-                            <a href="https://wa.me/${telefonoLimpio}" style="background:#25D366;color:#fff;padding:12px 20px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">📱 Abrir WhatsApp</a>
-                            <p style="font-size:12px;color:#666;margin-top:20px;">* El comprobante se adjunta a este correo.</p>
+                            <a href="https://wa.me/${telefonoLimpio}" style="background:#25D366;color:#fff;padding:12px 20px;text-decoration:none;border-radius:8px;display:inline-block;">📱 Abrir WhatsApp</a>
                         </div>
                     `
                 });
 
-                if (error) throw error;
-                console.log(`✅ Notificación enviada vía Resend para ${nombre}`);
+                // Alerta Telegram
+                await sendTelegramMessage(`🔔 *NUEVA TRANSFERENCIA*\n👤 *Alumno:* ${nombre}\n🆔 *ID:* ${transactionId}\n👉 https://wa.me/${telefonoLimpio}`);
 
-                // 4. ALERTA TELEGRAM: Aviso instantáneo al móvil
-                const msjTelegram = `🔔 *NUEVA TRANSFERENCIA*\n\n👤 *Alumno:* ${nombre}\n📧 *Email:* ${emailConfirm || email}\n📱 *WhatsApp:* ${telefono || 'No entregado'}\n\n👉 https://wa.me/${telefonoLimpio}`;
-                await sendTelegramMessage(msjTelegram);
-
-                // 5. EMAIL AL ALUMNO: Confirmación de recepción
+                // Confirmación Alumno
                 await resend.emails.send({
                     from: 'The Boos Box <pagos@theboosbox.cl>',
                     to: emailConfirm || email,
                     subject: '🥊 ¡Comprobante recibido! — The Boos Box',
-                    html: `
-                        <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;overflow:hidden;background:#000;">
-                            <div style="padding:40px;text-align:center;">
-                                <h1 style="color:#f59e0b;font-size:24px;margin:0;letter-spacing:1px;">THE BOOS BOX</h1>
-                            </div>
-                            <div style="padding:40px;background:#fff;color:#333;">
-                                <h2 style="margin-top:0;">¡Hola ${nombre.split(' ')[0]}! 👋</h2>
-                                <p style="font-size:16px;line-height:1.6;">Hemos recibido correctamente tu comprobante de transferencia.</p>
-                                <div style="background:#f8fafc;padding:20px;border-radius:12px;margin:20px 0;border:1px solid #e2e8f0;">
-                                    <p style="margin:0;font-size:14px;color:#64748b;"><strong>¿Qué sigue ahora?</strong></p>
-                                    <p style="margin:10px 0 0 0;font-size:15px;">Nuestro equipo validará el depósito y activaremos tu plan en <strong>BoxMagic</strong> en un plazo máximo de 2 horas hábiles.</p>
-                                </div>
-                                <p style="font-size:15px;">Te enviaremos un nuevo aviso apenas estés listo para volver a entrenar. ¡Nos vemos en el Box!</p>
-                            </div>
-                        </div>
-                    `
+                    html: `<div style="background:#000;color:#fff;padding:40px;text-align:center;"><h1>THE BOOS BOX</h1><div style="background:#fff;color:#333;padding:40px;text-align:left;"><h2>¡Hola ${nombre.split(' ')[0]}! 👋</h2><p>Hemos recibido tu comprobante. En un máximo de 2 horas validaremos y activaremos tu plan.</p></div></div>`
                 });
 
-            } catch (mailErr) {
-                console.error('⚠️ Error en Resend Notification:', mailErr.message);
+            } catch (bgErr) {
+                console.error('⚠️ Error en proceso de fondo:', bgErr.message);
             } finally {
                 if (req.file) {
                     const fs = require('fs');
