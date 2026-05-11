@@ -17,7 +17,7 @@ const SEGMENTO_CONFIG = {
 const formatMonto = (m) => m ? `$${Number(m).toLocaleString('es-CL')}` : '$0';
 const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-CL') : '—';
 
-function TarjetaSocio({ socio, onContactar, onActualizar }) {
+function TarjetaSocio({ socio, onContactar, onActualizar, onEncolar }) {
   const [expandido, setExpandido] = useState(false);
   const [nota, setNota] = useState(socio.notas || '');
   const [guardando, setGuardando] = useState(false);
@@ -84,21 +84,7 @@ function TarjetaSocio({ socio, onContactar, onActualizar }) {
         {socio.email && (
           <>
             <button 
-               onClick={async () => {
-                  try {
-                    const res = await fetch(`${API_BASE}/api/campanas/encolar`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ socio_id: socio.id })
-                    });
-                    const data = await res.json();
-                    if(res.ok) {
-                      alert(`🌙 ${socio.nombre.split(' ')[0]} añadido a la cola de despacho nocturno (22:00 hrs).`);
-                    } else {
-                      alert(`❌ Error: ${data.error}`);
-                    }
-                  } catch(e) { alert("❌ Error de conexión"); }
-               }}
+               onClick={() => onEncolar(socio)}
                style={{ background: '#1e293b', color: '#94a3b8', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
               🌙 Encolar Despacho
             </button>
@@ -215,6 +201,8 @@ export default function RecuperacionSocios() {
   const [segmento, setSegmento] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [notificacion, setNotificacion] = useState(null);
+  const [cola, setCola] = useState([]);
+  const [mostrarCola, setMostrarCola] = useState(false);
 
   const mostrarNotificacion = (msg, tipo = 'success') => {
     setNotificacion({ msg, tipo });
@@ -234,7 +222,18 @@ export default function RecuperacionSocios() {
     setLoading(false);
   }, [sede, segmento]);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  const fetchCola = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/campanas/cola`);
+      const data = await res.json();
+      setCola(data || []);
+    } catch (e) { console.error('Error fetching cola:', e); }
+  }, []);
+
+  useEffect(() => { 
+    fetchAll(); 
+    fetchCola();
+  }, [fetchAll, fetchCola]);
 
   const sociosFiltrados = useMemo(() => {
     return socios.filter(s => 
@@ -248,6 +247,21 @@ export default function RecuperacionSocios() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ socio_id: socio.id, tipo_contacto: tipo, promo_ofrecida: 'Promo 4x19k' }),
       });
+      if (tipo === 'WhatsApp') fetchCola(); // Refresh if we enqueued
+  };
+
+  const handleEncolar = async (socio) => {
+    try {
+        const res = await fetch(`${API_BASE}/api/campanas/encolar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ socio_id: socio.id })
+        });
+        if(res.ok) {
+          mostrarNotificacion(`🌙 ${socio.nombre.split(' ')[0]} encolado.`);
+          fetchCola();
+        }
+      } catch(e) { alert("❌ Error de conexión"); }
   };
 
   const handleActualizar = async (socio, resultado) => {
@@ -304,9 +318,65 @@ export default function RecuperacionSocios() {
           <option value="Critico">Crítico</option>
           <option value="Alumnosfuga">Alumnos Fuga (2024)</option>
         </select>
+        <button 
+            onClick={() => setMostrarCola(true)}
+            style={{ 
+                background: cola.length > 0 ? '#6366f1' : '#1e293b', 
+                color: 'white', 
+                padding: '10px 20px', 
+                borderRadius: 8, 
+                border: 'none', 
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+            }}
+        >
+            📋 Ver Cola ({cola.length})
+        </button>
       </div>
 
-      {loading ? <div>Cargando...</div> : sociosFiltrados.map(s => <TarjetaSocio key={s.id} socio={s} onContactar={handleContactar} onActualizar={handleActualizar} />)}
+      {/* Modal de Cola de Despacho */}
+      {mostrarCola && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#1a1f2e', border: '1px solid #334155', borderRadius: 16, width: '100%', maxWidth: '500px', padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h3 style={{ margin: 0, color: 'white' }}>📋 Cola de Despacho Nocturno</h3>
+                    <button onClick={() => setMostrarCola(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '20px' }}>×</button>
+                </div>
+                
+                <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px' }}>
+                    {cola.length === 0 ? (
+                        <p style={{ color: '#64748b', textAlign: 'center' }}>No hay correos encolados.</p>
+                    ) : cola.map(c => (
+                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid #334155' }}>
+                            <div>
+                                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{c.nombre}</div>
+                                <div style={{ color: '#64748b', fontSize: '12px' }}>{c.email}</div>
+                            </div>
+                            <div style={{ color: '#475569', fontSize: '11px' }}>
+                                {new Date(c.fecha_encolado).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <p style={{ fontSize: '12px', color: '#f59e0b', fontStyle: 'italic', marginBottom: '20px' }}>
+                    * Estos correos se enviarán automáticamente hoy a las 22:00 hrs.
+                </p>
+
+                <button 
+                    onClick={() => setMostrarCola(false)}
+                    style={{ width: '100%', background: '#6366f1', color: 'white', padding: '12px', borderRadius: 8, border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                    Entendido
+                </button>
+            </div>
+        </div>
+      )}
+
+      {loading ? <div>Cargando...</div> : sociosFiltrados.map(s => <TarjetaSocio key={s.id} socio={s} onContactar={handleContactar} onActualizar={handleActualizar} onEncolar={handleEncolar} />)}
     </div>
   );
 }

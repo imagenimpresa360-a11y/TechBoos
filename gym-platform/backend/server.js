@@ -313,6 +313,19 @@ app.post('/api/campanas/encolar', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/api/campanas/cola', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT c.id, s.nombre, s.email, c.fecha_encolado 
+            FROM cola_emails c 
+            JOIN socios s ON c.socio_id = s.id 
+            WHERE c.estado = 'Pendiente'
+            ORDER BY c.fecha_encolado DESC
+        `);
+        res.json(result.rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.post('/api/campanas/email', async (req, res) => {
     const { socio_id } = req.body;
     try {
