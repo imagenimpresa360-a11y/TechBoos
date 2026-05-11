@@ -45,7 +45,7 @@ const sendEmail = async (to, subject, html) => {
     const { Resend: ResendClient } = require('resend');
     const resendInstance = new ResendClient(apiKey);
     const { data, error } = await resendInstance.emails.send({
-      from: 'The Boos Box <onboarding@resend.dev>',
+      from: 'The Boos Box <pagos@theboosbox.cl>',
       to,
       subject,
       html
@@ -385,7 +385,7 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                 
                 // Nota: Mientras no validemos dominio, enviamos desde onboarding@resend.dev
                 const { data, error } = await resend.emails.send({
-                    from: 'The Boos Box ERP <onboarding@resend.dev>',
+                    from: 'The Boos Box ERP <pagos@theboosbox.cl>',
                     to: 'rubenrojasb@gmail.com',
                     subject: `🏦 NUEVO PAGO — ${nombre} — $19.900`,
                     html: `
@@ -410,7 +410,7 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
 
                 // 5. EMAIL AL ALUMNO: Confirmación de recepción
                 await resend.emails.send({
-                    from: 'The Boos Box <onboarding@resend.dev>',
+                    from: 'The Boos Box <pagos@theboosbox.cl>',
                     to: emailConfirm || email,
                     subject: '🥊 ¡Comprobante recibido! — The Boos Box',
                     html: `
@@ -511,6 +511,39 @@ app.post('/api/payments/webhook', async (req, res) => {
     }
     res.sendStatus(200);
   } catch (error) { res.sendStatus(500); }
+});
+
+// ==========================================
+// 8.5 ACTIVACIÓN MANUAL
+// ==========================================
+app.post('/api/socios/activar', async (req, res) => {
+    const { socioId } = req.body;
+    try {
+        const result = await pool.query("UPDATE socios SET estado = 'Recuperado', updated_at = NOW() WHERE id = $1 RETURNING nombre, email", [socioId]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Socio no encontrado' });
+        const s = result.rows[0];
+        const { Resend } = require('resend');
+        const resend = new Resend('re_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk');
+        await resend.emails.send({
+            from: 'The Boos Box <pagos@theboosbox.cl>',
+            to: s.email,
+            subject: '🔥 ¡Tu plan ya está activo! — The Boos Box',
+            html: `
+                <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;overflow:hidden;background:#000;">
+                    <div style="padding:40px;text-align:center;"><h1 style="color:#f59e0b;font-size:24px;margin:0;letter-spacing:1px;">THE BOOS BOX</h1></div>
+                    <div style="padding:40px;background:#fff;color:#333;">
+                        <h2 style="margin-top:0;">¡Todo listo, ${s.nombre.split(' ')[0]}! 🔥🥊</h2>
+                        <p style="font-size:16px;line-height:1.6;">Tu pago ha sido validado y tu plan ya está activo en <strong>BoxMagic</strong>.</p>
+                        <div style="background:#f8fafc;padding:20px;border-radius:12px;margin:20px 0;border:1px solid #e2e8f0;text-align:center;">
+                            <p style="margin:0;font-size:15px;">Ya puedes reservar tus clases y volver a entrenar con todo.</p>
+                        </div>
+                        <p style="font-size:15px;">¡Nos vemos en el Box!</p>
+                    </div>
+                </div>
+            `
+        });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ==========================================
