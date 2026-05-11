@@ -349,19 +349,16 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
         // 2. Responder al alumno de inmediato para que no se quede pegado el botón
         res.json({ success: true, mensaje: 'Comprobante recibido exitosamente.' });
 
-        // 3. SEGUNDO PLANO: Intentar enviar la notificación al admin
+        // 3. SEGUNDO PLANO: Notificar al admin vía RESEND (Garantizado)
         (async () => {
             try {
-                const nodemailer = require('nodemailer');
-                const transporter = nodemailer.createTransport({
-                    host: 'smtp.gmail.com', port: 465, secure: true,
-                    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-                    connectionTimeout: 10000 // 10 segundos max
-                });
-
-                const mailOptions = {
-                    from: `"The Boos Box ERP" <${process.env.SMTP_USER}>`,
-                    to: process.env.SMTP_USER,
+                const { Resend } = require('resend');
+                const resend = new Resend('re_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk');
+                
+                // Nota: Mientras no validemos dominio, enviamos desde onboarding@resend.dev
+                const { data, error } = await resend.emails.send({
+                    from: 'The Boos Box ERP <onboarding@resend.dev>',
+                    to: 'contactoboosbox@gmail.com',
                     subject: `🏦 NUEVO PAGO — ${nombre} — $19.900`,
                     html: `
                         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;padding:24px;">
@@ -373,14 +370,13 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                             <p>👉 Activa el plan en BoxMagic y avísale por WhatsApp.</p>
                             <a href="https://wa.me/${telefonoLimpio}" style="background:#25D366;color:#fff;padding:12px 20px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">📱 Abrir WhatsApp</a>
                         </div>
-                    `,
-                    attachments: req.file ? [{ filename: req.file.originalname, path: req.file.path }] : []
-                };
+                    `
+                });
 
-                await transporter.sendMail(mailOptions);
-                console.log(`✅ Notificación enviada para ${nombre}`);
+                if (error) throw error;
+                console.log(`✅ Notificación enviada vía Resend para ${nombre}`);
             } catch (mailErr) {
-                console.error('⚠️ Error al enviar email de notificación:', mailErr.message);
+                console.error('⚠️ Error en Resend Notification:', mailErr.message);
             } finally {
                 if (req.file) {
                     const fs = require('fs');
