@@ -40,15 +40,12 @@ app.use((req, res, next) => {
 const sendEmail = async (to, subject, html) => {
   console.log(`[EMAIL] Intentando enviar correo a: ${to}...`);
   try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error('[EMAIL] ❌ Variable RESEND_API_KEY no configurada en Railway. Email no enviado.');
-      return false;
-    }
-    // Inicialización lazy: solo se crea cuando se necesita y la key existe
+    const apiKey = process.env.RESEND_API_KEY || 're_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk';
+    // Inicialización lazy
     const { Resend: ResendClient } = require('resend');
-    const resendInstance = new ResendClient(process.env.RESEND_API_KEY);
+    const resendInstance = new ResendClient(apiKey);
     const { data, error } = await resendInstance.emails.send({
-      from: 'The Boos Box <contactoboosbox@gmail.com>',
+      from: 'The Boos Box <onboarding@resend.dev>',
       to,
       subject,
       html
@@ -301,19 +298,27 @@ app.post('/api/campanas/email', async (req, res) => {
         const s = socioRes.rows[0];
         const linkPago = `https://techboos-production-edd2.up.railway.app/pago/${s.id}`;
         const html = `
-            <div style="font-family: sans-serif; background: #000; color: #fff; padding: 40px; text-align: center; border-radius: 12px;">
-                <h1 style="color: #f59e0b; letter-spacing: 2px;">THE BOOS BOX</h1>
-                <div style="background: #fff; color: #333; padding: 30px; border-radius: 8px; margin-top: 20px; text-align: left;">
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #000;">
+                <div style="padding: 40px; text-align: center;">
+                    <h1 style="color: #f59e0b; font-size: 28px; margin: 0; letter-spacing: 2px;">THE BOOS BOX</h1>
+                </div>
+                <div style="padding: 40px; background: #fff; color: #333;">
                     <h2 style="margin-top: 0;">¡Hola ${s.nombre.split(' ')[0]}! 👋</h2>
-                    <p>Hace tiempo que no te vemos en el Box y la comunidad extraña tu energía. Sabemos que quieres retomar tus entrenamientos y que solo estás esperando el momento ideal para hacerlo.</p>
-                    <p>Vuelve hoy mismo con nuestra promoción de reincorporación:</p>
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e2e8f0; text-align: center;">
-                        <h3 style="color: #f59e0b; text-transform: uppercase;">PACK REINCORPORACIÓN</h3>
-                        <p style="font-size: 32px; font-weight: 900; margin: 10px 0;">$19.900</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Hace tiempo que no te vemos en el Box y la comunidad extraña tu energía. Sabemos que quieres retomar tus entrenamientos y que solo estás esperando el momento ideal para hacerlo.</p>
+                    <p style="font-size: 16px; line-height: 1.6; font-weight: bold;">¡Ese momento es ahora! Vuelve con nuestra promoción exclusiva y reincorpórate con todo a <strong>The Boos Box</strong>:</p>
+                    
+                    <div style="background: #f8fafc; padding: 25px; border-radius: 16px; margin: 24px 0; border: 1px solid #e2e8f0; text-align: center;">
+                        <h3 style="color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 0; font-size: 14px;">PACK REINCORPORACIÓN</h3>
+                        <p style="font-size: 48px; font-weight: 900; margin: 0; color: #000;">$19.900</p>
+                        <p style="font-size: 14px; color: #64748b; margin: 10px 0 0 0;">(4 Clases de Crossfit / Funcional)</p>
                     </div>
-                    <div style="text-align: center;">
-                        <a href="${linkPago}" style="background: #000; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RECLAMAR PROMO AHORA</a>
+                    
+                    <div style="text-align: center; margin-top: 32px;">
+                        <a href="${linkPago}" style="background: #000; color: #fff; padding: 20px 32px; text-decoration: none; border-radius: 10px; font-weight: 900; display: inline-block; font-size: 16px; letter-spacing: 1px;">RECLAMAR MI LUGAR AHORA</a>
                     </div>
+                </div>
+                <div style="padding: 20px; background: #f9fafb; text-align: center; border-top: 1px solid #eee;">
+                    <p style="margin: 0; color: #9ca3af; font-size: 12px;">The Boos Box SpA · Sede Campanario</p>
                 </div>
             </div>
         `;
@@ -391,6 +396,30 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
     }
 });
 
+// Función para enviar correos usando Resend
+async function sendEmail(to, subject, html) {
+    try {
+        const { Resend } = require('resend');
+        const resend = new Resend('re_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk');
+        
+        const { data, error } = await resend.emails.send({
+            from: 'The Boos Box <notificaciones@boosbox.cl>',
+            to: to,
+            subject: subject,
+            html: html
+        });
+
+        if (error) {
+            console.error('❌ Error de Resend:', error);
+            return false;
+        }
+        console.log('✅ Email enviado exitosamente vía Resend:', data.id);
+        return true;
+    } catch (err) {
+        console.error('❌ Error crítico en sendEmail:', err.message);
+        return false;
+    }
+}
 
 // ==========================================
 // 6. ENDPOINTS API - INGESTA Y CONCILIACION
