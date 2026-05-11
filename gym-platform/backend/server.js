@@ -459,7 +459,19 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                     from: 'The Boos Box <pagos@theboosbox.cl>',
                     to: emailConfirm || email,
                     subject: '🥊 ¡Comprobante recibido! — The Boos Box',
-                    html: `<div style="background:#000;color:#fff;padding:40px;text-align:center;"><h1>THE BOOS BOX</h1><div style="background:#fff;color:#333;padding:40px;text-align:left;"><h2>¡Hola ${nombre.split(' ')[0]}! 👋</h2><p>Hemos recibido tu comprobante. En un máximo de 2 horas validaremos y activaremos tu plan.</p></div></div>`
+                    html: `
+                        <div style="background:#000;color:#fff;padding:40px;text-align:center;font-family:sans-serif;">
+                            <h1 style="color:#f59e0b;letter-spacing:2px;">THE BOOS BOX</h1>
+                            <div style="background:#fff;color:#333;padding:40px;text-align:left;border-radius:12px;">
+                                <h2>¡Hola ${nombre.split(' ')[0]}! 👋</h2>
+                                <p>Hemos recibido tu comprobante de transferencia por el <strong>Pack Exclusivo de Reingreso</strong>.</p>
+                                <p>En un máximo de 2 horas hábiles validaremos el depósito y activaremos tu plan en <strong>BoxMagic</strong>.</p>
+                                <div style="background:#f8fafc;padding:15px;border-radius:8px;border:1px solid #e2e8f0;margin-top:20px;font-size:13px;color:#64748b;">
+                                    <strong>Nota:</strong> Esta es una oferta de bienvenida por única vez. Al finalizar tus 4 clases, podrás renovar con cualquiera de nuestros planes mensuales estándar.
+                                </div>
+                            </div>
+                        </div>
+                    `
                 });
 
             } catch (bgErr) {

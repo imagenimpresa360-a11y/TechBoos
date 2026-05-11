@@ -104,7 +104,7 @@ export default function PaginaPago() {
 
         {/* Box de oferta */}
         <div style={{ background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '18px', padding: '22px', marginBottom: '28px' }}>
-          <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>PACK REINCORPORACIÓN</div>
+          <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>PACK EXCLUSIVO DE REINGRESO</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '16px' }}>
             <div style={{ fontSize: '44px', fontWeight: '900', lineHeight: 1 }}>$19.900</div>
             <div style={{ fontSize: '15px', color: '#4b5563', textDecoration: 'line-through' }}>$27.000</div>
@@ -115,6 +115,9 @@ export default function PaginaPago() {
                 <span style={{ color: '#10b981', fontSize: '16px', flexShrink: 0 }}>✓</span> {item}
               </div>
             ))}
+            <div style={{ marginTop: '10px', fontSize: '11px', color: '#f59e0b', fontStyle: 'italic', lineHeight: '1.4', borderTop: '1px solid rgba(245, 158, 11, 0.1)', paddingTop: '10px' }}>
+              * Válido por única vez para alumnos en reincorporación. Siguientes renovaciones a precio de plan estándar.
+            </div>
           </div>
         </div>
 
