@@ -649,6 +649,37 @@ app.get('/api/debug/path', (req, res) => res.json({ __dirname, distPath, indexPa
 app.get(/^(?!\/api).*$/, (req, res) => res.sendFile(indexPath));
 
 // ==========================================
+// 8.7 TAREAS PROGRAMADAS (CRON)
+// ==========================================
+cron.schedule('*/30 * * * *', async () => {
+    console.log('[CRON] Iniciando barrido automático de pagos VirtualPos...');
+    try {
+        const payments = await virtualPosService.listRecentPayments();
+        // Dependiendo de la versión de la API, el array puede venir en .data o ser la respuesta directa
+        const paymentsList = payments.data || payments; 
+        
+        if (!paymentsList || !Array.isArray(paymentsList)) return;
+
+        for (const p of paymentsList) {
+            if (p.status === 'paid' || p.status === 'approved') {
+                // Buscar socio por UUID de pago que aún no esté recuperado
+                const socioRes = await pool.query("SELECT id, nombre FROM socios WHERE vpos_uuid = $1 AND estado != 'Recuperado'", [p.uuid]);
+                if (socioRes.rows.length > 0) {
+                    const socio = socioRes.rows[0];
+                    await pool.query("UPDATE socios SET estado = 'Recuperado', updated_at = NOW() WHERE id = $1", [socio.id]);
+                    console.log(`[CRON] ✅ Socio ${socio.nombre} recuperado automáticamente.`);
+                    
+                    // Notificar a Telegram
+                    await sendTelegramMessage(`🤖 *CONCILIACIÓN AUTOMÁTICA (VPOS)*\n\n👤 *Alumno:* ${socio.nombre}\n✅ Pago detectado en barrido programado.\n💰 Monto: $${p.amount}`);
+                }
+            }
+        }
+    } catch (err) {
+        console.error('[CRON] ❌ Error en barrido VirtualPos:', err.message);
+    }
+});
+
+// ==========================================
 // 9. LANZAMIENTO
 // ==========================================
 app.listen(PORT, '0.0.0.0', () => {

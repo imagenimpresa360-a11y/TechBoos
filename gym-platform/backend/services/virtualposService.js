@@ -66,6 +66,24 @@ class VirtualPosService {
             throw error;
         }
     }
+
+    /**
+     * Lista los pagos recientes (últimas 24 horas)
+     */
+    async listRecentPayments() {
+        try {
+            // VirtualPos V2 suele permitir filtrar por fecha o traer los últimos
+            const response = await axios.get(`${this.baseUrl}/payments?limit=50&sort=desc`, {
+                headers: {
+                    'Authorization': this.apiKey
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error en VirtualPos ListPayments:', error.message);
+            return [];
+        }
+    }
 }
 
 module.exports = new VirtualPosService();
