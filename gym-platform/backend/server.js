@@ -396,31 +396,6 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
     }
 });
 
-// Función para enviar correos usando Resend
-async function sendEmail(to, subject, html) {
-    try {
-        const { Resend } = require('resend');
-        const resend = new Resend('re_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk');
-        
-        const { data, error } = await resend.emails.send({
-            from: 'The Boos Box <notificaciones@boosbox.cl>',
-            to: to,
-            subject: subject,
-            html: html
-        });
-
-        if (error) {
-            console.error('❌ Error de Resend:', error);
-            return false;
-        }
-        console.log('✅ Email enviado exitosamente vía Resend:', data.id);
-        return true;
-    } catch (err) {
-        console.error('❌ Error crítico en sendEmail:', err.message);
-        return false;
-    }
-}
-
 // ==========================================
 // 6. ENDPOINTS API - INGESTA Y CONCILIACION
 // ==========================================
