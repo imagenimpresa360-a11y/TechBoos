@@ -386,7 +386,7 @@ app.post('/api/pagos/comprobante', upload.single('comprobante'), async (req, res
                 // Nota: Mientras no validemos dominio, enviamos desde onboarding@resend.dev
                 const { data, error } = await resend.emails.send({
                     from: 'The Boos Box ERP <onboarding@resend.dev>',
-                    to: 'contactoboosbox@gmail.com',
+                    to: 'rubenrojasb@gmail.com',
                     subject: `🏦 NUEVO PAGO — ${nombre} — $19.900`,
                     html: `
                         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;border:1px solid #eee;border-radius:12px;padding:24px;">
