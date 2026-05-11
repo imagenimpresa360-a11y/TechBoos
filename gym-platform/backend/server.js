@@ -336,6 +336,13 @@ app.get('/api/campanas/cola', async (req, res) => {
     }
 });
 
+app.delete('/api/campanas/cola/:id', async (req, res) => {
+    try {
+        await pool.query("DELETE FROM cola_emails WHERE id = $1", [req.params.id]);
+        res.json({ success: true, mensaje: 'Alumno sacado de la cola' });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.post('/api/campanas/email', async (req, res) => {
     const { socio_id } = req.body;
     try {

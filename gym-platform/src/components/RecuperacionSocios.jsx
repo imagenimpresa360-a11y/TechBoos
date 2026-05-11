@@ -270,6 +270,17 @@ export default function RecuperacionSocios() {
       } catch(e) { alert("❌ Error de conexión"); }
   };
 
+  const handleQuitarDeCola = async (id) => {
+    if(!window.confirm("¿Sacar a este alumno del despacho nocturno?")) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/campanas/cola/${id}`, { method: 'DELETE' });
+        if(res.ok) {
+            mostrarNotificacion("✅ Alumno removido de la cola");
+            fetchCola();
+        }
+    } catch(e) { console.error(e); }
+  };
+
   const handleActualizar = async (socio, resultado) => {
     try {
       const res = await fetch(`${API_BASE}/api/campanas`, {
@@ -356,13 +367,22 @@ export default function RecuperacionSocios() {
                     {cola.length === 0 ? (
                         <p style={{ color: '#64748b', textAlign: 'center' }}>No hay correos encolados.</p>
                     ) : cola.map(c => (
-                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid #334155' }}>
+                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #334155' }}>
                             <div>
                                 <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{c.nombre}</div>
                                 <div style={{ color: '#64748b', fontSize: '12px' }}>{c.email}</div>
                             </div>
-                            <div style={{ color: '#475569', fontSize: '11px' }}>
-                                {new Date(c.fecha_encolado).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ color: '#475569', fontSize: '11px' }}>
+                                    {new Date(c.fecha_encolado).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                                <button 
+                                    onClick={() => handleQuitarDeCola(c.id)}
+                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
+                                    title="Quitar de la cola"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
                             </div>
                         </div>
                     ))}
