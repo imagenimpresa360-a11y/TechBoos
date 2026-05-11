@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 const sendEmail = async (to, subject, html) => {
   console.log(`[EMAIL] Intentando enviar correo a: ${to}...`);
   try {
-    const apiKey = process.env.RESEND_API_KEY || 're_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk';
+    const apiKey = 're_3vqgZdWo_K8ZcTvyKqLdejdYiV8mkEtgk';
     // Inicialización lazy
     const { Resend: ResendClient } = require('resend');
     const resendInstance = new ResendClient(apiKey);
