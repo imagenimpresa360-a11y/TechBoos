@@ -509,6 +509,53 @@ app.post('/api/ingesta/boxmagic', upload.single('file'), async (req, res) => {
         fs.unlinkSync(req.file.path);
         res.json({ message: `Ingesta exitosa`, count });
     } catch (err) { res.status(500).json({ error: err.message }); }
+    finally { if (req.file) require('fs').unlinkSync(req.file.path); }
+});
+
+// POST /api/ingesta/asistencia — Procesar Excel de asistencia de BoxMagic y detectar "Hooks"
+app.post('/api/ingesta/asistencia', upload.single('file'), async (req, res) => {
+    try {
+        const xlsx = require('xlsx');
+        const workbook = xlsx.readFile(req.file.path);
+        const data = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        
+        let count = 0;
+        let hooks = [];
+
+        for (const row of data) {
+            // BoxMagic suele llamar a las columnas 'Nombre' y 'Fecha'
+            const nombre = row['Nombre'] || row['Socio'] || row['Alumno'];
+            const fecha = row['Fecha'];
+            if (!nombre || !fecha) continue;
+
+            const socioRes = await pool.query("SELECT id, nombre, email FROM socios WHERE nombre ILIKE $1", [`%${nombre}%`]);
+            if (socioRes.rows.length > 0) {
+                const socio = socioRes.rows[0];
+                try {
+                    // Registrar clase (UNIQUE impide duplicar la misma clase el mismo día)
+                    await pool.query("INSERT INTO asistencia_packs (socio_id, fecha_clase) VALUES ($1, $2)", [socio.id, fecha]);
+                    count++;
+                    
+                    // Verificar cuántas lleva
+                    const totalRes = await pool.query("SELECT COUNT(*) FROM asistencia_packs WHERE socio_id = $1", [socio.id]);
+                    const nroClases = parseInt(totalRes.rows[0].count);
+                    
+                    if (nroClases === 3) {
+                        hooks.push({ nombre: socio.nombre, email: socio.email });
+                    }
+                } catch(e) { /* Clase ya registrada, saltar */ }
+            }
+        }
+        
+        // Si hay gente en su 3ra clase, avisar al admin para el "Enganche Nutri"
+        if (hooks.length > 0) {
+            const hookMsj = `🥊 *NUEVOS ENGANCHES DETECTADOS*\n\n` + hooks.map(h => `• *${h.nombre}* va en su 3ra clase. ¡Momento de ofrecer el Plan Nutri!`).join('\n');
+            await sendTelegramMessage(hookMsj);
+        }
+
+        res.json({ success: true, processed: count, hooksFound: hooks.length });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+    finally { if (req.file) require('fs').unlinkSync(req.file.path); }
 });
 
 // ==========================================

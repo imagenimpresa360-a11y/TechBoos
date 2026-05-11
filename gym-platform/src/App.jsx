@@ -5,6 +5,7 @@ import RecuperacionSocios from './components/RecuperacionSocios';
 import PaginaPago from './components/PaginaPago';
 import ReporteROI from './components/ReporteROI';
 import GestionServicios from './components/GestionServicios';
+import CargaAsistencia from './components/CargaAsistencia';
 import './index.css';
 
 // Configuración de API
@@ -192,6 +193,7 @@ export default function App() {
           <button onClick={() => setView('ap')} className={view === 'ap' ? 'nav-item active' : 'nav-item'}><Receipt size={18}/> Egresos & Abonos</button>
           <button onClick={() => setView('rrhh')} className={view === 'rrhh' ? 'nav-item active' : 'nav-item'}><Calculator size={18}/> Nómina Excel</button>
           <button onClick={() => setView('boxmagic')} className={view === 'boxmagic' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Filtro BoxMagic</button>
+          <button onClick={() => setView('asistencia')} className={view === 'asistencia' ? 'nav-item active' : 'nav-item'}><Calendar size={18}/> Carga Asistencia</button>
           <div className="nav-separator">CRECIMIENTO</div>
           <button onClick={() => setView('recuperacion')} className={view === 'recuperacion' ? 'nav-item active' : 'nav-item'}><Users size={18}/> Recuperación Socios</button>
           <button onClick={() => setView('servicios')} className={view === 'servicios' ? 'nav-item active' : 'nav-item'}><Activity size={18}/> Kine / Nutri (Agente 09)</button>
@@ -230,6 +232,8 @@ export default function App() {
           {view === 'recuperacion' && <RecuperacionSocios />}
           
           {view === 'servicios' && <GestionServicios />}
+          
+          {view === 'asistencia' && <CargaAsistencia />}
           
           {view === 'reportes' && <ReporteROI />}
           
