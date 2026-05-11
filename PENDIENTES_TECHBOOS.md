@@ -1,28 +1,27 @@
-# 📋 PENDIENTES TECHBOOS - Recuperación Automática (POST QA STAGE 3)
+# 🥊 Plan de Vuelo: Recuperación de Socios TechBoos
 
-## ✅ COMPLETADO HOY
-- Rediseño de **Email** con tono motivador y premium.
-- Implementación de **Landing Page Dual** (Tarjeta BoxMagic / Transferencia BCI).
-- Backend para recepción de **Comprobantes y Notificación** al admin.
-- Validación de **Etapa 1 (Servidor)**, **Etapa 2 (Email)** y **Etapa 3 (BoxMagic Link)**.
+## ✅ Avances de Hoy
+- **Motor de Notificaciones:** Migrado exitosamente a **Resend API**. Ya no dependemos de Gmail SMTP (que bloqueaba los envíos).
+- **Landing de Pago:** Optimizada con captura obligatoria de Email y WhatsApp.
+- **Flujo Asíncrono:** El registro del pago en la BD ahora es instantáneo, evitando que la interfaz se congele.
+- **Test Exitoso:** Se validó la recepción de notificaciones en la bandeja de entrada (aunque por ahora caen en SPAM por falta de dominio verificado).
+- **Entorno de Pruebas:** Se creó el alumno "Ruben Aurelio" para pruebas reales de reincorporación.
 
-## 🚀 PENDIENTES PRÓXIMA SESIÓN
+## 📌 Pendientes Críticos (Próxima Sesión)
 
-### 🧪 Etapa 4: Validación de Transferencia
-- [ ] Confirmar llegada del correo de prueba a `contactoboosbox@gmail.com` con el comprobante de Ruben.
-- [ ] Verificar que el alumno se registre como "Pendiente Validación" en el dashboard del ERP.
+### 1. Verificación de Dominio (Prioridad 1) 🌐
+- Configurar registros DNS en el panel de control del dominio (NIC Chile/Hosting) para validar `theboosbox.cl` en Resend.
+- **Objetivo:** Que los correos lleguen directo a la Bandeja de Entrada (Inbox) y no a SPAM.
 
-### 🔑 Configuración de Producción
-- [ ] **RESEND_API_KEY:** Ingresar la llave en Railway para habilitar el motor nocturno automático.
-- [ ] **VIRTUALPOS_KEYS:** (Opcional si se usa BoxMagic para todo lo que es tarjeta).
+### 2. Personalización de Remitente 📧
+- Una vez verificado el dominio, cambiar el `from` en `server.js` de `onboarding@resend.dev` a `pagos@theboosbox.cl`.
 
-### 🚀 Etapa 5: Lanzamiento Controlado
-- [ ] Seleccionar 5 alumnos reales de "Alumnos Fuga 2024".
-- [ ] Enviar promoción manualmente desde el ERP.
-- [ ] Monitorear apertura de correos y clics.
+### 3. Lanzamiento controlado (Stage 5) 🚀
+- Seleccionar 5 alumnos del segmento "Alumnos Fuga 2024".
+- Disparar la campaña y monitorear clics/pagos.
+
+### 4. Automatización de Estados 🔄
+- Implementar lógica para que al marcar "Reingresó", se limpien automáticamente las gestiones pendientes de ese alumno.
 
 ---
-**Estado del Sistema:**
-- Landing Page: ✅ OPERATIVA en Railway.
-- Motor de Email: ✅ LISTO (Esperando API Key de Resend).
-- Base de Datos: ✅ SINCRONIZADA con 70 prospectos 2024.
+*Back-up realizado exitosamente en GitHub: `main` branch.*
