@@ -277,6 +277,14 @@ app.get('/api/socios/inactivos', async (req, res) => {
             params.push(segmento.trim());
             conditions.push(`s.segmento_riesgo = $${params.length}`);
         }
+        if (horario && horario !== 'Todos los Horarios') {
+            params.push(horario);
+            conditions.push(`s.perfil_horario = $${params.length}`);
+        }
+        if (disciplina && disciplina !== 'Todas las Disciplinas') {
+            params.push(disciplina);
+            conditions.push(`s.perfil_disciplina = $${params.length}`);
+        }
         params.push(parseInt(limit));
         params.push(parseInt(offset));
         const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';

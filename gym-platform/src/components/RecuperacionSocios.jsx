@@ -235,6 +235,8 @@ export default function RecuperacionSocios() {
   const [sede, setSede] = useState('');
   const [segmento, setSegmento] = useState('');
   const [busqueda, setBusqueda] = useState('');
+  const [horario, setHorario] = useState('Todos los Horarios');
+  const [disciplina, setDisciplina] = useState('Todas las Disciplinas');
   const [notificacion, setNotificacion] = useState(null);
   const [cola, setCola] = useState([]);
   const [mostrarCola, setMostrarCola] = useState(false);
@@ -248,14 +250,18 @@ export default function RecuperacionSocios() {
     setLoading(true);
     try {
       const p = new URLSearchParams();
-      if (sede) p.set('sede', sede);
-      if (segmento) p.set('segmento', segmento);
+      if(sede) p.append('sede', sede);
+      if(segmento) p.append('segmento', segmento);
+      if(busqueda) p.append('q', busqueda);
+      if(horario && horario !== 'Todos los Horarios') p.append('horario', horario);
+      if(disciplina && disciplina !== 'Todas las Disciplinas') p.append('disciplina', disciplina);
+      p.append('limit', 50);
       const res = await fetch(`${API_BASE}/api/socios/inactivos?${p}`);
       const data = await res.json();
       setSocios(data.socios || []);
     } catch (e) { console.error('Error fetching data:', e); }
     setLoading(false);
-  }, [sede, segmento]);
+  }, [sede, segmento, busqueda, horario, disciplina]);
 
   const fetchCola = useCallback(async () => {
     console.log('[DEBUG] Consultando cola de despacho...');
@@ -356,13 +362,32 @@ export default function RecuperacionSocios() {
           {notificacion.msg}
         </div>
       )}
-      <div style={{ marginBottom: 20, display: 'flex', gap: 10 }}>
-        <input placeholder="Buscar alumno..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ flex: 1, background: '#1a1f2e', color: 'white', padding: 10, borderRadius: 8, border: '1px solid #334155' }} />
-        <select value={sede} onChange={e => setSede(e.target.value)} style={{ background: '#1a1f2e', color: 'white', padding: 10, borderRadius: 8, border: '1px solid #334155' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        <input placeholder="Buscar alumno..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ flex: 1, minWidth: '200px', background: '#0f172a', border: '1px solid #1e293b', padding: '10px 16px', borderRadius: 8, color: '#fff' }} />
+        
+        <select value={horario} onChange={e => setHorario(e.target.value)} style={{ background: '#0f172a', color: '#cbd5e1', border: '1px solid #1e293b', borderRadius: 8, padding: '0 12px' }}>
+          <option>Todos los Horarios</option>
+          <option>Mañana (AM)</option>
+          <option>Tarde (PM)</option>
+        </select>
+
+        <select value={disciplina} onChange={e => setDisciplina(e.target.value)} style={{ background: '#0f172a', color: '#cbd5e1', border: '1px solid #1e293b', borderRadius: 8, padding: '0 12px' }}>
+          <option>Todas las Disciplinas</option>
+          <option>Crossfit</option>
+          <option>Ent. Funcional</option>
+          <option>GAP</option>
+          <option>Senior</option>
+          <option>Hybrid</option>
+          <option>Pilares</option>
+          <option>TechBoos Kids</option>
+        </select>
+
+        <select value={sede} onChange={e => setSede(e.target.value)} style={{ background: '#0f172a', color: '#cbd5e1', border: '1px solid #1e293b', borderRadius: 8, padding: '0 12px' }}>
           <option value="">Todas las Sedes</option>
           <option value="Campanario">Campanario</option>
           <option value="Marina">Marina</option>
         </select>
+        
         <select value={segmento} onChange={e => setSegmento(e.target.value)} style={{ background: '#1a1f2e', color: 'white', padding: 10, borderRadius: 8, border: '1px solid #334155' }}>
           <option value="">Todos los Riesgos</option>
           <option value="Amarillo">Amarillo</option>
