@@ -83,6 +83,19 @@ function TarjetaSocio({ socio, onContactar, onActualizar, onEncolar }) {
             </div>
           )}
 
+          {/* NUEVO: ATENCIÓN PREDICTIVA */}
+          <div style={{ display: 'flex', gap: 12, marginTop: 10, padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {socio.perfil_horario?.includes('Mañana') ? <Sun size={14} color="#fcd34d" /> : <Moon size={14} color="#a5b4fc" />}
+                <span style={{ fontSize: 11, color: '#f8fafc', fontWeight: 600 }}>{socio.perfil_horario || 'Analizando horario...'}</span>
+             </div>
+             <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.1)' }} />
+             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Trophy size={14} color="#fbbf24" />
+                <span style={{ fontSize: 11, color: '#f8fafc', fontWeight: 600 }}>{socio.perfil_disciplina || 'Definiendo perfil...'}</span>
+             </div>
+          </div>
+
           <div style={{ color: '#64748b', fontSize: 12, marginTop: 4 }}>
             {socio.email} · {socio.sede_habitual || 'Sede no asignada'}
           </div>
