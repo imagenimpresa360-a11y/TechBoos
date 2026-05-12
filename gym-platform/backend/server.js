@@ -246,7 +246,7 @@ app.put('/api/compras/:id', async (req, res) => {
 // 5. ENDPOINTS API - RECUPERACION Y CRM
 // ==========================================
 app.get('/api/socios/inactivos', async (req, res) => {
-    const { sede, segmento, limit = 200, offset = 0 } = req.query;
+    const { sede, segmento, q, horario, disciplina, limit = 200, offset = 0 } = req.query;
     try {
         await pool.query(`
             UPDATE socios SET
@@ -284,6 +284,10 @@ app.get('/api/socios/inactivos', async (req, res) => {
         if (disciplina && disciplina !== 'Todas las Disciplinas') {
             params.push(disciplina);
             conditions.push(`s.perfil_disciplina = $${params.length}`);
+        }
+        if (q && q.trim() !== '') {
+            params.push(`%${q.trim()}%`);
+            conditions.push(`(s.nombre ILIKE $${params.length} OR s.email ILIKE $${params.length})`);
         }
         params.push(parseInt(limit));
         params.push(parseInt(offset));
