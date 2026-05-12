@@ -27,7 +27,10 @@ async function motorPrediccion() {
             const ventas = await pool.query("SELECT plan FROM boxmagic_sales WHERE cliente ILIKE $1", [`%${s.nombre}%`]);
             let perfilDisciplina = 'Multidisciplina';
             if (ventas.rows.length > 0) {
-                const planes = ventas.rows.map(v => v.plan.toUpperCase());
+                const planes = ventas.rows
+                    .map(v => v.plan ? v.plan.toUpperCase() : '')
+                    .filter(p => p !== '');
+                
                 if (planes.some(p => p.includes('CROSSFIT') || p.includes('CF '))) perfilDisciplina = 'Crossfit';
                 else if (planes.some(p => p.includes('FUNCIONAL'))) perfilDisciplina = 'Ent. Funcional';
                 else if (planes.some(p => p.includes('KID'))) perfilDisciplina = 'TechBoos Kids';

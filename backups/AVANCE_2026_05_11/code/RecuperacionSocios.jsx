@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Sun, Moon, Trophy, Trash2, Mail, ExternalLink, MessageCircle, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
 // Detectar entorno para la API
 const API_BASE = window.location.hostname === 'localhost' 

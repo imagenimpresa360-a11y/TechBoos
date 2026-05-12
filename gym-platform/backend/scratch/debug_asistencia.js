@@ -7,8 +7,8 @@ const pool = new Pool({
 
 async function main() {
     try {
-        const res = await pool.query("SELECT * FROM asistencia_packs LIMIT 1");
-        console.log('Fila de muestra asistencia_packs:', res.rows[0]);
+        const res = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'asistencia_packs'");
+        console.log('Columnas reales:', res.rows.map(r => r.column_name).join(', '));
     } catch (err) {
         console.error(err);
     } finally {
