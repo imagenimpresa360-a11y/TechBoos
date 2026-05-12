@@ -281,7 +281,9 @@ app.get('/api/socios/inactivos', async (req, res) => {
         params.push(parseInt(offset));
         const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
         const result = await pool.query(`
-            SELECT s.*, (SELECT json_agg(h ORDER BY h.fecha_contacto DESC) FROM campanas_recuperacion h WHERE h.socio_id = s.id) as historial
+            SELECT s.*, 
+                (SELECT json_agg(h ORDER BY h.fecha_contacto DESC) FROM campanas_recuperacion h WHERE h.socio_id = s.id) as historial,
+                (SELECT string_agg(DISTINCT plan, ', ') FROM boxmagic_sales WHERE LOWER(cliente) = LOWER(s.nombre)) as planes_historicos
             FROM socios s ${whereClause}
             ORDER BY CASE s.segmento_riesgo WHEN 'Amarillo' THEN 1 WHEN 'Rojo' THEN 2 WHEN 'Critico' THEN 3 WHEN 'Alumnosfuga' THEN 4 ELSE 5 END ASC, s.monto_promedio DESC
             LIMIT $${params.length - 1} OFFSET $${params.length}

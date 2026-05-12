@@ -62,6 +62,27 @@ function TarjetaSocio({ socio, onContactar, onActualizar, onEncolar }) {
               {seg.icon} {seg.label}
             </span>
           </div>
+          
+          {/* AREA SOLICITADA POR USUARIO: HISTORIAL DE PLANES */}
+          {socio.planes_historicos && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                {socio.planes_historicos.split(',').map((p, idx) => (
+                    <span key={idx} style={{ 
+                        fontSize: '9px', 
+                        background: 'rgba(99, 102, 241, 0.1)', 
+                        color: '#a5b4fc', 
+                        padding: '2px 8px', 
+                        borderRadius: '4px', 
+                        border: '1px solid rgba(99, 102, 241, 0.2)',
+                        textTransform: 'uppercase',
+                        fontWeight: '600'
+                    }}>
+                        🏷️ {p.trim()}
+                    </span>
+                ))}
+            </div>
+          )}
+
           <div style={{ color: '#64748b', fontSize: 12, marginTop: 4 }}>
             {socio.email} · {socio.sede_habitual || 'Sede no asignada'}
           </div>
