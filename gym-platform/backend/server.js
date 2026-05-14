@@ -264,7 +264,7 @@ app.get('/api/socios/inactivos', async (req, res) => {
                     WHEN EXISTS (
                         SELECT 1 FROM asistencia_packs a 
                         WHERE LOWER(a.alumno_nombre) = LOWER(socios.nombre) 
-                        AND a.fecha::date >= CURRENT_DATE - INTERVAL '21 days'
+                        AND a.fecha::date >= CURRENT_DATE - INTERVAL '60 days'
                     ) THEN 'Activo'
                     WHEN (CURRENT_DATE - fecha_ultimo_pago::date) >= 30 THEN 'Inactivo'
                     ELSE 'Activo'
