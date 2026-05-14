@@ -23,20 +23,42 @@ async function motorPrediccion() {
                 perfilHorario = amCount >= pmCount ? 'Mañana (AM)' : 'Tarde (PM)';
             }
 
-            // 2. Analizar Disciplina (desde boxmagic_sales)
+            // 2. Analizar Disciplinas (Top 2 más frecuentes)
             const ventas = await pool.query("SELECT plan FROM boxmagic_sales WHERE cliente ILIKE $1", [`%${s.nombre}%`]);
             let perfilDisciplina = 'Multidisciplina';
+            
             if (ventas.rows.length > 0) {
-                const planes = ventas.rows
-                    .map(v => v.plan ? v.plan.toUpperCase() : '')
-                    .filter(p => p !== '');
-                
-                if (planes.some(p => p.includes('CROSSFIT') || p.includes('CF '))) perfilDisciplina = 'Crossfit';
-                else if (planes.some(p => p.includes('FUNCIONAL'))) perfilDisciplina = 'Ent. Funcional';
-                else if (planes.some(p => p.includes('KID'))) perfilDisciplina = 'TechBoos Kids';
-                else if (planes.some(p => p.includes('SENIOR'))) perfilDisciplina = 'Senior';
-                else if (planes.some(p => p.includes('HYBRID'))) perfilDisciplina = 'Hybrid';
-                else if (planes.some(p => p.includes('PILARES'))) perfilDisciplina = 'Pilares';
+                const conteo = {
+                    'Crossfit': 0,
+                    'Ent. Funcional': 0,
+                    'TechBoos Kids': 0,
+                    'GAP': 0,
+                    'Senior': 0,
+                    'Hybrid': 0,
+                    'Pilares': 0
+                };
+
+                ventas.rows.forEach(v => {
+                    if (!v.plan) return;
+                    const p = v.plan.toUpperCase();
+                    if (p.includes('CROSSFIT') || p.includes('CF ')) conteo['Crossfit']++;
+                    if (p.includes('FUNCIONAL')) conteo['Ent. Funcional']++;
+                    if (p.includes('KID')) conteo['TechBoos Kids']++;
+                    if (p.includes('GAP')) conteo['GAP']++;
+                    if (p.includes('SENIOR')) conteo['Senior']++;
+                    if (p.includes('HYBRID')) conteo['Hybrid']++;
+                    if (p.includes('PILARES')) conteo['Pilares']++;
+                });
+
+                // Ordenar por frecuencia y tomar las 2 mejores
+                const ordenadas = Object.entries(conteo)
+                    .filter(([_, count]) => count > 0)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([name, _]) => name);
+
+                if (ordenadas.length > 0) {
+                    perfilDisciplina = ordenadas.slice(0, 2).join(' / ');
+                }
             }
 
             // 3. Actualizar Socio

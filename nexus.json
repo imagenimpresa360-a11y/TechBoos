@@ -1,0 +1,29 @@
+{
+    "nexus_protocol": "1.0",
+    "project_name": "AG TBB",
+    "last_updated": "2026-05-14T02:36:16.913714",
+    "public_report": {
+        "status": "pendiente_de_reporte",
+        "health_score": null,
+        "summary": "Este proyecto aún no ha enviado su primer reporte al Nexus.",
+        "blockers": [],
+        "achievements": []
+    },
+    "meta": {
+        "company": "The Boos Box",
+        "priority": 3,
+        "is_cloud": false
+    },
+    "_instructions_for_agent": {
+        "protocol": "NEXUS v1.0 - Protocolo de Cajas Negras",
+        "rules": [
+            "Antes de cerrar una sesión de trabajo, DEBES actualizar nexus.json con tu estado actual.",
+            "El campo 'summary' debe ser un resumen ejecutivo de 1-2 líneas. NO incluir código, tokens ni detalles técnicos.",
+            "El campo 'health_score' es un número de 0 a 100 que refleja tu evaluación del estado del proyecto.",
+            "El campo 'blockers' lista impedimentos que requieren atención del Holding.",
+            "El campo 'achievements' lista lo que se completó en la última sesión.",
+            "NUNCA modifiques campos dentro de 'meta' — esos los gestiona el Coordinador Sapo."
+        ],
+        "inbox_check": "Al iniciar sesión, revisa si existe un archivo en c:\\PROYECTOS AI\\AGENTE SAPO\\inbox\\AG TBB.json"
+    }
+}
